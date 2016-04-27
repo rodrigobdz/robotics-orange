@@ -1,0 +1,8 @@
+prefix=/home/orange/catkin_ws/install
+
+Name: orange_fundamentals
+Description: Description of orange_fundamentals
+Version: 1.0.0
+Cflags: 
+Libs: -L/home/orange/catkin_ws/install/lib 
+Requires: roscpp rospy sensor_msgs create_fundamentals

@@ -1,0 +1,8 @@
+prefix=/home/orange/catkin_ws/install
+
+Name: create_fundamentals
+Description: Description of create_fundamentals
+Version: 1.0.0
+Cflags: -I/home/orange/catkin_ws/install/include
+Libs: -L/home/orange/catkin_ws/install/lib 
+Requires: roscpp rospy message_runtime
