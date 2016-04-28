@@ -1,2 +1,0 @@
-set(create_fundamentals_MESSAGE_FILES "/home/orange/catkin_ws/src/create_fundamentals/msg/SensorPacket.msg")
-set(create_fundamentals_SERVICE_FILES "/home/orange/catkin_ws/src/create_fundamentals/srv/ResetEncoders.srv;/home/orange/catkin_ws/src/create_fundamentals/srv/Leds.srv;/home/orange/catkin_ws/src/create_fundamentals/srv/DiffDrive.srv;/home/orange/catkin_ws/src/create_fundamentals/srv/StoreSong.srv;/home/orange/catkin_ws/src/create_fundamentals/srv/PlaySong.srv")

@@ -1,2 +1,0 @@
-create_fundamentals:orange_fundamentals
--DCATKIN_DEVEL_PREFIX=/home/orange/catkin_ws/devel -DCMAKE_INSTALL_PREFIX=/home/orange/catkin_ws/install -G Unix Makefiles
