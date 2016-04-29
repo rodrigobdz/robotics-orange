@@ -62,11 +62,3 @@ catkin_package(
 )
 
 include_directories(include ${catkin_INCLUDE_DIRS})
-
-add_executable(example_laser src/example_laser.cpp)
-target_link_libraries(example_laser ${catkin_LIBRARIES})
-add_dependencies(example_laser create_fundamentals_generate_messages_cpp)
-
-add_executable(example_moving src/example_moving.cpp)
-target_link_libraries(example_moving ${catkin_LIBRARIES})
-add_dependencies(example_moving create_fundamentals_generate_messages_cpp)
