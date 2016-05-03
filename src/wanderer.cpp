@@ -4,13 +4,13 @@
 #include "create_fundamentals/SensorPacket.h"
 #include "sensor_msgs/LaserScan.h"
 
-#define SPEED 10;
+#define SPEED 10
 
 create_fundamentals::DiffDrive srv;
 ros::ServiceClient diffDrive;
 int stopped = 0;
 
-void soft_stop(int sb) {
+void soft_stop() {
 
   if (stopped == 1) return;
   stopped = 1;
@@ -38,21 +38,18 @@ void laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg)
 {
   ROS_INFO("%f", msg->ranges[msg->ranges.size()/2]);
 
+  // Minimum auf maximal messbare distanz setzen
   float min = msg->range_max;
 
   for (int i = 0; i < msg->ranges.size(); ++i)
   {
-    if (msg->ranges[i] < min)
-    {
-      min = msg->ranges[i];
-    }
+    if (msg->ranges[i] < min) min = msg->ranges[i];
   }
 
-
-  if (min < 0.2)
+  if (min < 0.25)
   {
     ROS_INFO("Avoid Crash.");
-    soft_stop(stopped);
+    soft_stop();
     change_direction();
   } else {
     ROS_INFO("diffDrive 10 10");
@@ -65,16 +62,14 @@ void laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg)
 
 int main(int argc, char **argv)
 {
-  ros::init(argc, argv, "example");
-  ROS_INFO("square_moving");
+  ros::init(argc, argv, "Blatt1Aufgabe1");
+  ROS_INFO("wanderer");
 
   ros::NodeHandle n;
   ::diffDrive = n.serviceClient<create_fundamentals::DiffDrive>("diff_drive");
 
   ros::NodeHandle laser;
   ros::Subscriber sub_laser = laser.subscribe("scan_filtered", 1, laserCallback);
-
-  //ros::Duration(2.0).sleep();
 
   ros::spin();
   return 0;
