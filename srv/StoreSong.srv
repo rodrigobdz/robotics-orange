@@ -1,0 +1,4 @@
+uint32 number
+uint32[] song
+---
+bool success
