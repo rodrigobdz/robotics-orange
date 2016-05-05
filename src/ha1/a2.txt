@@ -1,0 +1,3 @@
+2a) 9,5 cm
+2b) 31,5 cm
+2d) In that scenario we could have trouble navigating through the maze. The wheel encoders showed different values for the same distance, as a result of that we cannot entirely rely on that information. We would need to correct the error not only with wheel encoders but also by measuring distances with the laser scanner. That way we could reduce the error produced by the robot and come to a reasonable solution.
