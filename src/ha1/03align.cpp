@@ -3,9 +3,39 @@
 #include "create_fundamentals/DiffDrive.h"
 #include "create_fundamentals/SensorPacket.h"
 
+
+
+
+
 void sensorCallback(const create_fundamentals::SensorPacket::ConstPtr& msg)
 {
   ROS_INFO("left encoder: %f, right encoder: %f", msg->encoderLeft, msg->encoderRight);
+}
+
+void laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg)
+{
+  ROS_INFO("%f", msg->ranges[msg->ranges.size()/2]);
+
+  float min = msg->range_max;
+
+  for (int i = 0; i < msg->ranges.size(); ++i) {
+    if (msg->ranges[i] < min) {
+      min = msg->ranges[i];
+    }
+  }
+
+
+  if (min < 0.2) {
+    ROS_INFO("Avoid Crash.");
+    soft_stop(stopped);
+    change_direction();
+  } else {
+    ROS_INFO("diffDrive 10 10");
+    ::srv.request.left = SPEED;
+    ::srv.request.right = SPEED;
+    ::diffDrive.call(::srv);
+    stopped = 0;
+  }
 }
 
 int main(int argc, char **argv)
@@ -35,18 +65,5 @@ int main(int argc, char **argv)
     r.sleep();
   }
 
-  ROS_INFO("diffDrive 10 10");
-  srv.request.left = 10;
-  srv.request.right = 10;
-  diffDrive.call(srv);
-
-  ros::Duration(2.0).sleep();
-
-  ROS_INFO("diffDrive 0 0");
-  srv.request.left = 0;
-  srv.request.right = 0;
-  diffDrive.call(srv);
-
-  ros::spin();
   return 0;
 }
