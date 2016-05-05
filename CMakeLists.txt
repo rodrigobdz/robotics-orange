@@ -52,3 +52,11 @@ add_dependencies(example_moving create_fundamentals_generate_messages_cpp)
 add_executable(wanderer src/wanderer.cpp)
 target_link_libraries(wanderer ${catkin_LIBRARIES})
 add_dependencies(wanderer create_fundamentals_generate_messages_cpp)
+
+add_executable(perf_square src/perf_square.cpp)
+target_link_libraries(perf_square ${catkin_LIBRARIES})
+add_dependencies(perf_square create_fundamentals_generate_messages_cpp)
+
+add_executable(perf_square_with_encoders src/perf_square_with_encoders.cpp)
+target_link_libraries(perf_square_with_encoders ${catkin_LIBRARIES})
+add_dependencies(perf_square_with_encoders create_fundamentals_generate_messages_cpp)
