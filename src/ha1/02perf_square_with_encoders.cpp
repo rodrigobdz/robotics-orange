@@ -5,14 +5,20 @@
 #include "create_fundamentals/SensorPacket.h"
 #include <cstdlib>
 #include <iostream>
+#include <sstream>
 #include <fstream>
-#include <geometry_msgs/Vector3.h>
+
+#define LOG
+#define DEBUG
 
 using namespace std;
 
-ros::ServiceClient reset_encoders;
+ros::ServiceClient reset_enc;
 create_fundamentals::ResetEncoders srv_renc;
 
+/** Protoypes */
+void reset_encoders(void);
+        
 /* logging the received wheel encoder values (debugging) */
 ofstream datafile;
 
@@ -21,14 +27,21 @@ ofstream datafile;
 float left_encoder;
 float right_encoder;
 
+#define DPRINT(msg) \
+  (ROS_INFO("[%f,%f] %s", left_encoder, right_encoder, (msg).c_str()))
+
 /* this is the value in radians our robot needs to actually go one meter
  * all other radian values or operations where calculated relative to
  * this value */
-#define ONE_METER_IN_RAD 31.468
-#define 20_CM_IN_RAD (ONE_METER_IN_RAD / 5)
+#define ONE_METER_IN_RAD 30.798
+#define TWE_CM_IN_RAD (ONE_METER_IN_RAD / 5)
 
-/* use this number as loop rate */
-#define hz 20 
+//UNUSED YET
+#define PI 3.1415
+#define ROBO_R 0.036
+#define ROBO_B 0.258
+
+#define hz 25 // 25 times per second, use as loop rate
 
 /**
  * go - build and send an diff drive service request.
@@ -39,7 +52,8 @@ void go(create_fundamentals::DiffDrive srv,
         ros::ServiceClient diff_drive,
         float radians_per_second)
 {
-        srv.request.left = srv.request.right = radians_per_seconds;
+        ROS_INFO("setting speed: %f", radians_per_second);
+        srv.request.left = srv.request.right = radians_per_second;
         diff_drive.call(srv);
 }
 
@@ -47,36 +61,49 @@ void go(create_fundamentals::DiffDrive srv,
  * rotate - same as `go' with inverted sign for left and right wheel.
  */
 void rotate(create_fundamentals::DiffDrive srv,
-            ros::ServiceClient diff_drive
+            ros::ServiceClient diff_drive,
             float radians_per_second)
 {
-        srv.request.left  =  radians_per-second;
-        srv.request.right = -radians_per-second;
-        diffDrive.call(srv);
+        srv.request.left  =  radians_per_second;
+        srv.request.right = -radians_per_second;
+        diff_drive.call(srv);
 }
 
 void go_one_meter(create_fundamentals::DiffDrive srv,
                   ros::ServiceClient diff_drive)
 {
-        float speed = 20_CM_IN_RAD; // starting with  20cm per second
+        stringstream ss;
+        float speed = TWE_CM_IN_RAD; // starting with  20cm per second
+        float distance_driven = 0;
         float distance_to_go = ONE_METER_IN_RAD;
-        float threshold = ONE_METER_IN_RAD - 0; //FIXME: delta in rad
-        
+        float threshold = ONE_METER_IN_RAD - 5/36; //FIXME: delta in rad
+
+        ros::Rate loop_rate(hz);
+
+        DPRINT("initial call to go function");
         go(srv, diff_drive, speed);
         
         while(ros::ok()) {
 
                 if(left_encoder >= threshold) {
+                        DPRINT("stop robot");
                         go(srv, diff_drive, 0);
                         break;
                 }
-                
-                if(left_encoder >= distance_to_go*2/3)
-                        go(srv, diff_drive, speed/2);
-                
+
+                if(left_encoder >= (distance_driven + distance_to_go*2/3)) {
+                        go(srv, diff_drive, (speed*2/3));
+                        distance_to_go = ONE_METER_IN_RAD - left_encoder;
+                        distance_driven = left_encoder;
+                        speed = (speed*2/3);
+                }
+
+                DPRINT("call spinOnce");
                 ros::spinOnce();
                 loop_rate.sleep();
         }
+
+        reset_encoders();
 }
 
 void rotate_90_degrees(create_fundamentals::DiffDrive srv,
@@ -89,7 +116,8 @@ void rotate_90_degrees(create_fundamentals::DiffDrive srv,
 // and set the global variables to zero.
 void reset_encoders(void)
 {
-        reset_encoders.call(srv_renc);
+        DPRINT("reset encoders");
+        reset_enc.call(srv_renc);
         left_encoder = right_encoder = 0;
 }
 
@@ -101,7 +129,10 @@ void sensorCallback(const create_fundamentals::SensorPacket::ConstPtr& msg)
 
         // debug output
         ROS_INFO("%f, %f", msg->encoderLeft, msg->encoderRight);
+
+#ifdef LOG
         datafile << msg->encoderLeft << "," << msg->encoderRight << "\n";
+#endif
 }
 
 int main(int argc, char **argv)
@@ -114,16 +145,14 @@ int main(int argc, char **argv)
         ros::Subscriber sub_sensor =
                 n.subscribe("sensor_packet", 1, sensorCallback);
 
-        reset_encoders =
+        reset_enc =
                 n.serviceClient<create_fundamentals::ResetEncoders>("reset_encoders");
 
         datafile.open("data.csv", ios::app);
-        ros::Rate loop_rate(hz);
+                
+#ifndef DEBUG
 
-        
         /** do the square dance */
-
-#if 0
         for(int i=0;i<4; i++) {
                 go_one_meter(srv, diff_drive);
                 reset_encoders();
@@ -132,7 +161,8 @@ int main(int argc, char **argv)
         }
 
 // debugging         
-#elif
+#else
+        reset_encoders();
         go_one_meter(srv, diff_drive);
 #endif
         

@@ -48,14 +48,14 @@ add_executable(example_moving src/examples/example_moving.cpp)
 target_link_libraries(example_moving ${catkin_LIBRARIES})
 add_dependencies(example_moving create_fundamentals_generate_messages_cpp)
 
-add_executable(wanderer src/ha1/wanderer.cpp)
+add_executable(wanderer src/ha1/01wanderer.cpp)
 target_link_libraries(wanderer ${catkin_LIBRARIES})
 add_dependencies(wanderer create_fundamentals_generate_messages_cpp)
 
-add_executable(perf_square src/ha1/perf_square.cpp)
+add_executable(perf_square src/ha1/02perf_square.cpp)
 target_link_libraries(perf_square ${catkin_LIBRARIES})
 add_dependencies(perf_square create_fundamentals_generate_messages_cpp)
 
-add_executable(perf_square_with_encoders src/ha1/perf_square_with_encoders.cpp)
+add_executable(perf_square_with_encoders src/ha1/02perf_square_with_encoders.cpp)
 target_link_libraries(perf_square_with_encoders ${catkin_LIBRARIES})
 add_dependencies(perf_square_with_encoders create_fundamentals_generate_messages_cpp)
