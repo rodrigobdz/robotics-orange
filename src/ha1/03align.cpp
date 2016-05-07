@@ -2,11 +2,8 @@
 #include <cstdlib>
 #include "create_fundamentals/DiffDrive.h"
 #include "create_fundamentals/SensorPacket.h"
-
-
-
-float32[] ranges;
-
+#include "sensor_msgs/LaserScan.h"
+#include "_03ransac.cpp"
 
 void sensorCallback(const create_fundamentals::SensorPacket::ConstPtr& msg)
 {
@@ -17,26 +14,6 @@ void laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg)
 {
   ranges = msg->ranges;
 }
-
-/* *
- * Recognise a wall with ransac
- * Returns two points of the wall
- * */
-float32[] ransac()
-{
-  int iterations = 1000
-  for (i = 0; i < iterations; ++i) {
-    std::srand(123456789);
-    firstRandom = std::rand();
-    secondRandom = std::rand();
-
-    a = ranges[firstRandom]
-
-
-
-  }
-}
-
 
 int main(int argc, char **argv)
 {
@@ -58,13 +35,6 @@ int main(int argc, char **argv)
 
   // Main loop.
   while (n.ok()) {
-    // Publish the message
-    node_example->publishMessage(&pub_message);
-
-    if (recWall() == true) {
-
-    }
-
     ros::spinOnce();
     r.sleep();
   }
