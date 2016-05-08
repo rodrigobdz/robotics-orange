@@ -4,6 +4,7 @@
 #define PI 3.14159265
 #define LASER_COUNT 512
 #define ERROR 0.02
+#define LASER_OFFSET 0.13
 
 std::vector<float> ranges(LASER_COUNT);
 
