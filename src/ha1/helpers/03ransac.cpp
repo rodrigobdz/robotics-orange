@@ -1,5 +1,6 @@
 #include <ctime>
 #include <math.h>
+#include <vector>
 
 // Number of matches in order for line 
 // to be recognized as a wall
@@ -22,7 +23,7 @@ std::vector<float> ranges(LASER_COUNT);
  * Returns: Calculated distance to point in 
  *          cartesian coordinate system
  */
-float distanceFromLineToPoint(float m, float ax, float ay, float bx, float by, float px, float py) 
+float distanceFromLineToPoint(float ax, float ay, float bx, float by, float px, float py) 
 {
   // Variables for Hesse normal form computation
   // from two-point form
@@ -32,9 +33,8 @@ float distanceFromLineToPoint(float m, float ax, float ay, float bx, float by, f
   float a = ay-by;
   float b = bx-ax;
   float c = bx*ay-ax*by;
-  float normalVector = sqrt( pow(a,2) +  pow(b,2) ); 
-
-  return abs( (a*px+b*py-c)/normalVector );
+  float normalVector = sqrt( pow(a,2) +  pow(b,2) );
+  return fabs( (a*px+b*py-c)/normalVector );
 }
 
 /*
@@ -128,7 +128,7 @@ void ransac()
       float pointX = calculateX(ranges[j], gamma);
       float pointY = calculateY(ranges[j], gamma);
 
-      float distance = distanceFromLineToPoint(m, ax, ay, bx, by, pointX, pointY);
+      float distance = distanceFromLineToPoint(ax, ay, bx, by, pointX, pointY);
       if (distance < ERROR) {
         matches++; 
       }
