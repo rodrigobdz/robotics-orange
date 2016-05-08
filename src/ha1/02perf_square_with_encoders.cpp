@@ -1,4 +1,3 @@
-
 #include "ros/ros.h"
 #include "create_fundamentals/DiffDrive.h"
 #include "create_fundamentals/ResetEncoders.h"
@@ -35,6 +34,7 @@ float right_encoder;
  * this value */
 #define ONE_METER_IN_RAD 30.798
 #define TWE_CM_IN_RAD (ONE_METER_IN_RAD / 5)
+#define NTY_DEGREES_IN_RAD (ONE_METER_IN_RAD*0.196349)
 
 //UNUSED YET
 #define PI 3.1415
@@ -109,7 +109,36 @@ void go_one_meter(create_fundamentals::DiffDrive srv,
 void rotate_90_degrees(create_fundamentals::DiffDrive srv,
                        ros::ServiceClient diff_drive)
 {
-        ; // TODO:
+    float threshold = NTY_DEGREES_IN_RAD - 5/36;
+    int stopped = 0; 
+
+    reset_encoders();
+    ros::Rate loop_rate(hz);
+
+    rotate(srv, diff_drive, 2.5);
+
+    while(ros::ok()){
+
+        if (stopped > 1) break;
+
+        if (right_encoder >= threshold)
+        {
+            srv.request.right = 0;
+            diff_drive.call(srv);
+            stopped++;
+        }
+
+        if (left_encoder >= threshold)
+        {
+            srv.request.left = 0;
+            diff_drive.call(srv);
+            stopped++;
+        }
+
+        ros::spinOnce();
+        loop_rate.sleep();
+
+    }
 }
 
 // call the reset encoders service to reset the robots encoders
@@ -152,7 +181,7 @@ int main(int argc, char **argv)
                 
 #ifndef DEBUG
 
-        /** do the square dance */
+        /* do the square dance */
         for(int i=0;i<4; i++) {
                 go_one_meter(srv, diff_drive);
                 reset_encoders();

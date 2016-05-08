@@ -59,9 +59,11 @@ void laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg)
   {
     // distance on the sides (aprox 0-30º and 150-180º) can be 10cm closer
     float off = 0;
+
     if (i<90 || i>422){
       off = SIDE_OFF;
     }
+    
     if (msg->ranges[i]+off < min) min = msg->ranges[i]+off;
   }
 }
