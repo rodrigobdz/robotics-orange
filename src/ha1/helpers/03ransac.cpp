@@ -64,6 +64,9 @@ float calculateY(float angle, float distance)
  *
  * Returns: two points that represent a wall
  * */
+
+ // TODO: Change return type to a type
+ // representing wall if found.
 void ransac()
 {
   // Saves the best line from the comparison between
@@ -143,6 +146,8 @@ void ransac()
     }
   }
 
+  // TODO: Check if this is the right place to check if wall was found.
+  // TODO: Return values that represent found wall.
   if(bestMatches >= POINT_COUNT_FOR_WALL ) {
     // Wall was found
   }
