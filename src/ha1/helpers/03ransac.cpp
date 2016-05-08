@@ -1,15 +1,15 @@
 #include <ctime>
 #include <math.h>
 #include <vector>
+#include "constants.h"
 
-// Number of matches in order for line 
+// Number of matches in order for line
 // to be recognized as a wall
-#define POINT_COUNT_FOR_WALL 170
+#define POINT_COUNT_FOR_WALL 20
 #define PI 3.14159265
 #define LASER_COUNT 512
-#define ITERATIONS 1000
-#define ERROR 0.02
-#define LASER_OFFSET 0.13
+#define ITERATIONS 5000
+#define ERROR 0.03
 
 // Variable to store laser values
 std::vector<float> ranges(LASER_COUNT);
@@ -20,10 +20,10 @@ std::vector<float> ranges(LASER_COUNT);
  * bx, by: Second point
  * px, py: Point
  *
- * Returns: Calculated distance to point in 
+ * Returns: Calculated distance to point in
  *          cartesian coordinate system
  */
-float distanceFromLineToPoint(float ax, float ay, float bx, float by, float px, float py) 
+float distanceFromLineToPoint(float ax, float ay, float bx, float by, float px, float py)
 {
   // Variables for Hesse normal form computation
   // from two-point form
@@ -33,18 +33,19 @@ float distanceFromLineToPoint(float ax, float ay, float bx, float by, float px, 
   float a = ay-by;
   float b = bx-ax;
   float c = bx*ay-ax*by;
-  float normalVector = sqrt( pow(a,2) +  pow(b,2) );
-  return fabs( (a*px+b*py-c)/normalVector );
+  float normalVector = sqrt(pow(a,2) + pow(b,2));
+  return fabs((a*px+b*py-c)/normalVector);
 }
 
 /*
  * angle: from laser scanner first point to some point
  * distance: from laser scanner to point
  *
- * Returns: x coordinate in robot coordinate system 
+ * Returns: x coordinate in robot coordinate system
 **/
-float calculateX(float angle, float distance) 
+float calculateX(float angle, float distance)
 {
+  // ROS_INFO("cos(angle) = %f", cos(angle));
   return angle <= PI/2 ? cos(angle) * distance : sin(angle - PI/2) * distance;
 }
 
@@ -52,104 +53,123 @@ float calculateX(float angle, float distance)
  * angle: from laser scanner first point to some point
  * distance: from laser scanner to point
  *
- * Returns: y coordinate in robot coordinate system 
+ * Returns: y coordinate in robot coordinate system
 **/
-float calculateY(float angle, float distance) 
+float calculateY(float angle, float distance)
 {
   return angle <= PI/2 ? sin(angle) * distance : cos(angle - PI/2) * distance;
 }
 
-/* *
- * Recognize a wall with ransac
- *
- * Returns: two points that represent a wall
- * */
-
- // TODO: Change return type to a type
- // representing wall if found.
-void ransac()
+/*
+ * Calculates coordinates from a random points from the ranges.
+ */
+std::pair<float, float> getRandomXYCoords()
 {
-  // Saves the best line from the comparison between
-  // the current and the last one.
-  float bestM = 0;
-  float bestN = 0;
-  float bestMatches = 0;
-  float matches = 0;
+    float randomNumber = std::rand() % ranges.size();
 
-  for (int i = 0; i < ITERATIONS; ++i) {
-    // Number of points matching best line
-    matches = 0;
-    // Seed srand for rand use
-    std::srand(std::time(NULL));
-    // Take two random points from laser scanner
-    float firstRandom = std::rand() % sizeof(ranges);
-    float secondRandom = std::rand() % sizeof(ranges);
-    
     // Distance to points
-    //
     // index-1 to make last member of array also accessible
-    float a = ranges[firstRandom-1];
-    float b = ranges[secondRandom-1];
+    float a = ranges[randomNumber-1];
 
     // Ignore values if nan
-    if(isnan(a) || isnan(b)) {
-      continue;
-    } 
+    if(isnan(a)) {
+      return std::pair<float,float>(NAN, NAN);
+    }
 
     // Angles in radians from laser scanner first point to chosen points
     //
     // Ranges' indexes are upside down. ranges[0] has value of degree
     // 180 and ranges[LASER_COUNT-1] value of degree 0
-    float alpha = PI/(LASER_COUNT) * (LASER_COUNT - firstRandom);
-    float beta = PI/(LASER_COUNT) * (LASER_COUNT - secondRandom);
+    float angle = PI/(LASER_COUNT) * (LASER_COUNT - randomNumber);
 
     // Points within own coordinate system
-    float ax = calculateX(alpha, a);
-    float ay = calculateY(alpha, a);
-    float bx = calculateX(beta, b);
-    float by = calculateY(beta, b);
+    return std::pair<float,float>(calculateX(angle, a), calculateY(angle, a));
+}
 
-    // Current line
-    float m = firstRandom > secondRandom ? (ay - by) / (ax - bx) : (by - ay) / (bx - ax); // slope
-    float n = by - (m * bx); // y-intercept
+/*
+ * Calculates the matches from given line to points from ranges.
+ *
+ * Return: Number of matches
+ */
+int getMatches(std::vector<float> line){
 
-    // Iterate point cloud looking for points
-    // close enough to current line
-    for (int j = 0; j < LASER_COUNT; j++) {
-      float p = ranges[j];
+  int matches = 0;
 
-      // Ignore point if:
-      // * nan
-      // * is same as one of two chosen points for line
-      if(isnan(p) || p == a || p == b) {
-        continue;
-      }
+  // Iterate point cloud looking for points
+  // close enough to current line
+  for (int j = 0; j < LASER_COUNT; j++) {
+    float p = ranges[j];
 
-      // Calculate angle to point
-      float gamma = PI/(LASER_COUNT) * (LASER_COUNT - j);
-
-      float pointX = calculateX(ranges[j], gamma);
-      float pointY = calculateY(ranges[j], gamma);
-
-      float distance = distanceFromLineToPoint(ax, ay, bx, by, pointX, pointY);
-      if (distance < ERROR) {
-        matches++; 
-      }
+    // Ignore point if:
+    // * nan
+    // * is same as one of two chosen points for line
+    if(isnan(p)) {
+      continue;
     }
 
-    // Check if a better line fitting
+    // Calculate angle to point
+    float gamma = PI/(LASER_COUNT) * (LASER_COUNT - j);
+
+    float pointX = calculateX(ranges[j], gamma);
+    float pointY = calculateY(ranges[j], gamma);
+
+    float distance = distanceFromLineToPoint(line[0], line[1], line[2], line[3], pointX, pointY);
+    if (distance < ERROR) {
+      matches++;
+    }
+  }
+  return matches;
+}
+
+/* *
+ * Recognize a wall with ransac
+ *
+ * Returns: two points that represent a wall {point1x, point1y, point2x, point2y}
+ * */
+std::vector<float> ransac()
+{
+  // Variables
+  std::vector<float> bestLine(4);
+  int bestMatches = 0;
+
+  // Seed for Random Generator
+  std::srand(std::time(NULL));
+
+  for (int i = 0; i < ITERATIONS; ++i) {
+
+    // Get coordiantes of two random selected points
+    std::pair<float, float> pointA = getRandomXYCoords();
+    std::pair<float, float> pointB = getRandomXYCoords();
+
+    std::vector<float> currentLine(4);
+    currentLine[0] = pointA.first;
+    currentLine[1] = pointA.second;
+    currentLine[2] = pointB.first;
+    currentLine[3] = pointB.second;
+
+    float matches = getMatches(currentLine);
+
+    // Check if currentLine better line fitting
     // point cloud was found
     if (matches > bestMatches) {
+      //ROS_INFO("Matches = %f", matches);
       bestMatches = matches;
-      bestM = m;
-      bestN = n;
+      bestLine = currentLine;
     }
   }
 
-  // TODO: Check if this is the right place to check if wall was found.
   // TODO: Return values that represent found wall.
   if(bestMatches >= POINT_COUNT_FOR_WALL ) {
     // Wall was found
+    ROS_INFO("Matches: %i", bestMatches);
+    return bestLine;
   }
-  
+
+  std::vector<float> error(4);
+  error[0] = NAN;
+  error[1] = NAN;
+  error[2] = NAN;
+  error[3] = NAN;
+
+  return error;
 }

@@ -17,7 +17,7 @@ create_fundamentals::ResetEncoders srv_renc;
 
 /** Protoypes */
 void reset_encoders(void);
-        
+
 /* logging the received wheel encoder values (debugging) */
 ofstream datafile;
 
@@ -82,7 +82,7 @@ void go_one_meter(create_fundamentals::DiffDrive srv,
 
         DPRINT("initial call to go function");
         go(srv, diff_drive, speed);
-        
+
         while(ros::ok()) {
 
                 if(left_encoder >= threshold) {
@@ -110,7 +110,7 @@ void rotate_90_degrees(create_fundamentals::DiffDrive srv,
                        ros::ServiceClient diff_drive)
 {
     float threshold = NTY_DEGREES_IN_RAD - 5/36;
-    int stopped = 0; 
+    int stopped = 0;
 
     reset_encoders();
     ros::Rate loop_rate(hz);
@@ -152,7 +152,7 @@ void reset_encoders(void)
 
 void sensorCallback(const create_fundamentals::SensorPacket::ConstPtr& msg)
 {
-        // update the last measured encoder values 
+        // update the last measured encoder values
         left_encoder  = msg->encoderLeft;
         right_encoder = msg->encoderRight;
 
@@ -178,7 +178,7 @@ int main(int argc, char **argv)
                 n.serviceClient<create_fundamentals::ResetEncoders>("reset_encoders");
 
         datafile.open("data.csv", ios::app);
-                
+
 #ifndef DEBUG
 
         /* do the square dance */
@@ -189,15 +189,15 @@ int main(int argc, char **argv)
                 reset_encoders();
         }
 
-// debugging         
+// debugging
 #else
         reset_encoders();
         go_one_meter(srv, diff_drive);
 #endif
-        
+
         // clean up
         datafile.close();
         return 0;
 }
-        
-        
+
+
