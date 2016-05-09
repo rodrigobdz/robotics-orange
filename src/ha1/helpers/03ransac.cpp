@@ -5,35 +5,35 @@
 
 // Number of matches in order for line
 // to be recognized as a wall
-#define POINT_COUNT_FOR_WALL 20
+#define POINT_COUNT_FOR_WALL 
 #define PI 3.14159265
 #define LASER_COUNT 512
 #define ITERATIONS 5000
-#define ERROR 0.03
+#define ERROR 0.01
 
 // Variable to store laser values
 std::vector<float> ranges(LASER_COUNT);
 
 /*
- * m: Slope
- * ax, ay: First point
- * bx, by: Second point
+ * x1, y1: First point
+ * x2, y2: Second point
  * px, py: Point
  *
  * Returns: Calculated distance to point in
  *          cartesian coordinate system
  */
-float distanceFromLineToPoint(float ax, float ay, float bx, float by, float px, float py)
+float distanceFromLineToPoint(float x1, float y1, float x2, float y2, float px, float py)
 {
   // Variables for Hesse normal form computation
   // from two-point form
   //    a*px + b*py - c = 0
   // --------------------------
   //      √( a² + b² )
-  float a = ay-by;
-  float b = bx-ax;
-  float c = bx*ay-ax*by;
+  float a = y2-y1;
+  float b = x2-x1;
+  float c = x2*y1-x1*y2;
   float normalVector = sqrt(pow(a,2) + pow(b,2));
+
   return fabs((a*px+b*py-c)/normalVector);
 }
 
@@ -147,7 +147,6 @@ std::vector<float> ransac()
     // Check if currentLine better line fitting
     // point cloud was found
     if (matches > bestMatches) {
-      //ROS_INFO("Matches = %f", matches);
       bestMatches = matches;
       bestLine = currentLine;
     }
