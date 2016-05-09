@@ -68,12 +68,15 @@ int main(int argc, char **argv)
 
     float distance;
     wall = ransac();
+    // Check if wall was found with ransac
     if(!isnan(wall[0])){
+      // Wall was found
       distance = distanceFromLineToPoint(wall[0], wall[1], wall[2], wall[3], 0, DISTANCE_LASER_TO_ROBOT_CENTER);
       ROS_INFO("Distance = %f", distance);
     }
-    //float distance = distanceFromLineToPoint(wall[0], wall[1], wall[2], wall[3], 0, 0);
 
+    //float distance = distanceFromLineToPoint(wall[0], wall[1], wall[2], wall[3], 0, 0);
+    
     // if(isnan(distance)){
     //   if (cur_speed < 10) cur_speed++;
     //   ::srv.request.left = cur_speed*(SPEED/10);
