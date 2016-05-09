@@ -39,6 +39,21 @@ void stop() {
 
 }
 
+float calculateAngleToWall(std::vector<float> wall, float distance)
+{
+  float m = (wall[3] - wall[1]) / (wall[2] - wall[0]);
+  float n = wall[1] - m * wall[0];
+
+  //float angle = atan2(wall[3] - wall[1], wall[2] - wall[0]);
+  float angle = asin(distance/n);
+
+  if(m > 0) {
+    angle = fabs(asin(distance/n) - PI);
+  }
+
+  return angle;
+}
+
 int main(int argc, char **argv)
 {
   // Set up ROS.
@@ -64,22 +79,16 @@ int main(int argc, char **argv)
     ros::spinOnce();
 
     float distance;
+    float angle;
     wall = ransac();
     // Check if wall was found with ransac
     if(!isnan(wall[0])){
       // Wall was found
       distance = distanceFromLineToPoint(wall[0], wall[1], wall[2], wall[3], 0, 0);
+      angle = calculateAngleToWall(wall, distance);
       ROS_INFO("Distance = %f", distance);
-      ROS_INFO("ax = %f, ay = %f", wall[0], wall[1]);
-      ROS_INFO("bx = %f, by = %f", wall[2], wall[3]);
-      float m = (wall[3] - wall[1]) / (wall[2] - wall[0]);
-      float n = wall[1] - m * wall[0];
-      float angle = asin(distance/n);
-      ROS_INFO("m: %f");
-      // ROS_INFO("angle: %f", angle*180/3.1416); 
-      // ROS_INFO("angle %f ", (wall[3]-wall[1])/(wall[2]-wall[0])*(0-wall[0]) + wall[1]);
+      ROS_INFO("Angle: %f", angle*180/3.1416);
     }
-
 
     r.sleep();
   }

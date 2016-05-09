@@ -5,7 +5,7 @@
 
 // Number of matches in order for line
 // to be recognized as a wall
-#define POINT_COUNT_FOR_WALL 10
+#define POINT_COUNT_FOR_WALL 100
 #define PI 3.14159265
 #define LASER_COUNT 512
 #define ITERATIONS 5000
@@ -64,11 +64,11 @@ float calculateY(float angle, float distance)
  */
 std::pair<float, float> getRandomXYCoords()
 {
-    float randomNumber = std::rand() % ranges.size();
+    int randomNumber = std::rand() % ranges.size()-1;
 
     // Distance to points
     // index-1 to make last member of array also accessible
-    float a = ranges[randomNumber-1];
+    float a = ranges[randomNumber];
 
     // Ignore values if nan
     if(isnan(a)) {
@@ -76,7 +76,7 @@ std::pair<float, float> getRandomXYCoords()
     }
 
     // Angles in radians from laser scanner first point to chosen points
-    float angle = PI/(LASER_COUNT) * randomNumber;
+    float angle = (PI/LASER_COUNT) * randomNumber;
 
     // Points within own coordinate system
     return std::pair<float,float>(calculateX(angle, a), calculateY(angle, a));
@@ -104,10 +104,10 @@ int getMatches(std::vector<float> line){
     }
 
     // Calculate angle to point
-    float angle = PI/(LASER_COUNT) * j;
+    float angle = (PI/LASER_COUNT) * j;
 
-    float pointX = calculateX(ranges[j], angle);
-    float pointY = calculateY(ranges[j], angle);
+    float pointX = calculateX(angle, ranges[j]);
+    float pointY = calculateY(angle, ranges[j]);
 
     if (distanceFromLineToPoint(line[0], line[1], line[2], line[3], pointX, pointY) < ERROR) {
       matches++;
@@ -135,6 +135,10 @@ std::vector<float> ransac()
     // Get coordiantes of two random selected points
     std::pair<float, float> pointA = getRandomXYCoords();
     std::pair<float, float> pointB = getRandomXYCoords();
+
+    if(isnan(pointA.first)){
+        continue;
+    }
 
     std::vector<float> currentLine(4);
     currentLine[0] = pointA.first;
