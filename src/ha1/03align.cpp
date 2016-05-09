@@ -8,6 +8,7 @@
 
 #define SPEED 10 // target speed of robot (straigt)
 #define RATE 5
+#define DISTANCE_LASER_TO_ROBOT_CENTER -0.125
 
 int cur_speed = 0; // in 10th parts (zehntel) of SPEED, does not apply to truning
 
@@ -68,7 +69,7 @@ int main(int argc, char **argv)
     float distance;
     wall = ransac();
     if(!isnan(wall[0])){
-      distance = distanceFromLineToPoint(wall[0], wall[1], wall[2], wall[3], 0, -0.125);
+      distance = distanceFromLineToPoint(wall[0], wall[1], wall[2], wall[3], 0, DISTANCE_LASER_TO_ROBOT_CENTER);
       ROS_INFO("Distance = %f", distance);
     }
     //float distance = distanceFromLineToPoint(wall[0], wall[1], wall[2], wall[3], 0, 0);
