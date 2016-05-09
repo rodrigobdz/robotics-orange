@@ -29,7 +29,7 @@ float distanceFromLineToPoint(float x1, float y1, float x2, float y2, float px, 
   //    a*px + b*py - c = 0
   // --------------------------
   //      √( a² + b² )
-  float a = y2-y1;
+  float a = y1-y2;
   float b = x2-x1;
   float c = x2*y1-x1*y2;
   float normalVector = sqrt(pow(a,2) + pow(b,2));
