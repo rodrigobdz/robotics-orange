@@ -11,8 +11,11 @@
 #define RATE 5
 #define DISTANCE_LASER_TO_ROBOT_CENTER 0.125
 #define ONE_METER_IN_RAD 30.798
+#define CELL_CENTER 0.40
+#define ERR_OFFSET 1.131
 
 int cur_speed = 0; // in 10th parts (zehntel) of SPEED, does not apply to truning
+bool aligned = false;
 
 float left_encoder;
 float right_encoder;
@@ -39,6 +42,19 @@ void laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg)
   ranges = msg->ranges;
 }
 
+void rotate_right_90()
+{
+        ::srv.request.left  =  5.628 * ERR_OFFSET; // 5.62869
+        ::srv.request.right = -5.628 * ERR_OFFSET;
+        ::diffDrive.call(::srv);
+        
+        ros::Duration(1.0).sleep();
+
+        ::srv.request.left  = 0;
+        ::srv.request.right = 0;
+        ::diffDrive.call(::srv);
+}
+
 /*
  * Stops robot from moving if it is moving, but not if it's turning.
 */
@@ -52,29 +68,55 @@ void stop() {
   ::diffDrive.call(::srv);
 }
 
+void driveToDistance(float wishDistance) {
+  std::vector<float> wall;
+    float currentDistance;
+
+
+    while(true) {
+      // Update sensor data
+      ros::spinOnce();
+
+      wall = ransac();
+      float distance;
+      // Check if wall was found with ransac
+      if(!isnan(wall[0])) {
+        // Wall was found
+
+        distance= distanceFromLineToPoint(wall[0], wall[1], wall[2], wall[3], 0, -DISTANCE_LASER_TO_ROBOT_CENTER);
+        
+        if(fabs(wishDistance - currentDistance) < 0.03) {
+          srv.request.left = 0;
+          srv.request.right = 0;
+          diffDrive.call(srv);
+          return;
+        } else if(currentDistance < wishDistance){
+          srv.request.left = -1;
+          srv.request.right = -1;
+          diffDrive.call(srv);
+        } else {
+          srv.request.left = 1;
+          srv.request.right = 1;
+          diffDrive.call(srv);
+        }
+      } else { 
+        // If no wall was found no wall to align to
+        return;
+      }
+    }
+}
+
 float calculateAngle(std::vector<float> wall)
 {
-  // float m_wall = (wall[3] - wall[1]) / (wall[2] - wall[0]);
-  // float n_wall = wall[1] - m_wall * wall[0];
-  // float m_lot = -1 / m_wall;
-  // float n_lot = pointY - m_lot * pointX;
-  // float distance = distanceFromLineToPoint(wall[0], wall[1], wall[2], wall[3], pointX, pointY);
-  // float x = (n_lot - n_wall) / (m_wall - m_lot);
-  // float y = m_wall * x + n_wall;
-  // float distanceFromPointToWall = sqrt(pow(x-pointX, 2) + pow(y-pointY, 2));
-  // float angle = atan(fabs(y-pointY) / fabs(x-pointX));
-
-  // if(m_wall > 0) {
-  //   angle = fabs(angle - PI);
-  // }
-  //
-  // return angle;
-
   float m = (wall[3] - wall[1]) / (wall[2] - wall[0]);
   float n = wall[1] - m * wall[0];
   float distance = distanceFromLineToPoint(wall[0], wall[1], wall[2], wall[3], 0, 0);
 
   float angle = asin((distance)/n);
+
+  // Correct angle
+  if(angle < 0) angle = 0;
+  if(angle > PI) angle = PI;
 
   if(m > 0) {
     angle = fabs(asin(distance/n) - PI);
@@ -83,57 +125,41 @@ float calculateAngle(std::vector<float> wall)
   return angle;
 }
 
-void wallAlign(float wishAngle, std::vector<float> wall)
+void wallAlign(float wishAngle)
 {
-  float currentAngle = calculateAngle(wall);
+  std::vector<float> wall;
+  float distance;
+  float angle;
 
-  if(fabs(wishAngle - currentAngle) < PI/32){
-    srv.request.left = 0;
-    srv.request.right = 0;
-    diffDrive.call(srv);
-  } else if(currentAngle < wishAngle){
-    srv.request.left = 2.5;
-    srv.request.right = -2.5;
-    diffDrive.call(srv);
-  } else {
-    srv.request.left = -2.5;
-    srv.request.right = 2.5;
-    diffDrive.call(srv);
+  while(true) {
+    // Update sensor data
+    ros::spinOnce();
+
+    wall = ransac();
+    // Check if wall was found with ransac
+    if(!isnan(wall[0])) {
+      // Wall was found
+      float currentAngle = calculateAngle(wall);
+      if(fabs(wishAngle - currentAngle) < PI/32) {
+        srv.request.left = 0;
+        srv.request.right = 0;
+        diffDrive.call(srv);
+        return;
+      } else if(currentAngle < wishAngle){
+        srv.request.left = 1;
+        srv.request.right = -1;
+        diffDrive.call(srv);
+      } else {
+        srv.request.left = -1;
+        srv.request.right = 1;
+        diffDrive.call(srv);
+      }
+    } else { 
+      // If no wall was found no wall to align to
+      return;
+    }
   }
 
-
-  // // rotate left if `actual_angel' is greater than 0
-  // // rotate right otherwise
-  // int direction = (actual_angle > 0) ? 1 : -1;
-  // if(actual_angle < 0) actual_angle *= -1;
-  // float threshold = (actual_angle - actual_angle * 0.04) * ONE_METER_IN_RAD * 0.13;
-  // ROS_INFO("Treshold = %f", threshold);
-
-  // float speed_left_r = 2.5 * direction;
-  // float speed_right_r = 2.5 * direction * -1;
-
-  // while(ros::ok()) {
-
-  //   if((speed_right_r == 0) && (speed_left_r == 0)) break;
-
-  //   if(((right_encoder >= threshold) && (right_encoder > 0)) ||
-  //      (((right_encoder*(-1) >= threshold)) && (right_encoder < 0)))
-
-  //     speed_right_r = 0;
-
-  //   if(((left_encoder >= threshold) && (left_encoder > 0)) ||
-  //      (((left_encoder*(-1) >= threshold)) && (left_encoder < 0)))
-
-  //     speed_left_r = 0;
-
-  //   srv.request.left = speed_left_r;
-  //   srv.request.right = speed_right_r;
-  //   diffDrive.call(srv);
-  //   ros::spinOnce();
-  //   loop_rate.sleep();
-  // }
-
-  // resetEncoders();
 }
 
 int main(int argc, char **argv)
@@ -150,36 +176,44 @@ int main(int argc, char **argv)
   ros::NodeHandle laser;
   ros::Subscriber sub_laser = laser.subscribe("scan_filtered", 1, laserCallback);
 
-
   // Tell ROS how fast to run this node.
   ros::Rate r(RATE);
 
   // Main loop.
-  std::vector<float> wall;
-
   while (n.ok()) {
-
     ros::spinOnce();
 
-    float distance;
-    float angle;
+    std::vector<float> wall;
     wall = ransac();
-
-    // Check if wall was found with ransac
-    if(!isnan(wall[0])){
-      // Wall was found
-      distance= distanceFromLineToPoint(wall[0], wall[1], wall[2], wall[3], 0, -DISTANCE_LASER_TO_ROBOT_CENTER);
-      angle = calculateAngle(wall);
-      ROS_INFO("Distance = %f", distance);
-      ROS_INFO("Angle: %f", angle * 180 / 3.1416);
-
-      wallAlign(0, wall);
-      //for(int i = 0; i < 50; i++){
-      //  r.sleep();
-      //}
+    // Check if wall was recognized
+    if(isnan(wall[0])) {
+      aligned = false;
+      // If no wall was recognized then go straight ahead
+      ::srv.request.left = 2.5;
+      ::srv.request.right = 2.5;
+      ::diffDrive.call(::srv);
+      continue;
     }
-    r.sleep();
 
+    // Wall was found!
+    if(!aligned) {
+      float distance;
+      distance= distanceFromLineToPoint(wall[0], wall[1], wall[2], wall[3], 0, -DISTANCE_LASER_TO_ROBOT_CENTER);
+      // angle = calculateAngle(wall);
+
+      // If wall was found align to be at a certain angle to it
+      wallAlign(PI/2);
+      aligned = true;
+
+      // Check if robot is positioned in center of cell
+      if(distance != CELL_CENTER) {
+        // Drive to center in cell
+        driveToDistance(CELL_CENTER);
+      } 
+      rotate_right_90();
+    }
+
+    r.sleep();
   }
 
   return 0;

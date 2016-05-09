@@ -158,7 +158,6 @@ std::vector<float> ransac()
 
   if(bestMatches >= POINT_COUNT_FOR_WALL ) {
     // Wall was found
-    // ROS_INFO("Matches: %i", bestMatches);
     return bestLine;
   }
 
