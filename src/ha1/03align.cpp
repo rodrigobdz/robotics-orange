@@ -1,5 +1,6 @@
 #include "ros/ros.h"
 #include <cstdlib>
+#include "create_fundamentals/ResetEncoders.h"
 #include "create_fundamentals/DiffDrive.h"
 #include "create_fundamentals/SensorPacket.h"
 #include "sensor_msgs/LaserScan.h"
@@ -9,14 +10,28 @@
 #define SPEED 10 // target speed of robot (straigt)
 #define RATE 5
 #define DISTANCE_LASER_TO_ROBOT_CENTER -0.125
+#define ONE_METER_IN_RAD 30.798
 
 int cur_speed = 0; // in 10th parts (zehntel) of SPEED, does not apply to truning
 
+float left_encoder;
+float right_encoder;
+
 create_fundamentals::DiffDrive srv;
+create_fundamentals::ResetEncoders srv_renc;
 ros::ServiceClient diffDrive;
+ros::ServiceClient reset_enc;
+
+void resetEncoders(void)
+{
+        reset_enc.call(srv_renc);
+        left_encoder = right_encoder = 0;
+}
 
 void sensorCallback(const create_fundamentals::SensorPacket::ConstPtr& msg)
 {
+        left_encoder = msg->encoderLeft;
+        right_encoder = msg->encoderRight;
   //ROS_INFO("left encoder: %f, right encoder: %f", msg->encoderLeft, msg->encoderRight);
 }
 
@@ -39,6 +54,47 @@ void stop() {
 
 }
 
+void wallAlign(float angle_in_rad)
+{
+        resetEncoders();
+        ros::Rate loop_rate(16);
+        ros::spinOnce();
+        
+        // rotate left if `actual_angel' is greater than 0
+        // rotate right otherwise
+        float actual_angle = angle_in_rad - PI/2;
+        int direction = (actual_angle > 0) ? 1 : -1;
+        if(actual_angle < 0) actual_angle *= -1;
+        float threshold =
+                actual_angle - actual_angle * ONE_METER_IN_RAD * 0.13; 
+        
+        float speed_left_r = 2.5 * direction;
+        float speed_right_r = 2.5 * direction * -1;
+        
+        while(ros::ok()) {
+
+                if((speed_right_r == 0) && (speed_left_r == 0)) break;
+
+                if(((right_encoder >= threshold) && (right_encoder > 0)) ||
+                   (((right_encoder*(-1) >= threshold)) && (right_encoder < 0)))
+
+                        speed_right_r = 0;
+
+                if(((left_encoder >= threshold) && (left_encoder > 0)) ||
+                   (((left_encoder*(-1) >= threshold)) && (left_encoder < 0)))
+
+                        speed_left_r = 0;
+                
+                srv.request.left = speed_left_r;
+                srv.request.right = speed_right_r;
+                diffDrive.call(srv);
+                ros::spinOnce();
+                loop_rate.sleep();
+        }
+
+        resetEncoders();
+}
+
 int main(int argc, char **argv)
 {
   // Set up ROS.
@@ -48,7 +104,8 @@ int main(int argc, char **argv)
   // Subscribe and  to nodes
   ros::Subscriber sub = n.subscribe("sensor_packet", 1, sensorCallback);
   ::diffDrive = n.serviceClient<create_fundamentals::DiffDrive>("diff_drive");
-
+  ::reset_enc = n.serviceClient<create_fundamentals::ResetEncoders>("reset_encoders");
+  
   ros::NodeHandle laser;
   ros::Subscriber sub_laser = laser.subscribe("scan_filtered", 1, laserCallback);
 
