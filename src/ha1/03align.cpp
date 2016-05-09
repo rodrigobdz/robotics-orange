@@ -23,13 +23,10 @@ void sensorCallback(const create_fundamentals::SensorPacket::ConstPtr& msg)
 void laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg)
 {
   ranges = msg->ranges;
-  // for( int i = 0; i < ranges.size(); i++){
-  //     ROS_INFO("ranges[%i] = %f", i, ranges[i]);
-  // }
 }
 
 /*
-Stops robot from moving if it is moving, but not if it's turning.
+ * Stops robot from moving if it is moving, but not if it's turning.
 */
 void stop() {
 
@@ -76,29 +73,8 @@ int main(int argc, char **argv)
       ROS_INFO("Distance = %f", distance);
     }
 
-    //float distance = distanceFromLineToPoint(wall[0], wall[1], wall[2], wall[3], 0, 0);
-
-    // if(isnan(distance)){
-    //   if (cur_speed < 10) cur_speed++;
-    //   ::srv.request.left = cur_speed*(SPEED/10);
-    //   ::srv.request.right = cur_speed*(SPEED/10);
-    //   ::diffDrive.call(::srv);
-    // } else if(distance > 0.45){
-    //   if (cur_speed < 10) cur_speed++;
-    //   ::srv.request.left = cur_speed*(SPEED/10);
-    //   ::srv.request.right = cur_speed*(SPEED/10);
-    //   ::diffDrive.call(::srv);
-    // } else if(distance < 0.55){
-    //   if (cur_speed < 10) cur_speed++;
-    //   ::srv.request.left = -cur_speed*(SPEED/10);
-    //   ::srv.request.right = -cur_speed*(SPEED/10);
-    //   ::diffDrive.call(::srv);
-    // } else{
-    //     stop();
-    // }
-
-    /// ROS_INFO("ax = %f, ay = %f", wall[0], wall[1]);
-    /// ROS_INFO("bx = %f, by = %f", wall[2], wall[3]);
+    ROS_INFO("ax = %f, ay = %f", wall[0], wall[1]);
+    ROS_INFO("bx = %f, by = %f", wall[2], wall[3]);
 
     r.sleep();
   }
