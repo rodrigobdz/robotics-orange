@@ -45,8 +45,7 @@ float distanceFromLineToPoint(float ax, float ay, float bx, float by, float px, 
 **/
 float calculateX(float angle, float distance)
 {
-  // ROS_INFO("cos(angle) = %f", cos(angle));
-  return angle <= PI/2 ? cos(angle) * distance : sin(angle - PI/2) * distance;
+  return distance * cos(angle);
 }
 
 /*
@@ -57,7 +56,7 @@ float calculateX(float angle, float distance)
 **/
 float calculateY(float angle, float distance)
 {
-  return angle <= PI/2 ? sin(angle) * distance : cos(angle - PI/2) * distance;
+  return distance * sin(angle);
 }
 
 /*
@@ -77,10 +76,7 @@ std::pair<float, float> getRandomXYCoords()
     }
 
     // Angles in radians from laser scanner first point to chosen points
-    //
-    // Ranges' indexes are upside down. ranges[0] has value of degree
-    // 180 and ranges[LASER_COUNT-1] value of degree 0
-    float angle = PI/(LASER_COUNT) * (LASER_COUNT - randomNumber);
+    float angle = PI/(LASER_COUNT) * randomNumber;
 
     // Points within own coordinate system
     return std::pair<float,float>(calculateX(angle, a), calculateY(angle, a));
@@ -98,23 +94,22 @@ int getMatches(std::vector<float> line){
   // Iterate point cloud looking for points
   // close enough to current line
   for (int j = 0; j < LASER_COUNT; j++) {
-    float p = ranges[j];
+    float distanceFromRobotToPoint = ranges[j];
 
     // Ignore point if:
     // * nan
     // * is same as one of two chosen points for line
-    if(isnan(p)) {
+    if(isnan(distanceFromRobotToPoint)) {
       continue;
     }
 
     // Calculate angle to point
-    float gamma = PI/(LASER_COUNT) * (LASER_COUNT - j);
+    float angle = PI/(LASER_COUNT) * j;
 
-    float pointX = calculateX(ranges[j], gamma);
-    float pointY = calculateY(ranges[j], gamma);
+    float pointX = calculateX(ranges[j], angle);
+    float pointY = calculateY(ranges[j], angle);
 
-    float distance = distanceFromLineToPoint(line[0], line[1], line[2], line[3], pointX, pointY);
-    if (distance < ERROR) {
+    if (distanceFromLineToPoint(line[0], line[1], line[2], line[3], pointX, pointY) < ERROR) {
       matches++;
     }
   }
@@ -158,7 +153,6 @@ std::vector<float> ransac()
     }
   }
 
-  // TODO: Return values that represent found wall.
   if(bestMatches >= POINT_COUNT_FOR_WALL ) {
     // Wall was found
     ROS_INFO("Matches: %i", bestMatches);
