@@ -6,7 +6,7 @@
 
 #define ONE_METER_IN_RAD 30.798
 #define TWE_CM_IN_RAD (ONE_METER_IN_RAD / 5)
-#define NTY_DEGREES_IN_RAD (ONE_METER_IN_RAD*0.196349)
+#define NTY_DEGREES_IN_RAD (ONE_METER_IN_RAD*0.196349) // 2pir^2 / 4, r = 0.26/2
 #define hz 16 // 16 times per second, use as loop rate
 
 ros::ServiceClient reset_enc;
@@ -18,6 +18,10 @@ void reset_encoders(void);
 float left_encoder;
 float right_encoder;
 
+
+/*
+Goes straight with set speed until stopped.
+*/
 void go(create_fundamentals::DiffDrive srv,
         ros::ServiceClient diff_drive,
         float radians_per_second)
@@ -26,6 +30,10 @@ void go(create_fundamentals::DiffDrive srv,
         diff_drive.call(srv);
 }
 
+
+/*
+  Rotate in given direction (mathematical sense) with given speed.
+*/
 void rotate(create_fundamentals::DiffDrive srv,
             ros::ServiceClient diff_drive,
             float radians_per_second, int direction)
@@ -35,22 +43,32 @@ void rotate(create_fundamentals::DiffDrive srv,
         diff_drive.call(srv);
 }
 
+/*
+  Resetz the encoders and corresponding helper values.
+*/
 void reset_encoders(void)
 {
         reset_enc.call(srv_renc);
         left_encoder = right_encoder = 0;
 }
 
+
+/*
+  Saves encoder data to helper values.
+*/
 void sensorCallback(const create_fundamentals::SensorPacket::ConstPtr& msg)
 {
         // update the last measured encoder values 
         left_encoder  = msg->encoderLeft;
         right_encoder = msg->encoderRight;
-
-        // debug output
-        ROS_INFO("%f, %f", msg->encoderLeft, msg->encoderRight);
 }
 
+
+/*
+  Turns 90 degrees in given direction. 
+  The encoders are reset and the extra spinOnce beofre the while loop ensures updated encoder values.
+  The wheels stop seperately when treashold is reached.
+*/
 void rotate_90_degrees(create_fundamentals::DiffDrive srv,
                        ros::ServiceClient diff_drive, int direction)
 {
@@ -129,9 +147,13 @@ void go_one_meter(create_fundamentals::DiffDrive srv,
 
 }
 
+
+/*
+  Moves the robot in a square.
+*/
 int main(int argc, char **argv)
 {
-  ros::init(argc, argv, "example");
+  ros::init(argc, argv, "Aufgabe2");
   ros::NodeHandle n;
   ros::Subscriber sub = n.subscribe("sensor_packet", 1, sensorCallback);
   ros::ServiceClient diff_drive = n.serviceClient<create_fundamentals::DiffDrive>("diff_drive");
