@@ -5,7 +5,7 @@
 
 // Number of matches in order for line
 // to be recognized as a wall
-#define POINT_COUNT_FOR_WALL 60
+#define POINT_COUNT_FOR_WALL 10
 #define PI 3.14159265
 #define LASER_COUNT 512
 #define ITERATIONS 5000
@@ -154,7 +154,7 @@ std::vector<float> ransac()
 
   if(bestMatches >= POINT_COUNT_FOR_WALL ) {
     // Wall was found
-    ROS_INFO("Matches: %i", bestMatches);
+    // ROS_INFO("Matches: %i", bestMatches);
     return bestLine;
   }
 
