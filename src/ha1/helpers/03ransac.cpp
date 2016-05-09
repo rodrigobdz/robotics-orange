@@ -5,7 +5,7 @@
 
 // Number of matches in order for line
 // to be recognized as a wall
-#define POINT_COUNT_FOR_WALL 
+#define POINT_COUNT_FOR_WALL 60
 #define PI 3.14159265
 #define LASER_COUNT 512
 #define ITERATIONS 5000
