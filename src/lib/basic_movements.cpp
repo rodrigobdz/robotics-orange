@@ -10,13 +10,8 @@
 #define CELL_LENGTH 0.80 
 #define DEBUG false // Constant to define if output should be printed
 
-void stop() 
+void stop(create_fundamentals::DiffDrive srv, ros::ServiceClient diffDrive) 
 {
-  ros::init(argc, argv, "stop");
-  ros::NodeHandle n;
-  ros::ServiceClient diffDrive = n.serviceClient<create_fundamentals::DiffDrive>("diff_drive");
-  create_fundamentals::DiffDrive srv;
-
   if(DEBUG) ROS_INFO("diffDrive 0 0");
 
   srv.request.left  = 0;
