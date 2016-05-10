@@ -10,39 +10,43 @@
 #define CELL_LENGTH 0.80 
 #define DEBUG false // Constant to define if output should be printed
 
-void stop(create_fundamentals::DiffDrive srv, ros::ServiceClient diffDrive) 
-{
-  if(DEBUG) ROS_INFO("diffDrive 0 0");
+namespace basic_movements {
+  void stop(create_fundamentals::DiffDrive srv, ros::ServiceClient diffDrive) 
+  {
+    if(DEBUG) {
+      ROS_INFO("diffDrive 0 0");
+    }
 
-  srv.request.left  = 0;
-  srv.request.right = 0;
-  diffDrive.call(srv);
-}
+    srv.request.left  = 0;
+    srv.request.right = 0;
+    diffDrive.call(srv);
+  }
 
-/*
- * Params: distance in meter
- * Returns: false if obstacle was found otherwise true
-**/
-bool driveForward(float distance) 
-{
-  return true;
-}
+  /*
+   * Params: distance in meter
+   * Returns: false if obstacle was found otherwise true
+  **/
+  bool driveForward(float distance) 
+  {
+    return true;
+  }
 
-/*
- * Params: distance in meter
- * Returns false if obstacle was found otherwise true
-**/
-bool driveBackwards(float distance) 
-{
-  return true;
-}
+  /*
+   * Params: distance in meter
+   * Returns false if obstacle was found otherwise true
+  **/
+  bool driveBackwards(float distance) 
+  {
+    return true;
+  }
 
-void rotateLeft(float angle) 
-{
+  void rotateLeft(float angle) 
+  {
 
-}
+  }
 
-void rotateRight(float angle)
-{
-  
+  void rotateRight(float angle)
+  {
+    
+  }
 }
