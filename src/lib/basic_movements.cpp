@@ -1,7 +1,11 @@
-#include "ros/ros.h"
-#include <cstdlib>
-#include "create_fundamentals/DiffDrive.h"
-#include "create_fundamentals/SensorPacket.h"
+// Needed includes for this library to work
+// #include "ros/ros.h"
+// #include <cstdlib>
+// #include "create_fundamentals/DiffDrive.h"
+// #include "create_fundamentals/SensorPacket.h"
+// #include "sensor_msgs/LaserScan.h"
+#include "create_fundamentals/ResetEncoders.h"
+#include "callbacks.cpp"
 
 #define MAXIMUM_SPEED 10
 #define ONE_METER_IN_RAD 30.798
