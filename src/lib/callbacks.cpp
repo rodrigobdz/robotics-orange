@@ -15,8 +15,8 @@ namespace helpers {
   /*
    * Reset the encoders and corresponding helper values.
   **/
-  void resetEncoders()
+  void resetEncoders(ros::ServiceClient resetEncodersClient, create_fundamentals::ResetEncoders resetEncodersService)
   {
-
+    resetEncodersClient.call(resetEncodersService);
   }
 }
