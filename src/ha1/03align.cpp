@@ -15,7 +15,7 @@
 #define ERR_OFFSET 1.131
 
 int cur_speed = 0; // in 10th parts (zehntel) of SPEED, does not apply to truning
-bool aligned = false;
+bool aligned  = false;
 
 float left_encoder;
 float right_encoder;
@@ -42,7 +42,7 @@ void laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg)
   ranges = msg->ranges;
 }
 
-void rotate_right_90()
+void rotateRight90()
 {
         ::srv.request.left  =  5.628 * ERR_OFFSET; // 5.62869
         ::srv.request.right = -5.628 * ERR_OFFSET;
@@ -60,10 +60,11 @@ void rotate_right_90()
 */
 void stop() {
 
-  if (cur_speed == 0) return;
+  if (cur_speed == 0) 
+    return;
   cur_speed = 0;
 
-  ::srv.request.left = 0;
+  ::srv.request.left  = 0;
   ::srv.request.right = 0;
   ::diffDrive.call(::srv);
 }
@@ -83,19 +84,19 @@ void driveToDistance(float wishDistance) {
       if(!isnan(wall[0])) {
         // Wall was found
 
-        distance= distanceFromLineToPoint(wall[0], wall[1], wall[2], wall[3], 0, -DISTANCE_LASER_TO_ROBOT_CENTER);
+        distance = distanceFromLineToPoint(wall[0], wall[1], wall[2], wall[3], 0, -DISTANCE_LASER_TO_ROBOT_CENTER);
         
         if(fabs(wishDistance - currentDistance) < 0.03) {
-          srv.request.left = 0;
+          srv.request.left  = 0;
           srv.request.right = 0;
           diffDrive.call(srv);
           return;
         } else if(currentDistance < wishDistance){
-          srv.request.left = -1;
+          srv.request.left  = -1;
           srv.request.right = -1;
           diffDrive.call(srv);
         } else {
-          srv.request.left = 1;
+          srv.request.left  = 1;
           srv.request.right = 1;
           diffDrive.call(srv);
         }
@@ -115,7 +116,7 @@ float calculateAngle(std::vector<float> wall)
   float angle = asin((distance)/n);
 
   // Correct angle
-  if(angle < 0) angle = 0;
+  if(angle < 0) angle  = 0;
   if(angle > PI) angle = PI;
 
   if(m > 0) {
@@ -141,16 +142,16 @@ void wallAlign(float wishAngle)
       // Wall was found
       float currentAngle = calculateAngle(wall);
       if(fabs(wishAngle - currentAngle) < PI/32) {
-        srv.request.left = 0;
+        srv.request.left  = 0;
         srv.request.right = 0;
         diffDrive.call(srv);
         return;
       } else if(currentAngle < wishAngle){
-        srv.request.left = 1;
+        srv.request.left  = 1;
         srv.request.right = -1;
         diffDrive.call(srv);
       } else {
-        srv.request.left = -1;
+        srv.request.left  = -1;
         srv.request.right = 1;
         diffDrive.call(srv);
       }
@@ -189,7 +190,7 @@ int main(int argc, char **argv)
     if(isnan(wall[0])) {
       aligned = false;
       // If no wall was recognized then go straight ahead
-      ::srv.request.left = 2.5;
+      ::srv.request.left  = 2.5;
       ::srv.request.right = 2.5;
       ::diffDrive.call(::srv);
       continue;
@@ -210,7 +211,7 @@ int main(int argc, char **argv)
         // Drive to center in cell
         driveToDistance(CELL_CENTER);
       } 
-      rotate_right_90();
+      rotateRight90();
     }
 
     r.sleep();
