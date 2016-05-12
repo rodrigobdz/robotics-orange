@@ -10,69 +10,69 @@
 
 class BasicMovements 
 {
-  public: 
-    BasicMovements()
-    {
-      // Set up encoders callback
-      encoderSubscriber = n.subscribe("sensor_packet", 1, &BasicMovements::encoderCallback, this);
-      diffDriveClient = n.serviceClient<create_fundamentals::DiffDrive>("diff_drive");
+    public: 
+        BasicMovements()
+        {
+            // Set up encoders callback
+            encoderSubscriber = n.subscribe("sensor_packet", 1, &BasicMovements::encoderCallback, this);
+            diffDriveClient = n.serviceClient<create_fundamentals::DiffDrive>("diff_drive");
 
-      // Set up laser callback
-      laserSubscriber = n.subscribe("scan_filtered", 1, &BasicMovements::laserCallback, this);
+            // Set up laser callback
+            laserSubscriber = n.subscribe("scan_filtered", 1, &BasicMovements::laserCallback, this);
 
-      // Set up reset encoders client
-      resetEncodersClient = n.serviceClient<create_fundamentals::ResetEncoders>("reset_encoders");
-    }
+            // Set up reset encoders client
+            resetEncodersClient = n.serviceClient<create_fundamentals::ResetEncoders>("reset_encoders");
+        }
 
-    void stop();
-    bool drive(float distance, float speed = MEDIUM_SPEED);
-    bool rotate(float angle, float speed = MEDIUM_SPEED);
+        void stop();
+        bool drive(float distance, float speed = MEDIUM_SPEED);
+        bool rotate(float angle, float speed = MEDIUM_SPEED);
 
-  private: 
-    static const float MAXIMUM_SPEED    = 10;
-    static const float MEDIUM_SPEED     = 5;
-    static const float SLOW_SPEED       = 1;
-    static const float ONE_METER_IN_RAD = 30.798;
-    // Distances are given in meters
-    static const float SAFETY_DIS       = 0.15; // Minimum distance to keep when driving
-    static const float CELL_LENGTH      = 0.80; 
-    static const bool DEBUG             = false; // Defines if output should be printed
-    static const int LOOP_RATE          = 16; // Used for loop rate
-
-
-    ros::NodeHandle n;
-    // Encoders
-    ros::Subscriber encoderSubscriber;
-    // Differential Drive
-    create_fundamentals::DiffDrive diffDriveService;
-    ros::ServiceClient diffDriveClient;
-    // Reset Encoders
-    create_fundamentals::ResetEncoders resetEncodersService;
-    ros::ServiceClient resetEncodersClient;
-    // Laser
-    ros::Subscriber laserSubscriber;
+    private: 
+        static const float MAXIMUM_SPEED    = 10;
+        static const float MEDIUM_SPEED     = 5;
+        static const float SLOW_SPEED       = 1;
+        static const float ONE_METER_IN_RAD = 30.798;
+        // Distances are given in meters
+        static const float SAFETY_DIS       = 0.15; // Minimum distance to keep when driving
+        static const float CELL_LENGTH      = 0.80; 
+        static const bool DEBUG             = false; // Defines if output should be printed
+        static const int LOOP_RATE          = 16; // Used for loop rate
 
 
-    std::vector<float> ranges;
-    float leftEncoder, rightEncoder;
+        ros::NodeHandle n;
+        // Encoders
+        ros::Subscriber encoderSubscriber;
+        // Differential Drive
+        create_fundamentals::DiffDrive diffDriveService;
+        ros::ServiceClient diffDriveClient;
+        // Reset Encoders
+        create_fundamentals::ResetEncoders resetEncodersService;
+        ros::ServiceClient resetEncodersClient;
+        // Laser
+        ros::Subscriber laserSubscriber;
 
 
-    void encoderCallback(const create_fundamentals::SensorPacket::ConstPtr& msg);
-    void laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg);
-    void resetEncoders();
+        std::vector<float> ranges;
+        float leftEncoder, rightEncoder;
+
+
+        void encoderCallback(const create_fundamentals::SensorPacket::ConstPtr& msg);
+        void laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg);
+        void resetEncoders();
 };
 
 
 
 void BasicMovements::stop()
 {
-  if(DEBUG) {
-    ROS_INFO("diffDrive 0 0");
-  }
+    if(DEBUG) {
+        ROS_INFO("diffDrive 0 0");
+    }
 
-  diffDriveService.request.left  = 0;
-  diffDriveService.request.right = 0;
-  diffDriveClient.call(diffDriveService);
+    diffDriveService.request.left  = 0;
+    diffDriveService.request.right = 0;
+    diffDriveClient.call(diffDriveService);
 }
 
 /*
@@ -82,38 +82,38 @@ void BasicMovements::stop()
 **/
 bool BasicMovements::drive(float distance, float speed) 
 {
-  // TODO: Modify for variable distance
-  // TODO: Check in laser callback if object is on the way to stop in that case
+    // TODO: Modify for variable distance
+    // TODO: Check in laser callback if object is on the way to stop in that case
 
-  if(DEBUG) {
-    ROS_INFO("diffDrive %f %f distance: %f m", speed, speed, distance);
-  }
-
-  float threshold = ONE_METER_IN_RAD - (ONE_METER_IN_RAD*0.025);
-
-  resetEncoders();
-  ros::Rate loop_rate(LOOP_RATE);
-  
-  while(ros::ok()) {
-    if (speed == 0) {
-      break;
+    if(DEBUG) {
+        ROS_INFO("diffDrive %f %f distance: %f m", speed, speed, distance);
     }
 
-    if (leftEncoder >= threshold || rightEncoder >= threshold ) {
-      speed = 0;
+    float threshold = ONE_METER_IN_RAD - (ONE_METER_IN_RAD*0.025);
+
+    resetEncoders();
+    ros::Rate loop_rate(LOOP_RATE);
+
+    while(ros::ok()) {
+        if (speed == 0) {
+            break;
+        }
+
+        if (leftEncoder >= threshold || rightEncoder >= threshold ) {
+            speed = 0;
+        }
+
+        diffDriveService.request.left  = speed;
+        diffDriveService.request.right = speed;
+        diffDriveClient.call(diffDriveService);
+
+        ros::spinOnce();
+        loop_rate.sleep();
     }
 
-    diffDriveService.request.left  = speed;
-    diffDriveService.request.right = speed;
-    diffDriveClient.call(diffDriveService);
+    resetEncoders();
 
-    ros::spinOnce();
-    loop_rate.sleep();
-  }
-
-  resetEncoders();
-
-  return true;
+    return true;
 }
 
 /*
@@ -122,7 +122,7 @@ bool BasicMovements::drive(float distance, float speed)
 **/
 bool BasicMovements::rotate(float angle, float speed)
 {
-  return true; 
+    return true; 
 }
 
 
@@ -133,16 +133,16 @@ bool BasicMovements::rotate(float angle, float speed)
 
 void BasicMovements::encoderCallback(const create_fundamentals::SensorPacket::ConstPtr& msg)
 {
-  if(DEBUG) {
-    ROS_INFO("left encoder: %f, right encoder: %f", msg->encoderLeft, msg->encoderRight);
-  }
-  leftEncoder  = msg->encoderLeft;
-  rightEncoder = msg->encoderRight;
+    if(DEBUG) {
+        ROS_INFO("left encoder: %f, right encoder: %f", msg->encoderLeft, msg->encoderRight);
+    }
+    leftEncoder  = msg->encoderLeft;
+    rightEncoder = msg->encoderRight;
 }
 
 void BasicMovements::laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg)
 {
-  ranges = msg->ranges;
+    ranges = msg->ranges;
 }
 
 /*
@@ -150,6 +150,6 @@ void BasicMovements::laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg)
 **/
 void BasicMovements::resetEncoders() 
 {
-  resetEncodersClient.call(resetEncodersService);
-  leftEncoder = rightEncoder = 0;
+    resetEncodersClient.call(resetEncodersService);
+    leftEncoder = rightEncoder = 0;
 }
