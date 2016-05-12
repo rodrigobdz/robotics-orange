@@ -27,6 +27,7 @@ class BasicMovements
     void stop();
     bool drive(float distance);
     bool rotate(float angle);
+
   private: 
     static const int MAXIMUM_SPEED      = 10;
     static const int MEDIUM_SPEED       = 3;
@@ -100,7 +101,9 @@ bool BasicMovements::rotate(float angle)
 
 void BasicMovements::encoderCallback(const create_fundamentals::SensorPacket::ConstPtr& msg)
 {
-  
+  if(DEBUG) {
+    ROS_INFO("left encoder: %f, right encoder: %f", msg->encoderLeft, msg->encoderRight);
+  }
 }
 
 void BasicMovements::laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg)
@@ -111,6 +114,8 @@ void BasicMovements::laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg)
 /*
  * Reset the encoders and corresponding helper values.
 **/
-void BasicMovements::resetEncoders() {
-
+void BasicMovements::resetEncoders() 
+{
+  resetEncodersClient.call(resetEncodersService);
+  leftEncoder = rightEncoder = 0;
 }
