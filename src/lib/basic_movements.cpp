@@ -25,12 +25,13 @@ class BasicMovements
     }
 
     void stop();
-    bool drive(float distance);
-    bool rotate(float angle);
+    bool drive(float distance, int speed = MEDIUM_SPEED);
+    bool rotate(float angle, int speed = MEDIUM_SPEED);
 
   private: 
     static const int MAXIMUM_SPEED      = 10;
-    static const int MEDIUM_SPEED       = 3;
+    static const int MEDIUM_SPEED       = 5;
+    static const int SLOW_SPEED         = 1;
     static const float ONE_METER_IN_RAD = 30.798;
     // Distances are given in meters
     static const float SAFETY_DIS       = 0.15; // Minimum distance to keep when driving
@@ -79,7 +80,7 @@ void BasicMovements::stop()
  *         will go backwards
  * Returns: false if obstacle was found otherwise true
 **/
-bool BasicMovements::drive(float distance) 
+bool BasicMovements::drive(float distance, int speed) 
 {
   return true;
 }
@@ -88,7 +89,7 @@ bool BasicMovements::drive(float distance)
  * Params: if angle positive robot will rotate clockwise
  *         else if negative counter clockwise
 **/
-bool BasicMovements::rotate(float angle)
+bool BasicMovements::rotate(float angle, int speed)
 {
   return true; 
 }
