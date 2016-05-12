@@ -25,13 +25,13 @@ class BasicMovements
     }
 
     void stop();
-    bool drive(float distance, int speed = MEDIUM_SPEED);
-    bool rotate(float angle, int speed = MEDIUM_SPEED);
+    bool drive(float distance, float speed = MEDIUM_SPEED);
+    bool rotate(float angle, float speed = MEDIUM_SPEED);
 
   private: 
-    static const int MAXIMUM_SPEED      = 10;
-    static const int MEDIUM_SPEED       = 5;
-    static const int SLOW_SPEED         = 1;
+    static const float MAXIMUM_SPEED    = 10;
+    static const float MEDIUM_SPEED     = 5;
+    static const float SLOW_SPEED       = 1;
     static const float ONE_METER_IN_RAD = 30.798;
     // Distances are given in meters
     static const float SAFETY_DIS       = 0.15; // Minimum distance to keep when driving
@@ -80,8 +80,39 @@ void BasicMovements::stop()
  *         will go backwards
  * Returns: false if obstacle was found otherwise true
 **/
-bool BasicMovements::drive(float distance, int speed) 
+bool BasicMovements::drive(float distance, float speed) 
 {
+  // TODO: Modify for variable distance
+  // TODO: Check in laser callback if object is on the way to stop in that case
+
+  if(DEBUG) {
+    ROS_INFO("diffDrive %f %f distance: %f m", speed, speed, distance);
+  }
+
+  float threshold = ONE_METER_IN_RAD - (ONE_METER_IN_RAD*0.025);
+
+  resetEncoders();
+  ros::Rate loop_rate(LOOP_RATE);
+  
+  while(ros::ok()) {
+    if (speed == 0) {
+      break;
+    }
+
+    if (leftEncoder >= threshold || rightEncoder >= threshold ) {
+      speed = 0;
+    }
+
+    diffDriveService.request.left  = speed;
+    diffDriveService.request.right = speed;
+    diffDriveClient.call(diffDriveService);
+
+    ros::spinOnce();
+    loop_rate.sleep();
+  }
+
+  resetEncoders();
+
   return true;
 }
 
@@ -89,7 +120,7 @@ bool BasicMovements::drive(float distance, int speed)
  * Params: if angle positive robot will rotate clockwise
  *         else if negative counter clockwise
 **/
-bool BasicMovements::rotate(float angle, int speed)
+bool BasicMovements::rotate(float angle, float speed)
 {
   return true; 
 }
@@ -105,6 +136,8 @@ void BasicMovements::encoderCallback(const create_fundamentals::SensorPacket::Co
   if(DEBUG) {
     ROS_INFO("left encoder: %f, right encoder: %f", msg->encoderLeft, msg->encoderRight);
   }
+  leftEncoder  = msg->encoderLeft;
+  rightEncoder = msg->encoderRight;
 }
 
 void BasicMovements::laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg)
