@@ -108,7 +108,7 @@ void BasicMovements::encoderCallback(const create_fundamentals::SensorPacket::Co
 
 void BasicMovements::laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg)
 {
-  
+  ranges = msg->ranges;
 }
 
 /*
