@@ -5,7 +5,7 @@
 #include "create_fundamentals/SensorPacket.h"
 #include "sensor_msgs/LaserScan.h"
 #include "../lib/ransac.cpp"
-//#include "../lib/wall.cpp"
+#include "../lib/ranges.h"
 
 #define SPEED 10 // target speed of robot (straigt)
 #define RATE 5
@@ -39,6 +39,7 @@ void sensorCallback(const create_fundamentals::SensorPacket::ConstPtr& msg)
 
 void laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg)
 {
+    ranges = msg->ranges;
 }
 
 void rotate_right_90()
@@ -164,17 +165,22 @@ int main(int argc, char **argv)
   while (n.ok()) {
     ros::spinOnce();
 
-    std::vector<Wall> walls;
+    std::vector<Wall*> walls;
     walls = Ransac::ransac();
     // Check if wall was recognized
-    if (walls.size() > 0) {
+
+    ROS_INFO("Found %i walls", walls.size());
+    for(int wall = 0; wall < walls.size(); wall++){
+        ROS_INFO("Distance = %f", walls[wall]->getDistance(0, -DISTANCE_LASER_TO_ROBOT_CENTER));
+    }
+    //if (walls.size() > 1) {
     //   aligned = false;
     //   // If no wall was recognized then go straight ahead
     //   ::srv.request.left = 2.5;
     //   ::srv.request.right = 2.5;
     //   ::diffDrive.call(::srv);
     //   continue;
-    }
+    //}
 
     // Wall was found!
     // if(!aligned) {
