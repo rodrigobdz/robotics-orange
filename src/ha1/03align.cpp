@@ -169,7 +169,7 @@ int main(int argc, char **argv)
     walls = Ransac::ransac();
     // Check if wall was recognized
 
-    ROS_INFO("Found %i walls", walls.size());
+    ROS_INFO("Found %lu walls", (long unsigned int) walls.size());
     for(int wall = 0; wall < walls.size(); wall++){
         ROS_INFO("Distance = %f", walls[wall]->getDistance(0, -DISTANCE_LASER_TO_ROBOT_CENTER));
     }
