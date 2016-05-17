@@ -8,9 +8,9 @@
 
 
 
-class BasicMovements 
+class BasicMovements
 {
-    public: 
+    public:
         BasicMovements()
         {
             // Set up encoders callback
@@ -28,14 +28,14 @@ class BasicMovements
         bool drive(float distance, float speed = MEDIUM_SPEED);
         bool rotate(float angle, float speed = MEDIUM_SPEED);
 
-    private: 
+    private:
         static const float MAXIMUM_SPEED    = 10;
         static const float MEDIUM_SPEED     = 5;
         static const float SLOW_SPEED       = 1;
         static const float ONE_METER_IN_RAD = 30.798;
         // Distances are given in meters
         static const float SAFETY_DIS       = 0.15; // Minimum distance to keep when driving
-        static const float CELL_LENGTH      = 0.80; 
+        static const float CELL_LENGTH      = 0.80;
         static const bool DEBUG             = false; // Defines if output should be printed
         static const int LOOP_RATE          = 16; // Used for loop rate
 
@@ -80,7 +80,7 @@ void BasicMovements::stop()
  *         will go backwards
  * Returns: false if obstacle was found otherwise true
 **/
-bool BasicMovements::drive(float distance, float speed) 
+bool BasicMovements::drive(float distance, float speed)
 {
     // TODO: Modify for variable distance
     // TODO: Check in laser callback if object is on the way to stop in that case
@@ -122,7 +122,7 @@ bool BasicMovements::drive(float distance, float speed)
 **/
 bool BasicMovements::rotate(float angle, float speed)
 {
-    return true; 
+    return true;
 }
 
 
@@ -148,7 +148,7 @@ void BasicMovements::laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg)
 /*
  * Reset the encoders and corresponding helper values.
 **/
-void BasicMovements::resetEncoders() 
+void BasicMovements::resetEncoders()
 {
     resetEncodersClient.call(resetEncodersService);
     leftEncoder = rightEncoder = 0;
