@@ -15,7 +15,7 @@
 #define ERR_OFFSET 1.131
 
 int cur_speed = 0; // in 10th parts (zehntel) of SPEED, does not apply to truning
-bool aligned = false;
+bool aligned  = false;
 
 float left_encoder;
 float right_encoder;
@@ -42,7 +42,7 @@ void laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg)
     ranges = msg->ranges;
 }
 
-void rotate_right_90()
+void rotateRight90()
 {
     ::srv.request.left = 5.628 * ERR_OFFSET; // 5.62869
     ::srv.request.right = -5.628 * ERR_OFFSET;
@@ -60,89 +60,89 @@ void rotate_right_90()
 */
 void stop() {
 
-  if (cur_speed == 0) return;
+  if (cur_speed == 0)
+    return;
   cur_speed = 0;
 
-  ::srv.request.left = 0;
+  ::srv.request.left  = 0;
   ::srv.request.right = 0;
   ::diffDrive.call(::srv);
 }
 
-// void driveToDistance(float wishDistance) {
-//   std::vector<float> wall;
-//     float currentDistance;
-//
-//
-//     while(true) {
-//       // Update sensor data
-//       ros::spinOnce();
-//
-//       wall = ransac();
-//       float distance;
-//       // Check if wall was found with ransac
-//       if(!isnan(wall[0])) {
-//         // Wall was found
-//
-//         distance= distanceFromLineToPoint(wall[0], wall[1], wall[2], wall[3], 0, -DISTANCE_LASER_TO_ROBOT_CENTER);
-//
-//         if(fabs(wishDistance - currentDistance) < 0.03) {
-//           srv.request.left = 0;
-//           srv.request.right = 0;
-//           diffDrive.call(srv);
-//           return;
-//         } else if(currentDistance < wishDistance){
-//           srv.request.left = -1;
-//           srv.request.right = -1;
-//           diffDrive.call(srv);
-//         } else {
-//           srv.request.left = 1;
-//           srv.request.right = 1;
-//           diffDrive.call(srv);
-//         }
-//       } else {
-//         // If no wall was found no wall to align to
-//         return;
-//       }
-//     }
-// }
+void driveToDistance(float wishDistance) {
+  std::vector<float> wall;
+    float currentDistance;
 
 
-// void wallAlign(float wishAngle)
-// {
-//   std::vector<float> wall;
-//   float distance;
-//   float angle;
-//
-//   while(true) {
-//     // Update sensor data
-//     ros::spinOnce();
-//
-//     wall = ransac();
-//     // Check if wall was found with ransac
-//     if(!isnan(wall[0])) {
-//       // Wall was found
-//       float currentAngle = calculateAngle(wall);
-//       if(fabs(wishAngle - currentAngle) < PI/32) {
-//         srv.request.left = 0;
-//         srv.request.right = 0;
-//         diffDrive.call(srv);
-//         return;
-//       } else if(currentAngle < wishAngle){
-//         srv.request.left = 1;
-//         srv.request.right = -1;
-//         diffDrive.call(srv);
-//       } else {
-//         srv.request.left = -1;
-//         srv.request.right = 1;
-//         diffDrive.call(srv);
-//       }
-//     } else {
-//       // If no wall was found no wall to align to
-//       return;
-//     }
-//   }
-//
-// }
+    while(true) {
+      // Update sensor data
+      ros::spinOnce();
+
+      wall = ransac();
+      float distance;
+      // Check if wall was found with ransac
+      if(!isnan(wall[0])) {
+        // Wall was found
+
+        distance = distanceFromLineToPoint(wall[0], wall[1], wall[2], wall[3], 0, -DISTANCE_LASER_TO_ROBOT_CENTER);
+
+        if(fabs(wishDistance - currentDistance) < 0.03) {
+          srv.request.left  = 0;
+          srv.request.right = 0;
+          diffDrive.call(srv);
+          return;
+        } else if(currentDistance < wishDistance){
+          srv.request.left  = -1;
+          srv.request.right = -1;
+          diffDrive.call(srv);
+        } else {
+          srv.request.left  = 1;
+          srv.request.right = 1;
+          diffDrive.call(srv);
+        }
+      } else {
+        // If no wall was found no wall to align to
+        return;
+      }
+    }
+}
+
+void wallAlign(float wishAngle)
+{
+  std::vector<float> wall;
+  float distance;
+  float angle;
+
+  while(true) {
+    // Update sensor data
+    ros::spinOnce();
+
+    wall = ransac();
+    // Check if wall was found with ransac
+    if(!isnan(wall[0])) {
+      // Wall was found
+      float currentAngle = calculateAngle(wall);
+      if(fabs(wishAngle - currentAngle) < PI/32) {
+        srv.request.left  = 0;
+        srv.request.right = 0;
+        diffDrive.call(srv);
+        return;
+      } else if(currentAngle < wishAngle){
+        srv.request.left  = 1;
+        srv.request.right = -1;
+        diffDrive.call(srv);
+      } else {
+        srv.request.left  = -1;
+        srv.request.right = 1;
+        diffDrive.call(srv);
+      }
+    } else {
+      // If no wall was found no wall to align to
+      return;
+    }
+  }
+
+}
 
 int main(int argc, char **argv)
 {
@@ -168,10 +168,13 @@ int main(int argc, char **argv)
     std::vector<Wall*> walls;
     walls = Ransac::ransac();
     // Check if wall was recognized
-
-    ROS_INFO("Found %lu walls", walls.size());
-    for(int wall = 0; wall < walls.size(); wall++){
-        ROS_INFO("Distance = %f", walls[wall]->getDistance(0, -DISTANCE_LASER_TO_ROBOT_CENTER));
+    if(isnan(wall[0])) {
+      aligned = false;
+      // If no wall was recognized then go straight ahead
+      ::srv.request.left  = 2.5;
+      ::srv.request.right = 2.5;
+      ::diffDrive.call(::srv);
+      continue;
     }
     //if (walls.size() > 1) {
     //   aligned = false;
@@ -183,22 +186,22 @@ int main(int argc, char **argv)
     //}
 
     // Wall was found!
-    // if(!aligned) {
-    //   float distance;
-    //   distance = distanceFromLineToPoint(wall[0], wall[1], wall[2], wall[3], 0, -DISTANCE_LASER_TO_ROBOT_CENTER);
-    //   // angle = calculateAngle(wall);
+    if(!aligned) {
+      float distance;
+      distance= distanceFromLineToPoint(wall[0], wall[1], wall[2], wall[3], 0, -DISTANCE_LASER_TO_ROBOT_CENTER);
+      // angle = calculateAngle(wall);
 
-    //   // If wall was found align to be at a certain angle to it
-    //   wallAlign(PI/2);
-    //   aligned = true;
+      // If wall was found align to be at a certain angle to it
+      wallAlign(PI/2);
+      aligned = true;
 
-    //   // Check if robot is positioned in center of cell
-    //   if(distance != CELL_CENTER) {
-    //     // Drive to center in cell
-    //     driveToDistance(CELL_CENTER);
-    //   }
-    //   rotate_right_90();
-    // }
+      // Check if robot is positioned in center of cell
+      if(distance != CELL_CENTER) {
+        // Drive to center in cell
+        driveToDistance(CELL_CENTER);
+      }
+      rotateRight90();
+    }
 
     r.sleep();
   }
