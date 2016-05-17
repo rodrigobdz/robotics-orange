@@ -3,7 +3,16 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(orange_fundamentals)
 # Load catkin and all dependencies required for this package
-find_package(catkin REQUIRED COMPONENTS roscpp rospy sensor_msgs create_fundamentals)
+
+
+
+find_package(catkin REQUIRED COMPONENTS
+                    roscpp
+                    rospy
+                    sensor_msgs
+                    create_fundamentals
+                    message_generation
+                    )
 
 #set the default path for built executables to the "bin" directory
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
@@ -14,8 +23,12 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 #add_message_files(FILES
 #)
 #uncomment if you have defined services
-#add_service_files(FILES
-#)
+
+
+
+add_service_files(FILES ExecutePlan.srv)
+
+
 
 #common commands for building c++ executables and libraries
 #add_library(${PROJECT_NAME} src/example.cpp)
@@ -63,3 +76,7 @@ add_dependencies(perf_square_with_encoders create_fundamentals_generate_messages
 add_executable(align src/ha1/03align.cpp)
 target_link_libraries(align ${catkin_LIBRARIES})
 add_dependencies(align create_fundamentals_generate_messages_cpp)
+
+add_executable(moving_through_the_grid src/ha2/01moving_through_the_grid.cpp)
+target_link_libraries(moving_through_the_grid ${catkin_LIBRARIES})
+add_dependencies(moving_through_the_grid create_fundamentals_generate_messages_cpp)
