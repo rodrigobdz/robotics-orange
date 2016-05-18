@@ -48,7 +48,7 @@ float Wall::getDistance(float px, float py)
  *
  * Calculate angle from robot to wall.
  *
- * Returns: Angle to wall
+ * Returns: Angle to wall in degrees
  * */
 float Wall::getAngle()
 {
@@ -68,6 +68,6 @@ float Wall::getAngle()
         angle = fabs(asin(distance / n) - pi);
     }
 
-    return angle;
+    return angle / pi * 180;
 }
 
