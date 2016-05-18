@@ -53,29 +53,13 @@ catkin_package(
 
 include_directories(include ${catkin_INCLUDE_DIRS} ${YOUR_DIRECTORY}/src/lib)
 
-add_executable(example_laser src/examples/example_laser.cpp)
-target_link_libraries(example_laser ${catkin_LIBRARIES})
-add_dependencies(example_laser create_fundamentals_generate_messages_cpp)
+# add_executable(example_drive src/examples/example_drive.cpp)
+# target_link_libraries(example_drive ${catkin_LIBRARIES})
+# add_dependencies(example_drive create_fundamentals_generate_messages_cpp)
 
-add_executable(example_moving src/examples/example_moving.cpp)
-target_link_libraries(example_moving ${catkin_LIBRARIES})
-add_dependencies(example_moving create_fundamentals_generate_messages_cpp)
-
-add_executable(wanderer src/ha1/01wanderer.cpp)
-target_link_libraries(wanderer ${catkin_LIBRARIES})
-add_dependencies(wanderer create_fundamentals_generate_messages_cpp)
-
-add_executable(perf_square src/ha1/02perf_square.cpp)
-target_link_libraries(perf_square ${catkin_LIBRARIES})
-add_dependencies(perf_square create_fundamentals_generate_messages_cpp)
-
-add_executable(perf_square_with_encoders src/ha1/02perf_square_with_encoders.cpp)
-target_link_libraries(perf_square_with_encoders ${catkin_LIBRARIES})
-add_dependencies(perf_square_with_encoders create_fundamentals_generate_messages_cpp)
-
-add_executable(align src/ha1/03align.cpp)
-target_link_libraries(align ${catkin_LIBRARIES})
-add_dependencies(align create_fundamentals_generate_messages_cpp)
+# add_executable(example_rotate src/examples/example_rotate.cpp)
+# target_link_libraries(example_rotate ${catkin_LIBRARIES})
+# add_dependencies(example_rotate create_fundamentals_generate_messages_cpp)
 
 add_executable(moving_through_the_grid src/ha2/01moving_through_the_grid.cpp)
 target_link_libraries(moving_through_the_grid ${catkin_LIBRARIES})
