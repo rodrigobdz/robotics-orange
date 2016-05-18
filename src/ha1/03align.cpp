@@ -4,8 +4,8 @@
 #include "create_fundamentals/DiffDrive.h"
 #include "create_fundamentals/SensorPacket.h"
 #include "sensor_msgs/LaserScan.h"
-#include "../lib/ransac.cpp"
-#include "../lib/basic_movements.cpp"
+#include <ransac.cpp>
+#include <basic_movements.cpp>
 
 #define RATE 5
 #define DISTANCE_LASER_TO_ROBOT_CENTER 0.125
