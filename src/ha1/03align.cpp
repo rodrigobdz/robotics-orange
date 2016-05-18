@@ -56,7 +56,7 @@ int main(int argc, char** argv)
     ros::init(argc, argv, "align");
     ros::NodeHandle n;
 
-    BasicMovements move;
+    BasicMovements basicMovements;
     Ransac ransac;
     std::vector<Wall*> walls;
 
@@ -65,49 +65,19 @@ int main(int argc, char** argv)
 
     // Main loop.
     while (n.ok()) {
-
         walls = ransac.getWalls();
-        ROS_INFO("Found %lu walls", (long unsigned int) walls.size());
-        for(int wall = 0; wall < walls.size(); wall++){
-            ROS_INFO("Distance = %f", walls[wall]->getDistance(0, -DISTANCE_LASER_TO_ROBOT_CENTER));
-        }
-        /*// Check if wall was recognized
-        if (isnan(wall[0])) {
-            aligned = false;
+
+        // Check if wall was recognized
+        if (walls.size() < 1) {
             // If no wall was recognized then go straight ahead
-            ::srv.request.left = 2.5;
-            ::srv.request.right = 2.5;
-            ::diffDrive.call(::srv);
-            continue; } // if (walls.size() > 1) {
-        //   aligned = false;
-        //   // If no wall was recognized then go straight ahead
-        //   ::srv.request.left = 2.5;
-        //   ::srv.request.right = 2.5;
-        //   ::diffDrive.call(::srv);
-        //   continue;
-        //}
-
-        // Wall was found!
-        if (!aligned) {
-            float distance;
-            distance = distanceFromLineToPoint(wall[0], wall[1], wall[2], wall[3], 0, -DISTANCE_LASER_TO_ROBOT_CENTER);
-            // angle = calculateAngle(wall);
-
-            // If wall was found align to be at a certain angle to it
-            wallAlign(PI / 2);
-            aligned = true;
-
-            // Check if robot is positioned in center of cell
-            if (distance != CELL_CENTER) {
-                // Drive to center in cell
-                driveToDistance(CELL_CENTER);
-            }
-            rotateRight90();
-        }*/
+            basicMovements.drive(0.05);
+        } else {
+            // Wall was found!
+            ROS_INFO("Angle = %f", walls[0]->getAngle());
+            basicMovements.rotate(walls[0]->getAngle());
+        }
 
         r.sleep();
     }
     return 0;
-  }
-
 }

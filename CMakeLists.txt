@@ -61,6 +61,10 @@ include_directories(include ${catkin_INCLUDE_DIRS} ${YOUR_DIRECTORY}/src/lib)
 # target_link_libraries(example_rotate ${catkin_LIBRARIES})
 # add_dependencies(example_rotate create_fundamentals_generate_messages_cpp)
 
+add_executable(03align src/ha1/03align.cpp)
+target_link_libraries(03align ${catkin_LIBRARIES})
+add_dependencies(03align create_fundamentals_generate_messages_cpp)
+
 add_executable(moving_through_the_grid src/ha2/01moving_through_the_grid.cpp)
 target_link_libraries(moving_through_the_grid ${catkin_LIBRARIES})
 add_dependencies(moving_through_the_grid create_fundamentals_generate_messages_cpp)
