@@ -1,0 +1,3 @@
+<launch>
+    <node name="execute_plan" pkg="orange_fundamentals" type="execute_plan"/>
+</launch>
