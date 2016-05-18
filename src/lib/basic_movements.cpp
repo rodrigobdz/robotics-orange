@@ -1,3 +1,7 @@
+// Import pi constant (M_PI)
+#define _USE_MATH_DEFINES
+#include <cmath>
+
 // Needed includes for this library to work
 #include "ros/ros.h"
 #include <cstdlib>
@@ -14,30 +18,32 @@ class BasicMovements
         BasicMovements()
         {
             // Set up encoders callback
-            encoderSubscriber = n.subscribe("sensor_packet", 1, &BasicMovements::encoderCallback, this);
-            diffDriveClient = n.serviceClient<create_fundamentals::DiffDrive>("diff_drive");
+            encoderSubscriber   = n.subscribe("sensor_packet", 1, &BasicMovements::encoderCallback, this);
+            diffDriveClient     = n.serviceClient<create_fundamentals::DiffDrive>("diff_drive");
 
             // Set up laser callback
-            laserSubscriber = n.subscribe("scan_filtered", 1, &BasicMovements::laserCallback, this);
+            laserSubscriber     = n.subscribe("scan_filtered", 1, &BasicMovements::laserCallback, this);
 
             // Set up reset encoders client
             resetEncodersClient = n.serviceClient<create_fundamentals::ResetEncoders>("reset_encoders");
         }
 
         void stop();
-        bool drive(float distance, float speed = MEDIUM_SPEED);
-        bool rotate(float angle, float speed = MEDIUM_SPEED);
+        bool drive(float distanceInMeters, float speed = MEDIUM_SPEED);
+        bool rotate(float angleInDegrees, float speed = MEDIUM_SPEED);
 
     private:
-        static const float MAXIMUM_SPEED    = 10;
-        static const float MEDIUM_SPEED     = 5;
-        static const float SLOW_SPEED       = 1;
-        static const float ONE_METER_IN_RAD = 30.798;
+        static const float MAXIMUM_SPEED         = 10;
+        static const float MEDIUM_SPEED          = 5;
+        static const float SLOW_SPEED            = 1;
+        static const float ONE_METER_IN_RAD      = 30.798;
+        static const float NINETY_DEGREES_IN_RAD = 30.798 * 0.196349; // 2pir^2 / 4, r = 0.26/2
         // Distances are given in meters
-        static const float SAFETY_DIS       = 0.15; // Minimum distance to keep when driving
-        static const float CELL_LENGTH      = 0.80;
-        static const bool DEBUG             = false; // Defines if output should be printed
-        static const int LOOP_RATE          = 16; // Used for loop rate
+        static const float SAFETY_DIS            = 0.15; // Minimum distance to keep when driving
+        static const float CELL_LENGTH           = 0.80;
+        static const bool DEBUG                  = true; // Defines if output should be printed
+        static const bool CALLBACK_DEBUG         = false; // Decide to print output from callbacks
+        static const int LOOP_RATE               = 16; // Used for loop rate
 
 
         ros::NodeHandle n;
@@ -78,18 +84,22 @@ void BasicMovements::stop()
 /*
  * Params: distance in meter. If negative distance robot
  *         will go backwards
+ *         No negative speed allowed.
  * Returns: false if obstacle was found otherwise true
 **/
-bool BasicMovements::drive(float distance, float speed)
+bool BasicMovements::drive(float distanceInMeters, float speed)
 {
     // TODO: Modify for variable distance
     // TODO: Check in laser callback if object is on the way to stop in that case
 
     if(DEBUG) {
-        ROS_INFO("diffDrive %f %f distance: %f m", speed, speed, distance);
+        ROS_INFO("diffDrive %f %f distance: %f m", speed, speed, distanceInMeters);
     }
 
-    float threshold = ONE_METER_IN_RAD - (ONE_METER_IN_RAD*0.025);
+    speed = fabs(speed);
+    float sign              = distanceInMeters < 0 ? -1 : 1; // Check if speed positive or negative
+    float distanceInRadians = distanceInMeters * ONE_METER_IN_RAD;
+    float threshold         = fabs(distanceInRadians) - (fabs(distanceInRadians) * 0.025);
 
     resetEncoders();
     ros::Rate loop_rate(LOOP_RATE);
@@ -99,12 +109,12 @@ bool BasicMovements::drive(float distance, float speed)
             break;
         }
 
-        if (leftEncoder >= threshold || rightEncoder >= threshold ) {
+        if ((sign*leftEncoder) >= threshold || (sign*rightEncoder) >= threshold) {
             speed = 0;
         }
 
-        diffDriveService.request.left  = speed;
-        diffDriveService.request.right = speed;
+        diffDriveService.request.left  = sign * speed;
+        diffDriveService.request.right = sign * speed;
         diffDriveClient.call(diffDriveService);
 
         ros::spinOnce();
@@ -119,9 +129,39 @@ bool BasicMovements::drive(float distance, float speed)
 /*
  * Params: if angle positive robot will rotate clockwise
  *         else if negative counter clockwise
+ *         No negative speed allowed.
+ * Returns: false if obstacle was found otherwise true
 **/
-bool BasicMovements::rotate(float angle, float speed)
+bool BasicMovements::rotate(float angleInDegrees, float speed)
 {
+    if(DEBUG) {
+        ROS_INFO("diffDrive %f %f angle: %fº", speed, speed, angleInDegrees);
+    }
+
+    speed = fabs(speed);
+    float sign           = angleInDegrees < 0 ? -1 : 1;
+    float angleInRadians = angleInDegrees * (NINETY_DEGREES_IN_RAD / 90);
+    float threshold      = fabs(angleInRadians) - (fabs(angleInRadians) * 0.04);
+
+    resetEncoders();
+    ros::Rate loop_rate(LOOP_RATE);
+
+    while(ros::ok()){
+        if (speed == 0) {
+            break;
+        }
+
+        if ((sign*leftEncoder) >= threshold || (sign*rightEncoder) >= threshold) {
+            speed = 0;
+        }
+
+        diffDriveService.request.left  = sign * -speed;
+        diffDriveService.request.right = sign * speed;
+        diffDriveClient.call(diffDriveService);
+
+        ros::spinOnce();
+        loop_rate.sleep();
+    }
     return true;
 }
 
@@ -133,7 +173,7 @@ bool BasicMovements::rotate(float angle, float speed)
 
 void BasicMovements::encoderCallback(const create_fundamentals::SensorPacket::ConstPtr& msg)
 {
-    if(DEBUG) {
+    if(CALLBACK_DEBUG) {
         ROS_INFO("left encoder: %f, right encoder: %f", msg->encoderLeft, msg->encoderRight);
     }
     leftEncoder  = msg->encoderLeft;
