@@ -53,13 +53,13 @@ catkin_package(
 
 include_directories(include ${catkin_INCLUDE_DIRS} ${YOUR_DIRECTORY}/src/lib)
 
-add_executable(example_drive src/examples/example_drive.cpp)
-target_link_libraries(example_drive ${catkin_LIBRARIES})
-add_dependencies(example_drive create_fundamentals_generate_messages_cpp)
+# add_executable(example_drive src/examples/example_drive.cpp)
+# target_link_libraries(example_drive ${catkin_LIBRARIES})
+# add_dependencies(example_drive create_fundamentals_generate_messages_cpp)
 
-add_executable(example_rotate src/examples/example_rotate.cpp)
-target_link_libraries(example_rotate ${catkin_LIBRARIES})
-add_dependencies(example_rotate create_fundamentals_generate_messages_cpp)
+# add_executable(example_rotate src/examples/example_rotate.cpp)
+# target_link_libraries(example_rotate ${catkin_LIBRARIES})
+# add_dependencies(example_rotate create_fundamentals_generate_messages_cpp)
 
 add_executable(moving_through_the_grid src/ha2/01moving_through_the_grid.cpp)
 target_link_libraries(moving_through_the_grid ${catkin_LIBRARIES})
