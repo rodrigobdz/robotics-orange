@@ -3,9 +3,6 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(orange_fundamentals)
 # Load catkin and all dependencies required for this package
-
-
-
 find_package(catkin REQUIRED COMPONENTS
                     roscpp
                     rospy
@@ -22,13 +19,11 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 #uncomment if you have defined messages
 #add_message_files(FILES
 #)
+
 #uncomment if you have defined services
-
-
-
-add_service_files(FILES ExecutePlan.srv)
-
-
+add_service_files(FILES
+    ExecutePlan.srv
+)
 
 #common commands for building c++ executables and libraries
 #add_library(${PROJECT_NAME} src/example.cpp)
@@ -41,9 +36,9 @@ add_service_files(FILES ExecutePlan.srv)
 #target_link_libraries(example ${PROJECT_NAME})
 
 ## Generate added messages and services with any dependencies listed here
-generate_messages(
-    DEPENDENCIES std_msgs create_fundamentals
-)
+# generate_messages(
+#     DEPENDENCIES std_msgs create_fundamentals
+# )
 
 # catkin_package parameters: http://ros.org/doc/groovy/api/catkin/html/dev_guide/generated_cmake_api.html#catkin-package
 catkin_package(
