@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <cmath>
 
 const double pi = 3.14159;
 
@@ -8,6 +9,7 @@ class Wall
     Wall(float x1, float y1, float x2, float y2) : x1(x1), y1(y1), x2(x2), y2(y2) {}
 
     float getDistance(float px, float py);
+    float getDistance();
     float getAngle();
     float getX1() const { return x1; }
     float getY1() const { return y1; }
@@ -15,6 +17,7 @@ class Wall
     float getY2() const { return y2; }
 
   private:
+    static const float DISTANCE_LASER_TO_ROBOT_CENTER = 0.125;          // Matches that makes  line to wall
     float x1;
     float y1;
     float x2;
@@ -29,6 +32,21 @@ class Wall
  * Returns: Calculated distance to point in
  *          cartesian coordinate system
  */
+float Wall::getDistance()
+{
+    // Variables for Hesse normal form computation
+    // from two-point form
+    //    a*px + b*py - c = 0
+    // --------------------------
+    //      √( a² + b² )
+    float a = Wall::y1 - Wall::y2;
+    float b = Wall::x2 - Wall::x1;
+    float c = Wall::x2 * Wall::y1 - Wall::x1 * Wall::y2;
+    float normalVector = sqrt(pow(a, 2) + pow(b, 2));
+
+    return fabs((a * 0 + b * (-DISTANCE_LASER_TO_ROBOT_CENTER) - c) / normalVector);
+}
+
 float Wall::getDistance(float px, float py)
 {
     // Variables for Hesse normal form computation
@@ -43,6 +61,7 @@ float Wall::getDistance(float px, float py)
 
     return fabs((a * px + b * py - c) / normalVector);
 }
+
 
 /* *
  *

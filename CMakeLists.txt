@@ -6,18 +6,20 @@ project(orange_fundamentals)
 
 
 
-find_package(catkin REQUIRED COMPONENTS
-                    roscpp
-                    rospy
-                    sensor_msgs
-                    create_fundamentals
-                    message_generation
-                    )
+find_package(
+    catkin
+    REQUIRED COMPONENTS
+    roscpp
+    rospy
+    sensor_msgs
+    create_fundamentals
+    message_generation
+)
 
 #set the default path for built executables to the "bin" directory
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 #set the default path for built libraries to the "lib" directory
-set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
+# set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 
 #uncomment if you have defined messages
 #add_message_files(FILES
@@ -29,6 +31,11 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 add_service_files(FILES ExecutePlan.srv)
 
 
+INCLUDE_DIRECTORIES(src/lib)
+
+# To see the include folders uncomment following lines
+# get_property(inc_dirs DIRECTORY PROPERTY INCLUDE_DIRECTORIES)
+# message("AAAAAAAAAAAAAAAAAAAAAAAAinc_dirs = ${inc_dirs}")
 
 #common commands for building c++ executables and libraries
 #add_library(${PROJECT_NAME} src/example.cpp)
