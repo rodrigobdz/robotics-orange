@@ -1,42 +1,42 @@
-#include <ctime>
-#include <math.h>
-#include <vector>
-#include "wall.cpp"
+#include "ros/ros.h"
+#include "create_fundamentals/SensorPacket.h"
+#include <basic_movements.cpp>
+#include <wall.cpp>
 
 class Ransac
 {
-    public:
-        Ransac()
-        {
-            // Set up laser callback
-            laserSubscriber = n.subscribe("scan_filtered", 1, &Ransac::laserCallback, this);
+  public:
+    Ransac()
+    {
+        // Set up laser callback
+        laserSubscriber = n.subscribe("scan_filtered", 1, &Ransac::laserCallback, this);
 
-            ranges = *(new std::vector<float>(512));
-        }
+        ranges = *(new std::vector<float>(512));
+    }
 
-        std::vector<Wall*> getWalls();
+    std::vector<Wall*> getWalls();
 
-    private:
-        static const float POINT_COUNT_FOR_WALL = 200;          // Matches that makes  line to wall
-        static const float PI                   = 3.14159265;
-        static const float LASER_COUNT          = 512;
-        static const float ITERATIONS           = 1000;         // Number of iterations from ransac algo.
-        static const float ERROR                = 0.01;         // Difference between line and points
+  private:
+    static const float POINT_COUNT_FOR_WALL = 150; // Matches that makes  line to wall
+    static const float PI = 3.14159265;
+    static const float LASER_COUNT = 512;
+    static const float ITERATIONS = 1000; // Number of iterations from ransac algo.
+    static const float ERROR = 0.01;      // Difference between line and points
 
+    ros::NodeHandle n;
+    ros::Subscriber laserSubscriber; // Laser
 
-        ros::NodeHandle n;
-        ros::Subscriber laserSubscriber;            // Laser
+    std::vector<float> ranges;
 
-        std::vector<float> ranges;
+    float calculateX(float angle, float distance);
+    float calculateY(float angle, float distance);
+    std::vector<int> getMatches(Wall wall);
+    std::pair<float, float> getRandomXYCoords();
 
-
-        float calculateX(float angle, float distance);
-        float calculateY(float angle, float distance);
-        std::vector<int> getMatches(Wall wall);
-        std::pair<float, float> getRandomXYCoords();
-
-        void laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg);
+    void laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg);
 };
+
+void bubbleSort(std::vector<Wall*>& a);
 
 /* *
  * Recognize walls with ransac
@@ -63,7 +63,7 @@ std::vector<Wall*> Ransac::getWalls()
             continue;
         }
 
-        Wall *currentWall = new Wall(pointA.first, pointA.second, pointB.first, pointB.second);
+        Wall* currentWall = new Wall(pointA.first, pointA.second, pointB.first, pointB.second);
 
         std::vector<int> matches = getMatches(*currentWall);
         int matchSize = matches.size();
@@ -72,6 +72,7 @@ std::vector<Wall*> Ransac::getWalls()
         // point cloud was found
         if (matchSize > POINT_COUNT_FOR_WALL) {
             walls.push_back(currentWall);
+
             // Set found matches to nan
             // Better than to delete elements,
             // because we need to calculate the angle
@@ -81,9 +82,31 @@ std::vector<Wall*> Ransac::getWalls()
         }
     }
 
+    // Sort the return std::vector
+    // The smaller the angle the sooner in the array.
+    if (walls.size() > 1) {
+        bubbleSort(walls);
+    }
+
     return walls;
 }
 
+void bubbleSort(std::vector<Wall*>& a)
+{
+    bool swapp = true;
+    Wall* tmp;
+    while (swapp) {
+        swapp = false;
+        for (int i = 0; i < a.size() - 1; i++) {
+            if (a[i]->getAngle() > a[i + 1]->getAngle()) {
+                tmp = a[i];
+                a[i] = a[i + 1];
+                a[i + 1] = tmp;
+                swapp = true;
+            }
+        }
+    }
+}
 
 /*
  * angle: from laser scanner first point to some point
@@ -91,10 +114,7 @@ std::vector<Wall*> Ransac::getWalls()
  *
  * Returns: x coordinate in robot coordinate system
  **/
-float Ransac::calculateX(float angle, float distance)
-{
-    return distance * cos(angle);
-}
+float Ransac::calculateX(float angle, float distance) { return distance * cos(angle); }
 
 /*
  * angle: from laser scanner first point to some point
@@ -102,10 +122,7 @@ float Ransac::calculateX(float angle, float distance)
  *
  * Returns: y coordinate in robot coordinate system
  **/
-float Ransac::calculateY(float angle, float distance)
-{
-    return distance * sin(angle);
-}
+float Ransac::calculateY(float angle, float distance) { return distance * sin(angle); }
 
 /*
  * Calculates the matches from given line to points from ranges.
@@ -164,7 +181,4 @@ std::pair<float, float> Ransac::getRandomXYCoords()
     return std::pair<float, float>(calculateX(angle, a), calculateY(angle, a));
 }
 
-void Ransac::laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg)
-{
-    ranges = msg->ranges;
-}
+void Ransac::laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg) { ranges = msg->ranges; }
