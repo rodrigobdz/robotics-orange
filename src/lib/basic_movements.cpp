@@ -31,6 +31,7 @@ class BasicMovements
         void stop();
         bool drive(float distanceInMeters, float speed = MEDIUM_SPEED);
         bool rotate(float angleInDegrees, float speed = MEDIUM_SPEED);
+        bool rotateAbs(float angleInDegrees, float speed = MEDIUM_SPEED);
 
     private:
         static const float MAXIMUM_SPEED         = 10;
@@ -124,6 +125,21 @@ bool BasicMovements::drive(float distanceInMeters, float speed)
     resetEncoders();
 
     return true;
+}
+
+/* Rotate the robot corresponding to its local coordinate system.
+   That means the robots face lays is exactly 90 degrees and its
+   righthandside is 0 degrees. So if you 30 degrees to this
+   function, the robot will rotate 60 degrees to the right. */
+bool BasicMovements::rotateAbs(float angleInDegrees, float speed)
+{
+    if (angleInDegrees > 180)
+        angleInDegrees = 180;
+
+    if (angleInDegrees < 0)
+        angleInDegrees = 0;
+
+    return rotate(angleInDegrees-90, speed);
 }
 
 /*
