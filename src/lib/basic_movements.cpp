@@ -154,10 +154,12 @@ bool BasicMovements::rotate(float angleInDegrees, float speed)
         ROS_INFO("diffDrive %f %f angle: %fº", speed, speed, angleInDegrees);
     }
 
+    if(fabs(angleInDegrees) < 5) return true;
+
     speed = fabs(speed);
     float sign           = angleInDegrees < 0 ? -1 : 1;
     float angleInRadians = angleInDegrees * (NINETY_DEGREES_IN_RAD / 90);
-    float threshold      = fabs(angleInRadians) - (fabs(angleInRadians) * 0.04);
+    float threshold      = fabs(angleInRadians) - (NINETY_DEGREES_IN_RAD / 90)/2;
 
     resetEncoders();
     ros::Rate loop_rate(LOOP_RATE);
@@ -167,7 +169,7 @@ bool BasicMovements::rotate(float angleInDegrees, float speed)
             break;
         }
 
-        if ((sign*leftEncoder) >= threshold || (sign*rightEncoder) >= threshold) {
+        if (fabs(leftEncoder) >= threshold || fabs(rightEncoder) >= threshold) {
             speed = 0;
         }
 
