@@ -1,3 +1,6 @@
+#ifndef BASIC_MOVEMENTS_LIB
+#define BASIC_MOVEMENTS_LIB
+
 // Import pi constant (M_PI)
 #define _USE_MATH_DEFINES
 #include <cmath>
@@ -209,3 +212,5 @@ void BasicMovements::resetEncoders()
     resetEncodersClient.call(resetEncodersService);
     leftEncoder = rightEncoder = 0;
 }
+
+#endif // BASIC_MOVEMENTS_LIB
