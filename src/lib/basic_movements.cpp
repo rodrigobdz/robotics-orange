@@ -1,10 +1,6 @@
 #ifndef BASIC_MOVEMENTS_LIB
 #define BASIC_MOVEMENTS_LIB
 
-// Import pi constant (M_PI)
-#define _USE_MATH_DEFINES
-#include <cmath>
-
 // Needed includes for this library to work
 #include "ros/ros.h"
 #include <cstdlib>
@@ -12,8 +8,7 @@
 #include "create_fundamentals/SensorPacket.h"
 #include "sensor_msgs/LaserScan.h"
 #include "create_fundamentals/ResetEncoders.h"
-
-
+#include <constants.cpp>
 
 class BasicMovements
 {
@@ -40,11 +35,6 @@ class BasicMovements
         static const float MAXIMUM_SPEED         = 10;
         static const float MEDIUM_SPEED          = 5;
         static const float SLOW_SPEED            = 1;
-        static const float ONE_METER_IN_RAD      = 30.798;
-        static const float NINETY_DEGREES_IN_RAD = 30.798 * 0.196349; // 2pir^2 / 4, r = 0.26/2
-        // Distances are given in meters
-        static const float SAFETY_DIS            = 0.15; // Minimum distance to keep when driving
-        static const float CELL_LENGTH           = 0.80;
         static const bool DEBUG                  = true; // Defines if output should be printed
         static const bool CALLBACK_DEBUG         = false; // Decide to print output from callbacks
         static const int LOOP_RATE               = 16; // Used for loop rate

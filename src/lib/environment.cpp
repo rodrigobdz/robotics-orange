@@ -5,9 +5,6 @@
 #include <ransac.cpp>
 //#include <wall.cpp>
 
-#define DISTANCE_LASER_TO_ROBOT_CENTER (-0.125)
-#define CELL_CENTER 0.39
-
 class Env {
 public:
   Env()
@@ -89,7 +86,7 @@ int Env::alignToWall(void)
     if(wall) {
       _basicMovements.rotateAbs(wall->getAngle(), 1);
       r.sleep();
-      _basicMovements.drive(wall->getDistance(0, DISTANCE_LASER_TO_ROBOT_CENTER) - CELL_CENTER, 1);
+      _basicMovements.drive(wall->getDistance(0, -DISTANCE_LASER_TO_ROBOT_CENTER) - CELL_CENTER, 1);
 
       // check the angel again and leave if its ok
       // otherwise enter another loop

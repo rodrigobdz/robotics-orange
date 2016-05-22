@@ -1,6 +1,7 @@
 #include "ros/ros.h"
 #include "create_fundamentals/SensorPacket.h"
 #include <wall.cpp>
+#include <constants.cpp>
 
 class Ransac
 {
@@ -10,15 +11,13 @@ class Ransac
         // Set up laser callback
         laserSubscriber = n.subscribe("scan_filtered", 1, &Ransac::laserCallback, this);
 
-        ranges = *(new std::vector<float>(512));
+        ranges = *(new std::vector<float>(LASER_COUNT));
     }
 
     std::vector<Wall*> getWalls();
 
   private:
     static const float POINT_COUNT_FOR_WALL = 150; // Matches that makes  line to wall
-    static const float PI = 3.14159265;
-    static const float LASER_COUNT = 512;
     static const float ITERATIONS = 1000; // Number of iterations from ransac algo.
     static const float ERROR = 0.01;      // Difference between line and points
 

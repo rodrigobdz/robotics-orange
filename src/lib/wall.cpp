@@ -1,7 +1,5 @@
 #include <stdlib.h>
-#include <cmath>
-
-const double pi = 3.14159;
+#include <constants.cpp>
 
 class Wall
 {
@@ -17,7 +15,6 @@ class Wall
     float getY2() const { return y2; }
 
   private:
-    static const float DISTANCE_LASER_TO_ROBOT_CENTER = 0.125;          // Matches that makes  line to wall
     float x1;
     float y1;
     float x2;
@@ -80,13 +77,13 @@ float Wall::getAngle()
     // Correct angle
     if (angle < 0)
         angle = 0;
-    if (angle > pi)
-        angle = pi;
+    if (angle > PI)
+        angle = PI;
 
     if (m > 0) {
-        angle = fabs(asin(distance / n) - pi);
+        angle = fabs(asin(distance / n) - PI);
     }
 
-    return angle / pi * 180;
+    return angle / PI * 180;
 }
 
