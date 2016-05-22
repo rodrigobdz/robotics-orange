@@ -35,9 +35,10 @@ class BasicMovements
         bool rotateAbs(float angleInDegrees, float speed = DEFAULT_SPEED);
 
     private:
-        static const float DEFAULT_SPEED = 7;
-        static const bool DEBUG          = false; // Defines if output should be printed
-        static const bool CALLBACK_DEBUG = false; // Decide to print output from callbacks
+        static const float DEFAULT_SPEED   = 7;
+        static const bool DETECT_OBSTACLES = true;
+        static const bool DEBUG            = false; // Defines if output should be printed
+        static const bool CALLBACK_DEBUG   = false; // Decide to print output from callbacks
         float minimumRange; // Global variable to store minimum distance to object if found
 
         ros::NodeHandle n;
@@ -96,21 +97,23 @@ bool BasicMovements::drive(float distanceInMeters, float speed)
     ros::Rate loop_rate(LOOP_RATE);
 
     while(ros::ok()) {
-        // Get laser data before driving to recognize obstacles beforehand
-        ros::spinOnce();
-        // Check if minimumRange variable was already initialized by laser callback
-        if (minimumRange == 123) {
-            // Ranges are not initialized
-            // Sleep and continue loop
-            loop_rate.sleep();
-            continue;
-        }
+        if (DETECT_OBSTACLES) {
+            // Get laser data before driving to recognize obstacles beforehand
+            ros::spinOnce();
+            // Check if minimumRange variable was already initialized by laser callback
+            if (minimumRange == 123) {
+                // Ranges are not initialized
+                // Sleep and continue loop
+                loop_rate.sleep();
+                continue;
+            }
 
-        // Check if robot is about to crash into something
-        if (minimumRange < SAFETY_DIS) {
-            // Robot recognized an obstacle, distance could not be completed
-            BasicMovements::stop();
-            return false;
+            // Check if robot is about to crash into something
+            if (minimumRange < SAFETY_DIS) {
+                // Robot recognized an obstacle, distance could not be completed
+                BasicMovements::stop();
+                return false;
+            }
         }
 
         if ((sign*leftEncoder) >= threshold || (sign*rightEncoder) >= threshold) {
