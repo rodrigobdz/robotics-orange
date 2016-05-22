@@ -1,6 +1,5 @@
 #include "ros/ros.h"
 #include "create_fundamentals/SensorPacket.h"
-#include <basic_movements.cpp>
 #include <wall.cpp>
 
 class Ransac
