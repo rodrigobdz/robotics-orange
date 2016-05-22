@@ -1,3 +1,6 @@
+#ifndef RANSAC_LIB
+#define RANSAC_LIB
+
 #include "ros/ros.h"
 #include "create_fundamentals/SensorPacket.h"
 #include <wall.cpp>
@@ -180,3 +183,5 @@ std::pair<float, float> Ransac::getRandomXYCoords()
 }
 
 void Ransac::laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg) { ranges = msg->ranges; }
+
+#endif

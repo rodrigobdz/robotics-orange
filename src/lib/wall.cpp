@@ -1,3 +1,6 @@
+#ifndef WALL_LIB
+#define WALL_LIB
+
 #include <stdlib.h>
 #include <constants.cpp>
 
@@ -87,3 +90,4 @@ float Wall::getAngle()
     return angle / PI * 180;
 }
 
+#endif

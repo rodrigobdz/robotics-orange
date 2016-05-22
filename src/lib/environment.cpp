@@ -1,3 +1,5 @@
+#ifndef ENVIRONMENT_LIB
+#define ENVIRONMENT_LIB
 
 #include "ros/ros.h"
 #include "create_fundamentals/SensorPacket.h"
@@ -104,3 +106,5 @@ void Env::laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg)
 {
   _ranges = msg->ranges;
 }
+
+#endif

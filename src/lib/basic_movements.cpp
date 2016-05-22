@@ -27,8 +27,8 @@ class BasicMovements
         }
 
         void stop();
-        bool drive(float distanceInMeters, float speed = MEDIUM_SPEED);
-        bool rotate(float angleInDegrees, float speed = MEDIUM_SPEED);
+        bool drive(float distanceInMeters, float speed   = MEDIUM_SPEED);
+        bool rotate(float angleInDegrees, float speed    = MEDIUM_SPEED);
         bool rotateAbs(float angleInDegrees, float speed = MEDIUM_SPEED);
 
     private:
