@@ -17,12 +17,10 @@ bool executePlanCallback(orange_fundamentals::ExecutePlan::Request& req,
     for (std::vector<int>::iterator it = plan.begin(); it != plan.end(); ++it) {
         ROS_INFO("execute plan callback: %d", *it);
         ROS_INFO("Drive in %i", *it);
-        
+
         switch (lastDirection) {
         case RIGHT:
             switch (*it) {
-            case RIGHT:
-                break;
             case UP:
                 basicMovements.rotate(90);
                 break;
@@ -40,8 +38,6 @@ bool executePlanCallback(orange_fundamentals::ExecutePlan::Request& req,
             switch (*it) {
             case RIGHT:
                 basicMovements.rotate(-90);
-                break;
-            case UP:
                 break;
             case LEFT:
                 basicMovements.rotate(90);
@@ -61,8 +57,6 @@ bool executePlanCallback(orange_fundamentals::ExecutePlan::Request& req,
             case UP:
                 basicMovements.rotate(-90);
                 break;
-            case LEFT:
-                break;
             case DOWN:
                 basicMovements.rotate(90);
                 break;
@@ -80,8 +74,6 @@ bool executePlanCallback(orange_fundamentals::ExecutePlan::Request& req,
                 break;
             case LEFT:
                 basicMovements.rotate(-90);
-                break;
-            case DOWN:
                 break;
             default:
                 break;
