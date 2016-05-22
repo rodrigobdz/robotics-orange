@@ -19,8 +19,6 @@ bool execute_plan_callback(orange_fundamentals::ExecutePlan::Request& req,
         switch (lastDirection) {
         case RIGHT:
             switch (*it) {
-            case RIGHT:
-                break;
             case UP:
                 basicMovements.rotate(90);
                 break;
@@ -38,8 +36,6 @@ bool execute_plan_callback(orange_fundamentals::ExecutePlan::Request& req,
             switch (*it) {
             case RIGHT:
                 basicMovements.rotate(-90);
-                break;
-            case UP:
                 break;
             case LEFT:
                 basicMovements.rotate(90);
@@ -59,8 +55,6 @@ bool execute_plan_callback(orange_fundamentals::ExecutePlan::Request& req,
             case UP:
                 basicMovements.rotate(-90);
                 break;
-            case LEFT:
-                break;
             case DOWN:
                 basicMovements.rotate(90);
                 break;
@@ -78,8 +72,6 @@ bool execute_plan_callback(orange_fundamentals::ExecutePlan::Request& req,
                 break;
             case LEFT:
                 basicMovements.rotate(-90);
-                break;
-            case DOWN:
                 break;
             default:
                 break;
