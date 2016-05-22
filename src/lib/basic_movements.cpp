@@ -9,6 +9,8 @@
 #include "sensor_msgs/LaserScan.h"
 #include "create_fundamentals/ResetEncoders.h"
 #include <constants.cpp>
+#include <ransac.cpp>
+#include <wall.cpp>
 
 class BasicMovements
 {
@@ -30,12 +32,13 @@ class BasicMovements
         bool drive(float distanceInMeters, float speed   = MEDIUM_SPEED);
         bool rotate(float angleInDegrees, float speed    = MEDIUM_SPEED);
         bool rotateAbs(float angleInDegrees, float speed = MEDIUM_SPEED);
+        bool rotateWithWall(float angleInDegrees, float speed = MEDIUM_SPEED);
 
     private:
         static const float MAXIMUM_SPEED         = 10;
         static const float MEDIUM_SPEED          = 5;
         static const float SLOW_SPEED            = 1;
-        static const bool DEBUG                  = true; // Defines if output should be printed
+        static const bool DEBUG                  = false; // Defines if output should be printed
         static const bool CALLBACK_DEBUG         = false; // Decide to print output from callbacks
 
         ros::NodeHandle n;
@@ -167,6 +170,72 @@ bool BasicMovements::rotate(float angleInDegrees, float speed)
 
         ros::spinOnce();
         loop_rate.sleep();
+    }
+    return true;
+}
+
+Wall updateWall(std::vector<Wall*> walls, Wall updateWall){
+    for(int i = 0; i < walls.size(); i++){
+        if(fabs(walls[i]->getAngle() - updateWall.getAngle()) < 10){
+            return *walls[i];
+        }
+    }
+    return updateWall;
+}
+
+bool BasicMovements::rotateWithWall(float angleInDegrees, float speed)
+{
+    Ransac ransac;
+    ros::Rate loop_rate(10);
+
+    loop_rate.sleep();
+    ros::spinOnce();
+    loop_rate.sleep();
+    ros::spinOnce();
+    loop_rate.sleep();
+
+    std::vector<Wall*> walls;
+    Wall alignWall(0,0,0,0);
+
+
+    walls = ransac.getWalls();
+    if(walls.size() == 0){
+        ROS_INFO("No wall");
+        rotate(angleInDegrees);
+        return true;
+    }
+
+
+    // Get align wall
+    for(int i = 0; i < walls.size(); i++){
+        ROS_INFO("Wall angle = %f", walls[i]->getAngle());
+        if(fabs(walls[i]->getAngle() - 90) < 10){
+            ROS_INFO("Found align wall");
+            alignWall = *walls[i];
+            break;
+        }
+    }
+
+    float wishDegree = alignWall.getAngle() - angleInDegrees;
+
+    while (n.ok()) {
+        // refresh align wall
+        ros::spinOnce();
+        walls = ransac.getWalls();
+        alignWall = updateWall(walls, alignWall);
+        ROS_INFO("Align wall angle = %f", alignWall.getAngle());
+
+        // check whether we are wall aligned
+        //if(fabs(alignWall.getAngle() - angleInDegress) < 5){
+
+        //}
+
+
+        // rotate further
+
+
+        loop_rate.sleep();
+
     }
     return true;
 }
