@@ -19,7 +19,7 @@ int main(int argc, char** argv)
     walls = ransac.getWalls();
     if(walls.size() != 0) {
       ROS_INFO("walls[0]->getAngle(): %f", walls[0]->getAngle());
-      ROS_INFO("walls[0]->getDistance(): %f", walls[0]->getDistance(0,-0.125));
+      ROS_INFO("walls[0]->getDistance(): %f", walls[0]->getDistance(0,-DISTANCE_LASER_TO_ROBOT_CENTER));
     }
   //ROS_INFO("found %d walls.", walls.size());
   r.sleep();

@@ -23,7 +23,7 @@ int main(int argc, char** argv)
 
     if(wall) {
       ROS_INFO("getAngle(): %f", wall->getAngle());
-      ROS_INFO("getDistance(): %f", wall->getDistance(0,-0.125));
+      ROS_INFO("getDistance(): %f", wall->getDistance(0,-DISTANCE_LASER_TO_ROBOT_CENTER));
     }
 
     r.sleep();
