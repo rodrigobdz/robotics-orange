@@ -37,7 +37,7 @@ class BasicMovements
     private:
         static const float DEFAULT_SPEED   = 7;
         static const bool DETECT_OBSTACLES = true;
-        static const bool DEBUG            = false; // Defines if output should be printed
+        static const bool DEBUG            = true; // Defines if output should be printed
         static const bool CALLBACK_DEBUG   = false; // Decide to print output from callbacks
         float minimumRange; // Global variable to store minimum distance to object if found
 
@@ -111,14 +111,14 @@ bool BasicMovements::drive(float distanceInMeters, float speed)
             // Check if robot is about to crash into something
             if (minimumRange < SAFETY_DIS) {
                 // Robot recognized an obstacle, distance could not be completed
-                BasicMovements::stop();
+                stop();
                 return false;
             }
         }
 
         if ((sign*leftEncoder) >= threshold || (sign*rightEncoder) >= threshold) {
             BasicMovements::stop();
-            break;
+            return true;
         }
 
         diffDriveService.request.left  = sign * speed;
@@ -130,9 +130,7 @@ bool BasicMovements::drive(float distanceInMeters, float speed)
         loop_rate.sleep();
     }
 
-    resetEncoders();
-
-    return true;
+    return false;
 }
 
 /* Rotate the robot corresponding to its local coordinate system.
@@ -168,13 +166,10 @@ bool BasicMovements::rotate(float angleInDegrees, float speed)
     resetEncoders();
     ros::Rate loop_rate(LOOP_RATE);
 
-    while(ros::ok()){
-        if (speed == 0) {
-            break;
-        }
-
+    while(ros::ok()) {
         if (fabs(leftEncoder) >= threshold || fabs(rightEncoder) >= threshold) {
-            speed = 0;
+            stop();
+            return true;
         }
 
         if(DEBUG) {
@@ -188,7 +183,8 @@ bool BasicMovements::rotate(float angleInDegrees, float speed)
         ros::spinOnce();
         loop_rate.sleep();
     }
-    return true;
+
+    return false;
 }
 
 
