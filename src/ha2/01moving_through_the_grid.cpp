@@ -11,11 +11,13 @@ bool executePlanCallback(orange_fundamentals::ExecutePlan::Request& req,
 {
     BasicMovements basicMovements;
     std::vector<int> plan = req.plan;
+    res.success = true;
     int lastDirection = UP;
-    for (std::vector<int>::iterator it = plan.begin(); it != plan.end(); ++it) {
-        ROS_INFO("execute_plan_callback: %d", *it);
 
+    for (std::vector<int>::iterator it = plan.begin(); it != plan.end(); ++it) {
+        ROS_INFO("execute plan callback: %d", *it);
         ROS_INFO("Drive in %i", *it);
+        
         switch (lastDirection) {
         case RIGHT:
             switch (*it) {
@@ -88,10 +90,10 @@ bool executePlanCallback(orange_fundamentals::ExecutePlan::Request& req,
         default:
             break;
         }
-        basicMovements.drive(0.8);
+        res.success = basicMovements.drive(CELL_LENGTH);
         lastDirection = *it;
     }
-    res.success = true;
+    
     return true;
 }
 

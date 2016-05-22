@@ -11,7 +11,7 @@ class Env {
 public:
   Env()
   {
-    _ranges = *(new std::vector<float>(512));
+    _ranges = *(new std::vector<float>(LASER_COUNT));
     _laser  = _nh.subscribe("scan_filtered", 1,
                             & Env::laserCallback,
                             this);
