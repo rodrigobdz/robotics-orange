@@ -6,7 +6,7 @@
 enum directions { RIGHT = 0, UP, LEFT, DOWN };
 
 
-bool execute_plan_callback(orange_fundamentals::ExecutePlan::Request& req,
+bool executePlanCallback(orange_fundamentals::ExecutePlan::Request& req,
                            orange_fundamentals::ExecutePlan::Response& res)
 {
     BasicMovements basicMovements;
@@ -102,7 +102,7 @@ int main(int argc, char** argv)
 
     // TODO: align to a cell
 
-    ros::ServiceServer service = nh.advertiseService("execute_plan", execute_plan_callback);
+    ros::ServiceServer service = nh.advertiseService("execute_plan", executePlanCallback);
     ROS_INFO("ExecutePlan Service is ready.");
     ros::spin();
     return 0;
