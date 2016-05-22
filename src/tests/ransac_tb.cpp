@@ -4,7 +4,7 @@
 #include "create_fundamentals/DiffDrive.h"
 #include "create_fundamentals/SensorPacket.h"
 #include "sensor_msgs/LaserScan.h"
-#include "../lib/ransac.cpp"
+#include <ransac.cpp>
 
 int main(int argc, char** argv)
 {

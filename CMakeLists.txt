@@ -3,9 +3,6 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(orange_fundamentals)
 # Load catkin and all dependencies required for this package
-
-
-
 find_package(
     catkin
     REQUIRED COMPONENTS
@@ -26,12 +23,7 @@ set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 #)
 #uncomment if you have defined services
 
-
-
 add_service_files(FILES ExecutePlan.srv)
-
-
-INCLUDE_DIRECTORIES(src/lib)
 
 # To see the include folders uncomment following lines
 # get_property(inc_dirs DIRECTORY PROPERTY INCLUDE_DIRECTORIES)
@@ -58,15 +50,19 @@ catkin_package(
     CATKIN_DEPENDS roscpp rospy sensor_msgs create_fundamentals
 )
 
-include_directories(include ${catkin_INCLUDE_DIRS} ${YOUR_DIRECTORY}/src/lib)
+include_directories(include ${catkin_INCLUDE_DIRS} src/lib)
 
-# add_executable(example_drive src/examples/example_drive.cpp)
-# target_link_libraries(example_drive ${catkin_LIBRARIES})
-# add_dependencies(example_drive create_fundamentals_generate_messages_cpp)
+#############################################################################
+#                          EXECUTABLES
+#############################################################################
 
-# add_executable(example_rotate src/examples/example_rotate.cpp)
-# target_link_libraries(example_rotate ${catkin_LIBRARIES})
-# add_dependencies(example_rotate create_fundamentals_generate_messages_cpp)
+add_executable(example_drive src/examples/example_drive.cpp)
+target_link_libraries(example_drive ${catkin_LIBRARIES})
+add_dependencies(example_drive create_fundamentals_generate_messages_cpp)
+
+add_executable(example_rotate src/examples/example_rotate.cpp)
+target_link_libraries(example_rotate ${catkin_LIBRARIES})
+add_dependencies(example_rotate create_fundamentals_generate_messages_cpp)
 
 add_executable(03align src/ha1/03align.cpp)
 target_link_libraries(03align ${catkin_LIBRARIES})

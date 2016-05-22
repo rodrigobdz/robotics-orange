@@ -1,4 +1,4 @@
-#include "../lib/basic_movements.cpp"
+#include <basic_movements.cpp>
 
 int main(int argc, char** argv)
 {
