@@ -24,7 +24,6 @@ public:
   std::vector<Wall*> getWalls(void) {return _ransac.getWalls();};
 
 private:
-  //static const int RATE = 16;
   ros::NodeHandle    _nh;
   ros::Subscriber    _laser;
   std::vector<float> _ranges;
@@ -57,7 +56,7 @@ Wall* Env::getWallClosestTo90(void)
 
 bool Env::alignToGrid(void)
 {
-  ros::Rate r(16);
+  ros::Rate r(LOOP_RATE);
   int aligned = 0;
 
   while(ros::ok()) {
@@ -82,7 +81,7 @@ bool Env::alignToGrid(void)
 
 int Env::alignToWall(void)
 {
-  ros::Rate r(16);
+  ros::Rate r(LOOP_RATE);
   while(ros::ok()) {
     Wall* wall = getWallClosestTo90();
     if(wall) {

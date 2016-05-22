@@ -16,4 +16,6 @@ static const float LASER_COUNT                    = 512;
 static const float ONE_METER_IN_RAD               = 30.798;
 static const float NINETY_DEGREES_IN_RAD          = 30.798 * 0.196349; // 2pir^2 / 4, r = 0.26/2
 
+static const int LOOP_RATE                        = 16; // Used for loop rate
+
 #endif // CONSTANTS_LIB

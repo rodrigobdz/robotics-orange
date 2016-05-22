@@ -37,8 +37,6 @@ class BasicMovements
         static const float SLOW_SPEED            = 1;
         static const bool DEBUG                  = true; // Defines if output should be printed
         static const bool CALLBACK_DEBUG         = false; // Decide to print output from callbacks
-        static const int LOOP_RATE               = 16; // Used for loop rate
-
 
         ros::NodeHandle n;
         // Encoders
@@ -83,9 +81,6 @@ void BasicMovements::stop()
 **/
 bool BasicMovements::drive(float distanceInMeters, float speed)
 {
-    // TODO: Modify for variable distance
-    // TODO: Check in laser callback if object is on the way to stop in that case
-
     if(DEBUG) {
         ROS_INFO("diffDrive %f %f distance: %f m", speed, speed, distanceInMeters);
     }
