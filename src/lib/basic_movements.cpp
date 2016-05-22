@@ -18,15 +18,16 @@ class BasicMovements
             // Set up encoders callback
             encoderSubscriber   = n.subscribe("sensor_packet", 1, &BasicMovements::encoderCallback, this);
             diffDriveClient     = n.serviceClient<create_fundamentals::DiffDrive>("diff_drive");
-
+            
             // Set up laser callback
             laserSubscriber     = n.subscribe("scan_filtered", 1, &BasicMovements::laserCallback, this);
-
+            
             // Set up reset encoders client
             resetEncodersClient = n.serviceClient<create_fundamentals::ResetEncoders>("reset_encoders");
             
             // Initialize minimum range to a default value to be able to stop when obstacle is found
-            minimumRange        = 123;
+            laserInitialized   = false;
+            encoderInitialized = false;
         }
 
         void stop();
@@ -40,6 +41,8 @@ class BasicMovements
         static const bool DEBUG            = true; // Defines if output should be printed
         static const bool CALLBACK_DEBUG   = false; // Decide to print output from callbacks
         float minimumRange; // Global variable to store minimum distance to object if found
+        bool laserInitialized;
+        bool encoderInitialized;
 
         ros::NodeHandle n;
         // Encoders
@@ -68,7 +71,7 @@ class BasicMovements
 void BasicMovements::stop()
 {
     if(DEBUG) {
-        ROS_INFO("STOP diffDrive 0 0");
+        ROS_INFO("STOP");
     }
 
     diffDriveService.request.left  = 0;
@@ -98,16 +101,14 @@ bool BasicMovements::drive(float distanceInMeters, float speed)
 
     while(ros::ok()) {
         if (DETECT_OBSTACLES) {
-            // Get laser data before driving to recognize obstacles beforehand
-            ros::spinOnce();
-            // Check if minimumRange variable was already initialized by laser callback
-            if (minimumRange == 123) {
-                // Ranges are not initialized
+
+            while(!laserInitialized) {
+                // Get laser data before driving to recognize obstacles beforehand
+                ros::spinOnce();
                 // Sleep and continue loop
                 loop_rate.sleep();
-                continue;
             }
-
+            
             // Check if robot is about to crash into something
             if (minimumRange < SAFETY_DIS) {
                 // Robot recognized an obstacle, distance could not be completed
@@ -157,24 +158,32 @@ bool BasicMovements::rotateAbs(float angleInDegrees, float speed)
 bool BasicMovements::rotate(float angleInDegrees, float speed)
 {
     if(fabs(angleInDegrees) < 5) return true;
+    ROS_INFO("rotate angleInDegrees %f", angleInDegrees);
+
+    if(fabs(angleInDegrees) < 5) {
+        return true;
+    }
 
     speed = fabs(speed);
-    float sign           = angleInDegrees < 0 ? -1 : 1;
+    float sign = angleInDegrees < 0 ? -1 : 1;
     float angleInRadians = angleInDegrees * (NINETY_DEGREES_IN_RAD / 90);
     float threshold      = fabs(angleInRadians) - (NINETY_DEGREES_IN_RAD / 90)/2;
 
     resetEncoders();
     ros::Rate loop_rate(LOOP_RATE);
 
+    while(!encoderInitialized) {
+        // Get laser data before driving to recognize obstacles beforehand
+        ros::spinOnce();
+        // Sleep and continue loop
+        loop_rate.sleep();
+    }
     while(ros::ok()) {
         if (fabs(leftEncoder) >= threshold || fabs(rightEncoder) >= threshold) {
             stop();
             return true;
         }
 
-        if(DEBUG) {
-            ROS_INFO("diffDrive %f %f angle: %fº", sign * -speed, sign * speed, angleInDegrees);
-        }
 
         diffDriveService.request.left  = sign * -speed;
         diffDriveService.request.right = sign * speed;
@@ -196,13 +205,16 @@ void BasicMovements::encoderCallback(const create_fundamentals::SensorPacket::Co
     if(CALLBACK_DEBUG) {
         ROS_INFO("left encoder: %f, right encoder: %f", msg->encoderLeft, msg->encoderRight);
     }
-    leftEncoder  = msg->encoderLeft;
-    rightEncoder = msg->encoderRight;
+
+    encoderInitialized = true;
+    leftEncoder        = msg->encoderLeft;
+    rightEncoder       = msg->encoderRight;
 }
 
 void BasicMovements::laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg)
 {
-    ranges = msg->ranges;
+    laserInitialized = true;
+    ranges           = msg->ranges;
 
     // Initialize minimum range to a default value
     minimumRange = LASER_MAX_REACH;
@@ -222,6 +234,7 @@ void BasicMovements::resetEncoders()
 {
     resetEncodersClient.call(resetEncodersService);
     leftEncoder = rightEncoder = 0;
+    encoderInitialized = false;
 }
 
 #endif // BASIC_MOVEMENTS_LIB
