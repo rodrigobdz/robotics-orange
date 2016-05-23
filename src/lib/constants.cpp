@@ -7,9 +7,11 @@
 
 // Distances are given in meters
 static const float DISTANCE_LASER_TO_ROBOT_CENTER = 0.125;
-static const float CELL_CENTER                    = 0.39;		
+static const float CELL_CENTER                    = 0.39;
 static const float SAFETY_DIS                     = 0.15; // Minimum distance to keep when driving
 static const float CELL_LENGTH                    = 0.80;
+static const float LASER_MAX_REACH                = 1;
+
 
 static const float PI                             = M_PI;
 static const float LASER_COUNT                    = 512;

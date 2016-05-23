@@ -9,8 +9,6 @@
 #include "sensor_msgs/LaserScan.h"
 #include "create_fundamentals/ResetEncoders.h"
 #include <constants.cpp>
-#include <ransac.cpp>
-#include <wall.cpp>
 
 class BasicMovements
 {
@@ -26,20 +24,25 @@ class BasicMovements
 
             // Set up reset encoders client
             resetEncodersClient = n.serviceClient<create_fundamentals::ResetEncoders>("reset_encoders");
+
+            // Initialize minimum range to a default value to be able to stop when obstacle is found
+            laserInitialized   = false;
+            encoderInitialized = false;
         }
 
         void stop();
-        bool drive(float distanceInMeters, float speed   = MEDIUM_SPEED);
-        bool rotate(float angleInDegrees, float speed    = MEDIUM_SPEED);
-        bool rotateAbs(float angleInDegrees, float speed = MEDIUM_SPEED);
-        bool rotateWithWall(float angleInDegrees, float speed = MEDIUM_SPEED);
+        bool drive(float distanceInMeters, float speed   = DEFAULT_SPEED);
+        bool rotate(float angleInDegrees, float speed    = DEFAULT_SPEED);
+        bool rotateAbs(float angleInDegrees, float speed = DEFAULT_SPEED);
 
     private:
-        static const float MAXIMUM_SPEED         = 10;
-        static const float MEDIUM_SPEED          = 5;
-        static const float SLOW_SPEED            = 1;
-        static const bool DEBUG                  = false; // Defines if output should be printed
-        static const bool CALLBACK_DEBUG         = false; // Decide to print output from callbacks
+        static const float DEFAULT_SPEED   = 7;
+        static const bool DETECT_OBSTACLES = true;
+        static const bool DEBUG            = true; // Defines if output should be printed
+        static const bool CALLBACK_DEBUG   = false; // Decide to print output from callbacks
+        float minimumRange; // Global variable to store minimum distance to object if found
+        bool laserInitialized;
+        bool encoderInitialized;
 
         ros::NodeHandle n;
         // Encoders
@@ -68,7 +71,7 @@ class BasicMovements
 void BasicMovements::stop()
 {
     if(DEBUG) {
-        ROS_INFO("diffDrive 0 0");
+        ROS_INFO("STOP");
     }
 
     diffDriveService.request.left  = 0;
@@ -97,12 +100,26 @@ bool BasicMovements::drive(float distanceInMeters, float speed)
     ros::Rate loop_rate(LOOP_RATE);
 
     while(ros::ok()) {
-        if (speed == 0) {
-            break;
+        if (DETECT_OBSTACLES) {
+
+            while(!laserInitialized) {
+                // Get laser data before driving to recognize obstacles beforehand
+                ros::spinOnce();
+                // Sleep and continue loop
+                loop_rate.sleep();
+            }
+
+            // Check if robot is about to crash into something
+            if (minimumRange < SAFETY_DIS) {
+                // Robot recognized an obstacle, distance could not be completed
+                stop();
+                return false;
+            }
         }
 
         if ((sign*leftEncoder) >= threshold || (sign*rightEncoder) >= threshold) {
-            speed = 0;
+            BasicMovements::stop();
+            return true;
         }
 
         diffDriveService.request.left  = sign * speed;
@@ -110,12 +127,11 @@ bool BasicMovements::drive(float distanceInMeters, float speed)
         diffDriveClient.call(diffDriveService);
 
         ros::spinOnce();
+
         loop_rate.sleep();
     }
 
-    resetEncoders();
-
-    return true;
+    return false;
 }
 
 /* Rotate the robot corresponding to its local coordinate system.
@@ -141,123 +157,94 @@ bool BasicMovements::rotateAbs(float angleInDegrees, float speed)
 **/
 bool BasicMovements::rotate(float angleInDegrees, float speed)
 {
-    if(DEBUG) {
-        ROS_INFO("diffDrive %f %f angle: %fº", speed, speed, angleInDegrees);
+    ROS_INFO("rotate angleInDegrees %f", angleInDegrees);
+
+    if(fabs(angleInDegrees) < 5) {
+        return true;
     }
 
-    if(fabs(angleInDegrees) < 5) return true;
 
     speed = fabs(speed);
-    float sign           = angleInDegrees < 0 ? -1 : 1;
+    float sign = angleInDegrees < 0 ? -1 : 1;
     float angleInRadians = angleInDegrees * (NINETY_DEGREES_IN_RAD / 90);
-    float threshold      = fabs(angleInRadians) - (NINETY_DEGREES_IN_RAD / 90)/2;
+    float threshold      = NINETY_DEGREES_IN_RAD / 25;
 
-    resetEncoders();
-    ros::Rate loop_rate(LOOP_RATE);
+    if(DEBUG) {
+        ROS_INFO("diffDrive %f %f angle: %f degrees", sign * -speed, sign * speed, angleInDegrees);
+    }
 
-    while(ros::ok()){
-        if (speed == 0) {
-            break;
+    // resetEncoders();
+    ros::Rate loop_rate(LOOP_RATE*100);
+
+    while(!encoderInitialized) {
+        // Get laser data before driving to recognize obstacles beforehand
+        ros::spinOnce();
+        // Sleep and continue loop
+        loop_rate.sleep();
+    }
+
+    float wishLeftEncoder;
+    float wishRightEncoder;
+
+    if(sign ==  -1){
+        wishLeftEncoder = leftEncoder + sign * angleInRadians;
+        wishRightEncoder = rightEncoder - sign * angleInRadians;
+    }else{
+        wishLeftEncoder = leftEncoder - sign * angleInRadians;
+        wishRightEncoder = rightEncoder + sign * angleInRadians;
+    }
+
+
+
+    while(ros::ok()) {
+        // ROS_INFO("diffLeft %f < wishLeftEncoder %f diffRight %f < wishRightEncoder %f", fabs(wishLeftEncoder - leftEncoder), threshold, fabs(wishRightEncoder - rightEncoder), threshold);
+        ROS_INFO("wishLeftEncoder %f leftEncoder %f wishRightEncoder %f rightEncoder %f", wishLeftEncoder, leftEncoder, wishRightEncoder, rightEncoder);
+
+        if (fabs((wishLeftEncoder - leftEncoder)) < threshold || fabs((wishRightEncoder - rightEncoder)) < threshold) {
+            stop();
+            return true;
         }
 
-        if (fabs(leftEncoder) >= threshold || fabs(rightEncoder) >= threshold) {
-            speed = 0;
-        }
-
-        diffDriveService.request.left  = sign * -speed;
-        diffDriveService.request.right = sign * speed;
+        diffDriveService.request.left = sign * -speed / 2 + sign * -speed * fabs(wishLeftEncoder - leftEncoder) / 10;
+        diffDriveService.request.right = sign * speed / 2 + sign * speed * fabs(wishRightEncoder - rightEncoder) / 10;
         diffDriveClient.call(diffDriveService);
 
         ros::spinOnce();
         loop_rate.sleep();
     }
-    return true;
-}
 
-Wall updateWall(std::vector<Wall*> walls, Wall updateWall){
-    for(int i = 0; i < walls.size(); i++){
-        if(fabs(walls[i]->getAngle() - updateWall.getAngle()) < 10){
-            return *walls[i];
-        }
-    }
-    return updateWall;
-}
-
-bool BasicMovements::rotateWithWall(float angleInDegrees, float speed)
-{
-    Ransac ransac;
-    ros::Rate loop_rate(10);
-
-    loop_rate.sleep();
-    ros::spinOnce();
-    loop_rate.sleep();
-    ros::spinOnce();
-    loop_rate.sleep();
-
-    std::vector<Wall*> walls;
-    Wall alignWall(0,0,0,0);
-
-
-    walls = ransac.getWalls();
-    if(walls.size() == 0){
-        ROS_INFO("No wall");
-        rotate(angleInDegrees);
-        return true;
-    }
-
-
-    // Get align wall
-    for(int i = 0; i < walls.size(); i++){
-        ROS_INFO("Wall angle = %f", walls[i]->getAngle());
-        if(fabs(walls[i]->getAngle() - 90) < 10){
-            ROS_INFO("Found align wall");
-            alignWall = *walls[i];
-            break;
-        }
-    }
-
-    float wishDegree = alignWall.getAngle() - angleInDegrees;
-
-    while (n.ok()) {
-        // refresh align wall
-        ros::spinOnce();
-        walls = ransac.getWalls();
-        alignWall = updateWall(walls, alignWall);
-        ROS_INFO("Align wall angle = %f", alignWall.getAngle());
-
-        // check whether we are wall aligned
-        //if(fabs(alignWall.getAngle() - angleInDegress) < 5){
-
-        //}
-
-
-        // rotate further
-
-
-        loop_rate.sleep();
-
-    }
-    return true;
+    return false;
 }
 
 
 
 /********************** HELPERS *****************************/
 
-
-
 void BasicMovements::encoderCallback(const create_fundamentals::SensorPacket::ConstPtr& msg)
 {
     if(CALLBACK_DEBUG) {
         ROS_INFO("left encoder: %f, right encoder: %f", msg->encoderLeft, msg->encoderRight);
     }
-    leftEncoder  = msg->encoderLeft;
-    rightEncoder = msg->encoderRight;
+
+    encoderInitialized = true;
+    leftEncoder        = msg->encoderLeft;
+    rightEncoder       = msg->encoderRight;
 }
 
 void BasicMovements::laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg)
 {
-    ranges = msg->ranges;
+    laserInitialized = true;
+    ranges           = msg->ranges;
+
+    // Initialize minimum range to a default value
+    minimumRange = LASER_MAX_REACH;
+    // Find minimum in ranges
+    for (int i = 0; i < LASER_COUNT-1; ++i) {
+        if (ranges[i] < minimumRange) {
+            // Local minimum was found
+            minimumRange = ranges[i];
+        }
+    }
 }
 
 /*
@@ -267,6 +254,7 @@ void BasicMovements::resetEncoders()
 {
     resetEncodersClient.call(resetEncodersService);
     leftEncoder = rightEncoder = 0;
+    encoderInitialized = false;
 }
 
 #endif // BASIC_MOVEMENTS_LIB
