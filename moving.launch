@@ -1,4 +1,4 @@
 <launch>
-    <node name="execute_plan" output="screen" pkg="orange_fundamentals" type="execute_plan"/>
+    <node name="execute_plan" pkg="orange_fundamentals" type="execute_plan" output="screen"/>
 
 </launch>
