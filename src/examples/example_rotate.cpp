@@ -18,31 +18,17 @@ int main(int argc, char **argv)
 	signal(SIGINT, stopMotors);
 
     std::vector<Wall*> walls;
+    ros::Rate loop_rate(1/3);
 	// Rotate 90 degrees clockwise with a velocity of 7 rad/s
 
-	basicMovements.rotate(-90);
-    walls = ransac.getWalls();
-    for (int wall = 0; wall < walls.size(); wall++) {
-        ROS_INFO("wall[i].angle = %f", walls[wall]->getAngle());
-    }
+	// basicMovements.rotate(-90);
+	// basicMovements.rotate(90);
+	// basicMovements.rotate(-90);
+	// basicMovements.rotate(90);
+	basicMovements.move(0.8 / 3, PI/2 / 3);
+    loop_rate.sleep();
+	basicMovements.move(0, 0);
 
-	basicMovements.rotate(90);
-    walls = ransac.getWalls();
-    for (int wall = 0; wall < walls.size(); wall++) {
-        ROS_INFO("wall[i].angle = %f", walls[wall]->getAngle());
-    }
-
-	basicMovements.rotate(-90);
-    walls = ransac.getWalls();
-    for (int wall = 0; wall < walls.size(); wall++) {
-        ROS_INFO("wall[i].angle = %f", walls[wall]->getAngle());
-    }
-
-	basicMovements.rotate(90);
-    walls = ransac.getWalls();
-    for (int wall = 0; wall < walls.size(); wall++) {
-        ROS_INFO("wall[i].angle = %f", walls[wall]->getAngle());
-    }
 }
 
 

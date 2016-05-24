@@ -40,26 +40,26 @@ include_directories(include ${catkin_INCLUDE_DIRS} src/lib)
 #                          EXECUTABLES
 #############################################################################
 
-add_executable(example_drive src/examples/example_drive.cpp)
-target_link_libraries(example_drive ${catkin_LIBRARIES})
-add_dependencies(example_drive create_fundamentals_generate_messages_cpp)
+# add_executable(example_drive src/examples/example_drive.cpp)
+# target_link_libraries(example_drive ${catkin_LIBRARIES})
+# add_dependencies(example_drive create_fundamentals_generate_messages_cpp)
 
 add_executable(example_rotate src/examples/example_rotate.cpp)
 target_link_libraries(example_rotate ${catkin_LIBRARIES})
 add_dependencies(example_rotate create_fundamentals_generate_messages_cpp)
 
-add_executable(03align src/ha1/03align.cpp)
-target_link_libraries(03align ${catkin_LIBRARIES})
-add_dependencies(03align create_fundamentals_generate_messages_cpp)
+# add_executable(03align src/ha1/03align.cpp)
+# target_link_libraries(03align ${catkin_LIBRARIES})
+# add_dependencies(03align create_fundamentals_generate_messages_cpp)
 
 add_executable(execute_plan src/ha2/01moving_through_the_grid.cpp)
 target_link_libraries(execute_plan ${catkin_LIBRARIES})
 add_dependencies(execute_plan create_fundamentals_generate_messages_cpp)
 
-add_executable(ransac_tb src/tests/ransac_tb.cpp)
-target_link_libraries(ransac_tb ${catkin_LIBRARIES})
-add_dependencies(ransac_tb create_fundamentals_generate_messages_cpp)
+# add_executable(ransac_tb src/tests/ransac_tb.cpp)
+# target_link_libraries(ransac_tb ${catkin_LIBRARIES})
+# add_dependencies(ransac_tb create_fundamentals_generate_messages_cpp)
 
-add_executable(env_tb src/tests/env_tb.cpp)
-target_link_libraries(env_tb ${catkin_LIBRARIES})
-add_dependencies(env_tb create_fundamentals_generate_messages_cpp)
+# add_executable(env_tb src/tests/env_tb.cpp)
+# target_link_libraries(env_tb ${catkin_LIBRARIES})
+# add_dependencies(env_tb create_fundamentals_generate_messages_cpp)

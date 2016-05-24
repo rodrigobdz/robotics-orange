@@ -1,4 +1,3 @@
-
 #include "ros/ros.h"
 #include "orange_fundamentals/ExecutePlan.h"
 #include <basic_movements.cpp>
@@ -12,10 +11,11 @@ bool execute_plan_callback(orange_fundamentals::ExecutePlan::Request& req,
     BasicMovements basicMovements;
     std::vector<int> plan = req.plan;
     int lastDirection = UP;
+    ROS_INFO("Test");
     for (std::vector<int>::iterator it = plan.begin(); it != plan.end(); ++it) {
         ROS_INFO("execute_plan_callback: %d", *it);
 
-        ROS_INFO("Drive in %i", *it);
+        ROS_INFO("Drive in %i, lastDirection = %i", *it, lastDirection);
         switch (lastDirection) {
         case RIGHT:
             switch (*it) {
@@ -88,9 +88,10 @@ bool execute_plan_callback(orange_fundamentals::ExecutePlan::Request& req,
         default:
             break;
         }
-        basicMovements.drive(0.8);
+        basicMovements.drive(0.80);
         lastDirection = *it;
     }
+    basicMovements.stop();
     res.success = true;
     return true;
 }
@@ -104,6 +105,7 @@ int main(int argc, char** argv)
 
     ros::ServiceServer service = nh.advertiseService("execute_plan", execute_plan_callback);
     ROS_INFO("ExecutePlan Service is ready.");
+
     ros::spin();
     return 0;
 }
