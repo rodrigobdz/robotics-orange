@@ -17,17 +17,17 @@ class BasicMovements
     BasicMovements()
     {
         // Set up encoders callback
-        encoderSubscriber = n.subscribe("sensor_packet", 1, &BasicMovements::encoderCallback, this);
-        diffDriveClient = n.serviceClient<create_fundamentals::DiffDrive>("diff_drive");
+        encoderSubscriber   = n.subscribe("sensor_packet", 1, &BasicMovements::encoderCallback, this);
+        diffDriveClient     = n.serviceClient<create_fundamentals::DiffDrive>("diff_drive");
 
         // Set up laser callback
-        laserSubscriber = n.subscribe("scan_filtered", 1, &BasicMovements::laserCallback, this);
+        laserSubscriber     = n.subscribe("scan_filtered", 1, &BasicMovements::laserCallback, this);
 
         // Set up reset encoders client
         resetEncodersClient = n.serviceClient<create_fundamentals::ResetEncoders>("reset_encoders");
 
         // Initialize minimum range to a default value to be able to stop when obstacle is found
-        laserInitialized = false;
+        laserInitialized   = false;
         encoderInitialized = false;
 
         ransac;
@@ -44,11 +44,11 @@ class BasicMovements
     bool turnRight();
 
   private:
-    static const float DEFAULT_SPEED = 5;
+    static const float DEFAULT_SPEED   = 5;
     static const bool DETECT_OBSTACLES = true;
-    static const bool DEBUG = true;           // Defines if output should be printed
-    static const bool CALLBACK_DEBUG = false; // Decide to print output from callbacks
-    float minimumRange;                       // Global variable to store minimum distance to object if found
+    static const bool DEBUG            = true;  // Defines if output should be printed
+    static const bool CALLBACK_DEBUG   = false; // Decide to print output from callbacks
+    float minimumRange;                         // Global variable to store minimum distance to object if found
     bool laserInitialized;
     bool encoderInitialized;
 
@@ -78,10 +78,10 @@ class BasicMovements
 
 bool BasicMovements::move(float desiredVelocity, float desiredTurningVelocity)
 {
-    float vLeft = 1 / RAD_RADIUS * (desiredVelocity + ROB_BASE / 2 * desiredTurningVelocity);
+    float vLeft  = 1 / RAD_RADIUS * (desiredVelocity + ROB_BASE / 2 * desiredTurningVelocity);
     float vRight = 1 / RAD_RADIUS * (desiredVelocity - ROB_BASE / 2 * desiredTurningVelocity);
 
-    diffDriveService.request.left = vLeft;
+    diffDriveService.request.left  = vLeft;
     diffDriveService.request.right = vRight;
 
     diffDriveClient.call(diffDriveService);
@@ -93,7 +93,7 @@ void BasicMovements::stop()
         ROS_INFO("STOP");
     }
 
-    diffDriveService.request.left = 0;
+    diffDriveService.request.left  = 0;
     diffDriveService.request.right = 0;
     diffDriveClient.call(diffDriveService);
 }
@@ -110,10 +110,10 @@ bool BasicMovements::drive(float distanceInMeters, float speed)
         ROS_INFO("diffDrive %f %f distance: %f m", speed, speed, distanceInMeters);
     }
 
-    speed = fabs(speed);
-    float sign = distanceInMeters < 0 ? -1 : 1; // Check if speed positive or negative
+    speed                   = fabs(speed);
+    float sign              = distanceInMeters < 0 ? -1 : 1; // Check if speed positive or negative
     float distanceInRadians = distanceInMeters * ONE_METER_IN_RAD;
-    float threshold = fabs(distanceInRadians) - (fabs(distanceInRadians) * 0.025);
+    float threshold         = fabs(distanceInRadians) - (fabs(distanceInRadians) * 0.025);
 
     resetEncoders();
 
@@ -137,7 +137,7 @@ bool BasicMovements::drive(float distanceInMeters, float speed)
             return true;
         }
 
-        diffDriveService.request.left = sign * speed;
+        diffDriveService.request.left  = sign * speed;
         diffDriveService.request.right = sign * speed;
         diffDriveClient.call(diffDriveService);
 
@@ -213,11 +213,13 @@ bool BasicMovements::driveWall(float distanceInMeters, float speed)
  * */
 bool BasicMovements::rotateAbs(float angleInDegrees, float speed)
 {
-    if (angleInDegrees > 180)
+    if (angleInDegrees > 180) {
         angleInDegrees = 180;
+    }
 
-    if (angleInDegrees < 0)
+    if (angleInDegrees < 0) {
         angleInDegrees = 0;
+    }
 
     return rotate(angleInDegrees - 90, speed);
 }
@@ -232,11 +234,11 @@ bool BasicMovements::rotate(float angleInDegrees, float speed)
 {
     // Variables
     float angleInRadians = angleInDegrees * (PI/2) / 90;
-    float threshold = NINETY_DEGREES_IN_RAD / 10;
+    float threshold      = NINETY_DEGREES_IN_RAD / 10;
 
     initialiseEncoder();
 
-    float wishLeftEncoder = leftEncoder - 1 / RAD_RADIUS * ( ROB_BASE / 2 * angleInRadians);
+    float wishLeftEncoder  = leftEncoder - 1 / RAD_RADIUS * ( ROB_BASE / 2 * angleInRadians);
     float wishRightEncoder = rightEncoder + 1 / RAD_RADIUS * ( ROB_BASE / 2 * angleInRadians);
 
     while (ros::ok()) {
@@ -249,7 +251,7 @@ bool BasicMovements::rotate(float angleInDegrees, float speed)
             return true;
         }
 
-        if(wishLeftEncoder > leftEncoder){
+        if(wishLeftEncoder > leftEncoder) {
             move(0, 1);
         } else {
             move(0, -1);
@@ -311,17 +313,17 @@ void BasicMovements::encoderCallback(const create_fundamentals::SensorPacket::Co
     }
 
     encoderInitialized = true;
-    leftEncoder = msg->encoderLeft;
-    rightEncoder = msg->encoderRight;
+    leftEncoder        = msg->encoderLeft;
+    rightEncoder       = msg->encoderRight;
 }
 
 void BasicMovements::laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg)
 {
     laserInitialized = true;
-    ranges = msg->ranges;
+    ranges           = msg->ranges;
 
     // Initialize minimum range to a default value
-    minimumRange = LASER_MAX_REACH;
+    minimumRange     = LASER_MAX_REACH;
     // Find minimum in ranges
     for (int i = 0; i < LASER_COUNT - 1; ++i) {
         if (ranges[i] < minimumRange) {

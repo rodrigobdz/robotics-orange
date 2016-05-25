@@ -11,7 +11,7 @@ class Env {
 public:
   Env()
   {
-    _ranges = *(new std::vector<float>(512));
+    _ranges = *(new std::vector<float>(LASER_COUNT));
     _laser  = _nh.subscribe("scan_filtered", 1,
                             & Env::laserCallback,
                             this);
@@ -89,7 +89,7 @@ int Env::alignToWall(void)
       r.sleep();
       _basicMovements.drive(wall->getDistance(0, -DISTANCE_LASER_TO_ROBOT_CENTER) - CELL_CENTER, 1);
 
-      // check the angel again and leave if its ok
+      // check the angle again and leave if its ok
       // otherwise enter another loop
       wall = getWallClosestTo90();
       if(fabs(wall->getAngle()-90) < 5)
