@@ -44,10 +44,7 @@ class Ransac
 
     void initialiseLaser();
     void laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg);
-};
-
-
-/* *
+}; /* *
  * Recognize walls with ransac
  *
  * Returns: two points that represent a wall {point1x, point1y, point2x, point2y}
@@ -91,20 +88,22 @@ std::vector<Wall*> Ransac::getWalls()
         }
     }
 
-    for (int i = 0; i < walls.size(); i++) {
-        for (int j = i+1; j < walls.size(); j++) {
-            if(fabs(walls[i]->getAngle() - walls[j]->getAngle()) < 5) {
-                float newX1 = (walls[i]->getX1() + walls[j]->getX1()) / 2;
-                float newY1 = (walls[i]->getY1() + walls[j]->getY1()) / 2;
-                float newX2 = (walls[i]->getX2() + walls[j]->getX2()) / 2;
-                float newY2 = (walls[i]->getY2() + walls[j]->getY2()) / 2;
-                walls.erase(walls.begin() + i);
-                walls.erase(walls.begin() + j - 1);
-                Wall* currentWall = new Wall(newX1, newY1, newX2, newY2);
-                walls.push_back(currentWall);
-            }
-        }
-    }
+    // for (int i = 0; i < walls.size(); i++) {
+    //     for (int j = i+1; j < walls.size(); j++) {
+    //         ROS_INFO("i = %i, j = %i", i, j);
+    //         if(fabs(walls[i]->getAngle() - walls[j]->getAngle()) < 10) {
+    //             float newX1 = (walls[i]->getX1() + walls[j]->getX1()) / 2;
+    //             float newY1 = (walls[i]->getY1() + walls[j]->getY1()) / 2;
+    //             float newX2 = (walls[i]->getX2() + walls[j]->getX2()) / 2;
+    //             float newY2 = (walls[i]->getY2() + walls[j]->getY2()) / 2;
+    //             ROS_INFO("DELELTE");
+    //             walls.erase(walls.begin() + i);
+    //             walls.erase(walls.begin() + j - 1);
+    //             Wall* currentWall = new Wall(newX1, newY1, newX2, newY2);
+    //             walls.push_back(currentWall);
+    //         }
+    //     }
+    // }
 
     // Sort the return std::vector
     // The smaller the angle the sooner in the array.

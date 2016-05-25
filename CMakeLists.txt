@@ -48,6 +48,9 @@ add_executable(example_driveWall src/examples/example_driveWall.cpp)
 target_link_libraries(example_driveWall ${catkin_LIBRARIES})
 add_dependencies(example_driveWall create_fundamentals_generate_messages_cpp)
 
+add_executable(example_ransac src/examples/example_ransac.cpp)
+target_link_libraries(example_ransac ${catkin_LIBRARIES})
+add_dependencies(example_ransac create_fundamentals_generate_messages_cpp)
 #################################
 #              Test             #
 #################################
