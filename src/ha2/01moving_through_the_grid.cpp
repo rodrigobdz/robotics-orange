@@ -1,4 +1,3 @@
-
 #include "ros/ros.h"
 #include "orange_fundamentals/ExecutePlan.h"
 #include <basic_movements.cpp>
@@ -6,21 +5,22 @@
 enum directions { RIGHT = 0, UP, LEFT, DOWN };
 
 
-bool executePlanCallback(orange_fundamentals::ExecutePlan::Request& req,
+bool execute_plan_callback(orange_fundamentals::ExecutePlan::Request& req,
                            orange_fundamentals::ExecutePlan::Response& res)
 {
     BasicMovements basicMovements;
     std::vector<int> plan = req.plan;
-    res.success = true;
     int lastDirection = UP;
-
+    ROS_INFO("Test");
     for (std::vector<int>::iterator it = plan.begin(); it != plan.end(); ++it) {
-        ROS_INFO("execute plan callback: %d", *it);
-        ROS_INFO("Drive in %i", *it);
+        ROS_INFO("execute_plan_callback: %d", *it);
 
+        ROS_INFO("Drive in %i, lastDirection = %i", *it, lastDirection);
         switch (lastDirection) {
         case RIGHT:
             switch (*it) {
+            case RIGHT:
+                break;
             case UP:
                 basicMovements.rotate(90);
                 break;
@@ -38,6 +38,8 @@ bool executePlanCallback(orange_fundamentals::ExecutePlan::Request& req,
             switch (*it) {
             case RIGHT:
                 basicMovements.rotate(-90);
+                break;
+            case UP:
                 break;
             case LEFT:
                 basicMovements.rotate(90);
@@ -57,6 +59,8 @@ bool executePlanCallback(orange_fundamentals::ExecutePlan::Request& req,
             case UP:
                 basicMovements.rotate(-90);
                 break;
+            case LEFT:
+                break;
             case DOWN:
                 basicMovements.rotate(90);
                 break;
@@ -75,6 +79,8 @@ bool executePlanCallback(orange_fundamentals::ExecutePlan::Request& req,
             case LEFT:
                 basicMovements.rotate(-90);
                 break;
+            case DOWN:
+                break;
             default:
                 break;
             }
@@ -82,10 +88,11 @@ bool executePlanCallback(orange_fundamentals::ExecutePlan::Request& req,
         default:
             break;
         }
-        res.success = basicMovements.drive(CELL_LENGTH);
+        basicMovements.drive(0.80);
         lastDirection = *it;
     }
-    
+    basicMovements.stop();
+    res.success = true;
     return true;
 }
 
@@ -96,8 +103,9 @@ int main(int argc, char** argv)
 
     // TODO: align to a cell
 
-    ros::ServiceServer service = nh.advertiseService("execute_plan", executePlanCallback);
+    ros::ServiceServer service = nh.advertiseService("execute_plan", execute_plan_callback);
     ROS_INFO("ExecutePlan Service is ready.");
+
     ros::spin();
     return 0;
 }
