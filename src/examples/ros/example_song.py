@@ -15,7 +15,7 @@ print 'Create driver is ready!'
 
 # define silence
 r = 30
- 
+
 # map note names in the lilypad notation to irobot commands
 c4 = 60
 cis4 = des4 = 61
@@ -48,7 +48,7 @@ dis6 = ees6 = 87
 e6 = 88
 f6 = 89
 fis6 = ges6 = 90
- 
+
 # define some note lengths
 # change the top MEASURE (4/4 time) to get faster/slower speeds
 MEASURE = 160
@@ -57,9 +57,9 @@ Q = MEASURE/4
 E = MEASURE/8
 Ed = MEASURE*3/16
 S = MEASURE/16
- 
+
 MEASURE_TIME = MEASURE/64.
- 
+
 # songs = [note0, duration0, note1, duration1, ...]
 # durations are multiples of 1/64
 # a4 a a f8. c'16 | a4 f8. c'16 a2
@@ -85,32 +85,32 @@ store_song(5, [r,E, f4,E, aes4,Q, f4,Ed, aes4,S,
 	          c5,Q, a4,Ed, c5,S, e5,HALF])
 store_song(6, [r,E, f4,E, aes4,Q, f4,Ed, c5,S,
 	          a4,Q, f4,Ed, c5,S, a4,HALF])
- 
+
 # once all the songs are uploaded, play them at the right times
 # add a little extra time, b/c otherwise cuts off the end
-sleep(1)	
+sleep(1)
 print("play songs...")
 play_song(1)
 sleep(MEASURE_TIME*2.01)
- 
+
 play_song(2)
 sleep(MEASURE_TIME*2.01)
- 
+
 play_song(3)
 sleep(MEASURE_TIME*1.26)
- 
+
 play_song(4)
 sleep(MEASURE_TIME*1.01)
- 
+
 play_song(5)
 sleep(MEASURE_TIME*1.76)
- 
+
 play_song(3)
 sleep(MEASURE_TIME*1.26)
- 
+
 play_song(4)
 sleep(MEASURE_TIME*1.01)
- 
+
 play_song(6)
 sleep(MEASURE_TIME*1.76)
 

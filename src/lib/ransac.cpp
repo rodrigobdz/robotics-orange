@@ -3,6 +3,7 @@
 
 #include "ros/ros.h"
 #include "create_fundamentals/SensorPacket.h"
+#include "sensor_msgs/LaserScan.h"
 #include <wall.cpp>
 #include <constants.cpp>
 
@@ -20,24 +21,31 @@ class Ransac
     std::vector<Wall*> getWalls();
 
   private:
+    ///////////////////
+    //   Variables   //
+    ///////////////////
     static const float POINT_COUNT_FOR_WALL = 100;  // Matches that makes  line to wall
     static const float ITERATIONS           = 1000; // Number of iterations from ransac algo.
     static const float ERROR                = 0.01; // Difference between line and points
 
     ros::NodeHandle n;
-    ros::Subscriber laserSubscriber; // Laser
-
+    ros::Subscriber laserSubscriber;
     std::vector<float> ranges;
 
+    ///////////////////
+    //   Functions   //
+    ///////////////////
     float calculateX(float angle, float distance);
     float calculateY(float angle, float distance);
     std::vector<int> getMatches(Wall wall);
     std::pair<float, float> getRandomXYCoords();
 
+    void bubbleSort(std::vector<Wall*>& a);
+
+    void initialiseLaser();
     void laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg);
 };
 
-void bubbleSort(std::vector<Wall*>& a);
 
 /* *
  * Recognize walls with ransac
@@ -47,7 +55,7 @@ void bubbleSort(std::vector<Wall*>& a);
 std::vector<Wall*> Ransac::getWalls()
 {
     // Get new sensor dates
-    ros::spinOnce();
+    initialiseLaser();
 
     // Variables
     std::vector<Wall*> walls;
@@ -60,7 +68,7 @@ std::vector<Wall*> Ransac::getWalls()
         std::pair<float, float> pointA = getRandomXYCoords();
         std::pair<float, float> pointB = getRandomXYCoords();
 
-        if (isnan(pointA.first)) {
+        if (isnan(pointA.first) || isnan(pointB.first)) {
             continue;
         }
 
@@ -83,6 +91,21 @@ std::vector<Wall*> Ransac::getWalls()
         }
     }
 
+    for (int i = 0; i < walls.size(); i++) {
+        for (int j = i+1; j < walls.size(); j++) {
+            if(fabs(walls[i]->getAngle() - walls[j]->getAngle()) < 5) {
+                float newX1 = (walls[i]->getX1() + walls[j]->getX1()) / 2;
+                float newY1 = (walls[i]->getY1() + walls[j]->getY1()) / 2;
+                float newX2 = (walls[i]->getX2() + walls[j]->getX2()) / 2;
+                float newY2 = (walls[i]->getY2() + walls[j]->getY2()) / 2;
+                walls.erase(walls.begin() + i);
+                walls.erase(walls.begin() + j - 1);
+                Wall* currentWall = new Wall(newX1, newY1, newX2, newY2);
+                walls.push_back(currentWall);
+            }
+        }
+    }
+
     // Sort the return std::vector
     // The smaller the angle the sooner in the array.
     if (walls.size() > 1) {
@@ -92,7 +115,7 @@ std::vector<Wall*> Ransac::getWalls()
     return walls;
 }
 
-void bubbleSort(std::vector<Wall*>& a)
+void Ransac::bubbleSort(std::vector<Wall*>& a)
 {
     bool swapp = true;
     Wall* tmp;
@@ -182,6 +205,18 @@ std::pair<float, float> Ransac::getRandomXYCoords()
     return std::pair<float, float>(calculateX(angle, a), calculateY(angle, a));
 }
 
+/********************** HELPERS *****************************/
+
 void Ransac::laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg) { ranges = msg->ranges; }
+
+void Ransac::initialiseLaser()
+{
+    ranges[0] = -1;
+    ros::spinOnce();
+    while (ranges[0] == -1) {
+        // Get laser data before driving to recognize obstacles beforehand
+        ros::spinOnce();
+    }
+}
 
 #endif

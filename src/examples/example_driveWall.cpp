@@ -10,17 +10,14 @@ void stopMotors(int signal) {
 
 int main(int argc, char **argv)
 {
-	ros::init(argc, argv, "example_rotate");
+	ros::init(argc, argv, "example_driveWall");
 
     BasicMovements basicMovements;
 
 	signal(SIGINT, stopMotors);
 
-	// Rotate 90 degrees clockwise with a velocity of 7 rad/s
-	basicMovements.rotate(-90);
-	basicMovements.rotate(90);
-	basicMovements.rotate(-90);
-	basicMovements.rotate(90);
+	basicMovements.driveWall(4);
 }
+
 
 

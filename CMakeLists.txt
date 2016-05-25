@@ -40,13 +40,25 @@ include_directories(include ${catkin_INCLUDE_DIRS} src/lib)
 #                          EXECUTABLES
 #############################################################################
 
-# add_executable(example_drive src/examples/example_drive.cpp)
-# target_link_libraries(example_drive ${catkin_LIBRARIES})
-# add_dependencies(example_drive create_fundamentals_generate_messages_cpp)
+#################################
+#            EXAMPLES           #
+#################################
 
-add_executable(example_rotate src/examples/example_rotate.cpp)
-target_link_libraries(example_rotate ${catkin_LIBRARIES})
-add_dependencies(example_rotate create_fundamentals_generate_messages_cpp)
+add_executable(example_driveWall src/examples/example_driveWall.cpp)
+target_link_libraries(example_driveWall ${catkin_LIBRARIES})
+add_dependencies(example_driveWall create_fundamentals_generate_messages_cpp)
+
+#################################
+#              Test             #
+#################################
+
+# add_executable(test_laser src/tests/laser.cpp)
+# target_link_libraries(test_laser ${catkin_LIBRARIES})
+# add_dependencies(test_laser create_fundamentals_generate_messages_cpp)
+
+#################################
+#           HOMEWORKS           #
+#################################
 
 # add_executable(03align src/ha1/03align.cpp)
 # target_link_libraries(03align ${catkin_LIBRARIES})

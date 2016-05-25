@@ -34,7 +34,6 @@ class BasicMovements
     }
 
     void stop();
-    // TODO Till testet
     bool move(float desiredVelocity, float desiredTurningVelocity);
     bool drive(float distanceInMeters, float speed = DEFAULT_SPEED);
     bool rotate(float angleInDegrees, float speed = DEFAULT_SPEED);
@@ -81,7 +80,6 @@ bool BasicMovements::move(float desiredVelocity, float desiredTurningVelocity)
 {
     float vLeft = 1 / RAD_RADIUS * (desiredVelocity + ROB_BASE / 2 * desiredTurningVelocity);
     float vRight = 1 / RAD_RADIUS * (desiredVelocity - ROB_BASE / 2 * desiredTurningVelocity);
-    //ROS_INFO("Drive vLeft %f, vRight %f", vLeft, vRight);
 
     diffDriveService.request.left = vLeft;
     diffDriveService.request.right = vRight;
@@ -118,15 +116,12 @@ bool BasicMovements::drive(float distanceInMeters, float speed)
     float threshold = fabs(distanceInRadians) - (fabs(distanceInRadians) * 0.025);
 
     resetEncoders();
-    ros::Rate loop_rate(LOOP_RATE);
 
     while (ros::ok()) {
         if (DETECT_OBSTACLES) {
             while (!laserInitialized) {
                 // Get laser data before driving to recognize obstacles beforehand
                 ros::spinOnce();
-                // Sleep and continue loop
-                loop_rate.sleep();
             }
 
             // Check if robot is about to crash into something
@@ -147,8 +142,6 @@ bool BasicMovements::drive(float distanceInMeters, float speed)
         diffDriveClient.call(diffDriveService);
 
         ros::spinOnce();
-
-        loop_rate.sleep();
     }
 
     return false;
@@ -159,31 +152,65 @@ bool BasicMovements::driveWall(float distanceInMeters, float speed)
     std::vector<Wall*> walls;
     walls = ransac.getWalls();
 
+    initialiseEncoder();
+
     float wishLeftEncoder = leftEncoder + distanceInMeters / RAD_RADIUS;
     float wishRightEncoder = rightEncoder + distanceInMeters / RAD_RADIUS;
 
-
-    ros::Rate loop_rate(LOOP_RATE);
     while (fabs(wishLeftEncoder - leftEncoder) > 1) {
-        move(1, 0);
-        loop_rate.sleep();
-        // if(walls.size() == 0){
-        //     // Drive forward
-        //     move(1,0);
-        // } else if (walls.size() == 1){
+        ros::spinOnce();
+        walls = ransac.getWalls();
+        //ROS_INFO("leftEncoder %f, wishLeftEncoder %f", leftEncoder, wishLeftEncoder);
+        if (minimumRange < SAFETY_DIS) {
+            // Robot recognized an obstacle, distance could not be completed
+            stop();
+            return false;
+        }
+        if (walls.size() == 0) {
+            // Drive forward
+            move(0.2, 0);
+        } else {
+            int correctWall = -1;
 
-        // } else {
-        // }
+            for(int i = 0; i < walls.size(); i++){
+                if(walls[i]->getAngle() < 45 || walls[i]->getAngle() > 135){
+                    correctWall = i;
+                    break;
+                }
+            }
+
+            if( correctWall == -1){
+                move(1, 0);
+                break;
+            }
+
+            float correcturFactor = walls[correctWall]->getDistance() / 0.40;
+            float angleInRadians = ROB_BASE / 2 * ((walls[correctWall]->getAngle() - 90) / 180 * PI);
+            float vLeft = 1 / RAD_RADIUS * (correcturFactor * speed / 20 + angleInRadians / 5);
+            float vRight = 1 / RAD_RADIUS * (speed / 20 - angleInRadians / 5);
+            // float vLeft = 1 / RAD_RADIUS * (angleInRadians);
+            // float vRight = 1 / RAD_RADIUS * (-angleInRadians);
+            ROS_INFO("Wall distance = %f", walls[correctWall]->getDistance());
+            ROS_INFO("correcturFactor = %f, vLeft = %f, vRight = %f", correcturFactor, vLeft, vRight);
+
+            diffDriveService.request.left = vLeft;
+            diffDriveService.request.right = vRight;
+
+            diffDriveClient.call(diffDriveService);
+        }
+
     }
     move(0, 0);
 
     return true;
 }
 
-/* Rotate the robot corresponding to its local coordinate system.
-   That means the robots face lays is exactly 90 degrees and its
-   righthandside is 0 degrees. So if you 30 degrees to this
-   function, the robot will rotate 60 degrees to the right. */
+/*
+ * Rotate the robot corresponding to its local coordinate system.
+ * That means the robots face lays is exactly 90 degrees and its
+ * righthandside is 0 degrees. So if you 30 degrees to this
+ * function, the robot will rotate 60 degrees to the right.
+ * */
 bool BasicMovements::rotateAbs(float angleInDegrees, float speed)
 {
     if (angleInDegrees > 180)
@@ -241,7 +268,6 @@ bool BasicMovements::turnLeft()
 
     while (ros::ok()) {
         ros::spinOnce();
-        ROS_INFO("leftEncoder %f, wishLeftEncoder %f", leftEncoder, wishLeftEncoder);
 
         if (fabs((wishLeftEncoder - leftEncoder)) < 0.5) {
             stop();
@@ -308,13 +334,10 @@ void BasicMovements::laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg)
 
 void BasicMovements::initialiseEncoder()
 {
-    ros::Rate loop_rate(LOOP_RATE);
     ros::spinOnce();
     while (!encoderInitialized) {
         // Get laser data before driving to recognize obstacles beforehand
         ros::spinOnce();
-        // Sleep and continue loop
-        loop_rate.sleep();
     }
 }
 
