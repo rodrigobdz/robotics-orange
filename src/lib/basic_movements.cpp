@@ -41,6 +41,8 @@ class BasicMovements
     bool rotateAbs(float angleInDegrees, float speed = DEFAULT_SPEED);
 
     bool driveWall(float distanceInMeters, float speed = DEFAULT_SPEED);
+    bool turnLeft();
+    bool turnRight();
 
   private:
     static const float DEFAULT_SPEED = 5;
@@ -79,7 +81,7 @@ bool BasicMovements::move(float desiredVelocity, float desiredTurningVelocity)
 {
     float vLeft = 1 / RAD_RADIUS * (desiredVelocity + ROB_BASE / 2 * desiredTurningVelocity);
     float vRight = 1 / RAD_RADIUS * (desiredVelocity - ROB_BASE / 2 * desiredTurningVelocity);
-    ROS_INFO("Drive vLeft %f, vRight %f", vLeft, vRight);
+    //ROS_INFO("Drive vLeft %f, vRight %f", vLeft, vRight);
 
     diffDriveService.request.left = vLeft;
     diffDriveService.request.right = vRight;
@@ -225,6 +227,50 @@ bool BasicMovements::rotate(float angleInDegrees, float speed)
         } else {
             move(0, -1);
         }
+    }
+
+    return false;
+}
+
+bool BasicMovements::turnLeft()
+{
+    initialiseEncoder();
+
+    float wishLeftEncoder = leftEncoder + (1 / (RAD_RADIUS * 2)) * (0.8 - ROB_BASE / 2 + ROB_BASE / 2 * PI / 2);
+    float wishRightEncoder = rightEncoder + (1 / (RAD_RADIUS * 2)) * (0.8 - ROB_BASE / 2 - ROB_BASE / 2 * PI / 2);
+
+    while (ros::ok()) {
+        ros::spinOnce();
+        ROS_INFO("leftEncoder %f, wishLeftEncoder %f", leftEncoder, wishLeftEncoder);
+
+        if (fabs((wishLeftEncoder - leftEncoder)) < 0.5) {
+            stop();
+            return true;
+        }
+
+        move((0.8 - ROB_BASE / 2) / 3, -PI / 2 / 3);
+    }
+
+    return false;
+}
+
+bool BasicMovements::turnRight()
+{
+    initialiseEncoder();
+
+    float wishLeftEncoder = leftEncoder + (1 / (RAD_RADIUS * 2)) * (0.8 - ROB_BASE / 2 + ROB_BASE / 2 * -PI / 2);
+    float wishRightEncoder = rightEncoder + (1 / (RAD_RADIUS * 2)) * (0.8 - ROB_BASE / 2 - ROB_BASE / 2 * -PI / 2);
+
+    while (ros::ok()) {
+        ros::spinOnce();
+        ROS_INFO("rightEncoder %f, wishRightEncoder %f", rightEncoder, wishRightEncoder);
+
+        if (fabs((wishRightEncoder - rightEncoder)) < 0.5) {
+            stop();
+            return true;
+        }
+
+        move((0.8 - ROB_BASE / 2) / 3, PI / 2 / 3);
     }
 
     return false;
