@@ -10,7 +10,7 @@ bool executePlanCallback(orange_fundamentals::ExecutePlan::Request& req,
 {
     BasicMovements basicMovements;
     std::vector<int> plan = req.plan;
-    res.success = true;
+    res.success       = true;
     int lastDirection = UP;
 
     for (std::vector<int>::iterator it = plan.begin(); it != plan.end(); ++it) {
@@ -83,7 +83,7 @@ bool executePlanCallback(orange_fundamentals::ExecutePlan::Request& req,
             break;
         }
 
-        res.success = basicMovements.drive(CELL_LENGTH);
+        res.success   = basicMovements.drive(CELL_LENGTH);
         lastDirection = *it;
     }
     
