@@ -1,6 +1,7 @@
 #include "ros/ros.h"
 #include "orange_fundamentals/ExecutePlan.h"
 #include <basic_movements.cpp>
+#include <environment.cpp>
 
 enum directions { RIGHT = 0, UP, LEFT, DOWN };
 

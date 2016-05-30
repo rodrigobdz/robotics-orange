@@ -71,6 +71,10 @@ add_executable(execute_plan src/ha2/01moving_through_the_grid.cpp)
 target_link_libraries(execute_plan ${catkin_LIBRARIES})
 add_dependencies(execute_plan create_fundamentals_generate_messages_cpp)
 
+# add_executable(execute_plan src/ha2/02moving_fast_and_smooth.cpp)
+# target_link_libraries(execute_plan ${catkin_LIBRARIES})
+# add_dependencies(execute_plan create_fundamentals_generate_messages_cpp)
+
 # add_executable(ransac_tb src/tests/ransac_tb.cpp)
 # target_link_libraries(ransac_tb ${catkin_LIBRARIES})
 # add_dependencies(ransac_tb create_fundamentals_generate_messages_cpp)

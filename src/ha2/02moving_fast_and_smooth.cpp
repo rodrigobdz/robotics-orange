@@ -14,7 +14,7 @@ bool executePlanCallback(orange_fundamentals::ExecutePlan::Request& req,
     int lastDirection = UP;
 
     for (std::vector<int>::iterator it = plan.begin(); it != plan.end(); ++it) {
-        
+
         ROS_INFO("execute_plan_callback: %d", *it);
         ROS_INFO("Drive in %i, lastDirection = %i", *it, lastDirection);
 
@@ -86,7 +86,7 @@ bool executePlanCallback(orange_fundamentals::ExecutePlan::Request& req,
         res.success   = basicMovements.drive(CELL_LENGTH);
         lastDirection = *it;
     }
-    
+
     return true;
 }
 
@@ -96,6 +96,8 @@ int main(int argc, char** argv)
     ros::NodeHandle nh;
 
     // TODO: align to a cell
+    Env env;
+    env.alignToGrid();
 
     ros::ServiceServer service = nh.advertiseService("execute_plan", executePlanCallback);
     ROS_INFO("ExecutePlan Service is ready.");
