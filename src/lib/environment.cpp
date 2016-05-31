@@ -88,7 +88,7 @@ int Env::alignToWall(void)
             // check the angel again and leave if its ok
             // otherwise enter another loop
             wall = getWallClosestTo90();
-            if (fabs(wall->getAngle() - 90) < 5)
+            if (fabs(wall->getAngle() - PI/2) < 5)
                 break;
         }
 

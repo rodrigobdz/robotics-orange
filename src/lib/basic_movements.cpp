@@ -157,7 +157,7 @@ bool BasicMovements::driveWall(float distanceInMeters, float speed)
     float wishLeftEncoder = leftEncoder + distanceInMeters / RAD_RADIUS;
     float wishRightEncoder = rightEncoder + distanceInMeters / RAD_RADIUS;
 
-    while (fabs(wishLeftEncoder - leftEncoder) > 1) {
+    while (fabs(wishRightEncoder - rightEncoder) > 1) {
         ros::spinOnce();
         walls = ransac.getWalls();
         //ROS_INFO("leftEncoder %f, wishLeftEncoder %f", leftEncoder, wishLeftEncoder);
@@ -172,24 +172,22 @@ bool BasicMovements::driveWall(float distanceInMeters, float speed)
         } else {
             int correctWall = -1;
 
+            // Search for nearest wall
             float smallestDistance = 100;
             for(int i = 0; i < walls.size(); i++){
-                if(walls[i]->getAngle() < 45 || walls[i]->getAngle() > 180 ){
-                    if(smallestDistance > walls[i]->getDistance() && walls[i]->getDistance() > 0.1 ){
-                        correctWall = i;
-                        smallestDistance = walls[i]->getDistance();
-                        ROS_INFO("Distance = %f, Wall %i", walls[i]->getDistance(), i);
-                    }
+                if(smallestDistance > walls[i]->getDistance()){
+                    correctWall = i;
+                    smallestDistance = walls[i]->getDistance();
+                    ROS_INFO("Distance = %f, Wall %i", walls[i]->getDistance(), i);
                 }
             }
-            ROS_INFO("Test");
 
             if(correctWall == -1){
                 move(0.2, 0);
                 continue;
             }
 
-            // Correct Version
+            // Correct Version old version with wrong angle from wall
             // float correcturFactor = walls[correctWall]->getDistance() / 0.40;
             // float angleInRadians = ROB_BASE / 2 * ((walls[correctWall]->getAngle() - 90) / 180 * PI);
             // float vLeft = 1 / RAD_RADIUS * (correcturFactor * speed / 20 + angleInRadians / 10);
@@ -202,25 +200,26 @@ bool BasicMovements::driveWall(float distanceInMeters, float speed)
 
             ROS_INFO("Wall distance = %f, wall angle = %f", walls[correctWall]->getDistance(),
                      walls[correctWall]->getAngle());
-            if (walls[correctWall]->getAngle() < 45 || walls[correctWall]->getAngle() > 180 ){
+
+            angleInRadians = ROB_BASE / 2 * sin(2 * wall[correctWall]->getAngle());
+            if (walls[correctWall]->getAngle() > -PI / 2 && walls[correctWall]->getAngle() < PI / 2) {
                 correcturFactor = walls[correctWall]->getDistance() / 0.40;
-                angleInRadians = ROB_BASE / 2 * ((walls[correctWall]->getAngle() - 90) / 180 * PI);
-                vLeft = 1 / RAD_RADIUS * (correcturFactor * speed / 20 + angleInRadians / 10);
-                vRight = 1 / RAD_RADIUS * (speed / 20 - angleInRadians / 10);
-
-                diffDriveService.request.left = vLeft;
-                diffDriveService.request.right = vRight;
-
-                diffDriveClient.call(diffDriveService);
+            } else if (walls[correctWall]->getAngle() > PI / 2 && walls[correctWall]->getAngle() < PI * 3 / 4) {
+                correcturFactor = 0.40 / walls[correctWall]->getDistance();
+            } else {
+                ROS_INFO("Error in driveWall");
             }
-            // float correcturFactor = walls[correctWall]->getDistance() / 0.40;
-            // float angleInRadians = ROB_BASE / 2 * (sin(walls[correctWall]->getAngle() - 90  / 180 * PI));
-            // float vLeft = 1 / RAD_RADIUS * (angleInRadians);
-            // float vRight = 1 / RAD_RADIUS * (-angleInRadians);
 
-            // Test Version mit cos
-            ROS_INFO("correcturFactor = %f, angleInRadians = %f, vLeft = %f, vRight = %f", correcturFactor, angleInRadians, vLeft, vRight);
+            vLeft = 1 / RAD_RADIUS * (correcturFactor * speed / 20 + angleInRadians);
+            vRight = 1 / RAD_RADIUS * (speed / 20 - angleInRadians);
 
+            diffDriveService.request.left = vLeft;
+            diffDriveService.request.right = vRight;
+
+            diffDriveClient.call(diffDriveService);
+
+            ROS_INFO("correcturFactor = %f, angleInRadians = %f, vLeft = %f, vRight = %f", correcturFactor,
+                     angleInRadians, vLeft, vRight);
         }
 
     }
