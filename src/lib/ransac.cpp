@@ -16,6 +16,7 @@ class Ransac
         laserSubscriber = n.subscribe("scan_filtered", 1, &Ransac::laserCallback, this);
 
         ranges          = *(new std::vector<float>(LASER_COUNT));
+        srand(time(NULL));
     }
 
     std::vector<Wall*> getWalls();
@@ -56,9 +57,6 @@ std::vector<Wall*> Ransac::getWalls()
 
     // Variables
     std::vector<Wall*> walls;
-
-    // Seed for Random Generator
-    std::srand(std::time(NULL));
 
     for (int i = 0; i < ITERATIONS; ++i) {
         // Get coordiantes of two random selected points
@@ -159,22 +157,33 @@ std::vector<int> Ransac::getMatches(Wall wall)
     // Iterate point cloud looking for points
     // close enough to current wall
     for (int j = 0; j < LASER_COUNT; j++) {
-        float distanceFromRobotToPoint = ranges[j];
 
-        // Ignore point if:
-        // * nan
-        // * is same as one of two chosen points for wall
+        float distanceFromRobotToPoint = ranges[j];
+        float angle;
+
+        float px = calculateX(angle, ranges[j]);
+        float py = calculateY(angle, ranges[j]);
         if (isnan(distanceFromRobotToPoint)) {
             continue;
         }
 
         // Calculate angle to point
-        float angle = (PI / LASER_COUNT) * j;
+        angle = j * (PI / LASER_COUNT);
 
-        float pointX = calculateX(angle, ranges[j]);
-        float pointY = calculateY(angle, ranges[j]);
+        // Calculate distance from line to point
+        float wallX1 = calculateX(angle, ranges[j]);
+        float wallY1 = calculateY(angle, ranges[j]);
+        float wallX2 = wallX1 + 1;
+        float wallY2 = wallY1 + tan((PI / 2) - wall.getAngle());
 
-        if (wall.getDistance(pointX, pointY) < ERROR) {
+        float a = wallY1 - wallY2;
+        float b = wallX2 - wallX1;
+        float c = wallX2 * wallY1 - wallX1 * wallY2;
+        float normalVector = sqrt(pow(a, 2) + pow(b, 2));
+
+        float distance = fabs((a * px + b * py - c) / normalVector);
+
+        if (distance < ERROR) {
             matches.push_back(j);
         }
     }
@@ -186,7 +195,7 @@ std::vector<int> Ransac::getMatches(Wall wall)
  */
 std::pair<float, float> Ransac::getRandomXYCoords()
 {
-    int randomNumber = std::rand() % ranges.size() - 1;
+    int randomNumber = rand() % ranges.size() - 1;
 
     // Distance to points
     // index-1 to make last member of array also accessible
