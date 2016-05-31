@@ -31,7 +31,6 @@ class BasicMovements
         laserInitialized = false;
         encoderInitialized = false;
 
-        ransac;
     }
 
     void stop();

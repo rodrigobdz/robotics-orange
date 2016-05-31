@@ -16,7 +16,7 @@ class Ransac
         laserSubscriber = n.subscribe("scan_filtered", 1, &Ransac::laserCallback, this);
 
         ranges          = *(new std::vector<float>(LASER_COUNT));
-        rand            = *(new std::srand(std::time(NULL)));
+        srand(time(NULL));
     }
 
     std::vector<Wall*> getWalls();
@@ -32,7 +32,6 @@ class Ransac
     ros::NodeHandle n;
     ros::Subscriber laserSubscriber;
     std::vector<float> ranges;
-    std::srand rand;
 
     ///////////////////
     //   Functions   //
@@ -173,9 +172,9 @@ std::vector<int> Ransac::getMatches(Wall wall)
 
         // Calculate distance from line to point
         float wallX1 = calculateX(angle, ranges[j]);
-        float WallY1 = calculateY(angle, ranges[j]);
+        float wallY1 = calculateY(angle, ranges[j]);
         float wallX2 = wallX1 + 1;
-        float WallY2 = wallY1 + tan((PI / 2) - wall.getAngle());
+        float wallY2 = wallY1 + tan((PI / 2) - wall.getAngle());
 
         float a = wallY1 - wallY2;
         float b = wallX2 - wallX1;
@@ -196,7 +195,7 @@ std::vector<int> Ransac::getMatches(Wall wall)
  */
 std::pair<float, float> Ransac::getRandomXYCoords()
 {
-    int randomNumber = std::rand() % ranges.size() - 1;
+    int randomNumber = rand() % ranges.size() - 1;
 
     // Distance to points
     // index-1 to make last member of array also accessible

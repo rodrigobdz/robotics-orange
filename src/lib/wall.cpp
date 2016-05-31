@@ -7,7 +7,7 @@
 class Wall
 {
   public:
-    Wall(float x1, float y1, float x2, float y2) :
+    Wall(float x1, float y1, float x2, float y2)
     {
         distance = calcDistance(x1, y1, x2, y2);
         angle = calcAngle(x1, y1, x2, y2);
@@ -45,9 +45,9 @@ float Wall::calcDistance(float x1, float y1, float x2, float y2)
     //    a*px + b*py - c = 0
     // --------------------------
     //      √( a² + b² )
-    float a = Wall::y1 - Wall::y2;
-    float b = Wall::x2 - Wall::x1;
-    float c = Wall::x2 * Wall::y1 - Wall::x1 * Wall::y2;
+    float a = y1 - y2;
+    float b = x2 - x1;
+    float c = x2 * y1 - x1 * y2;
     float normalVector = sqrt(pow(a, 2) + pow(b, 2));
 
     return fabs((a * 0 + b * (-DISTANCE_LASER_TO_ROBOT_CENTER) - c) / normalVector);
@@ -62,21 +62,21 @@ float Wall::calcDistance(float x1, float y1, float x2, float y2)
 float Wall::calcAngle(float x1, float y1, float x2, float y2)
 {
     // Line 1
-    float m1 = (Wall::y2 - Wall::y1) / (Wall::x2 - Wall::x1);
-    float n1 = Wall::y1 - m * Wall::x1;
+    float m1 = (y2 - y1) / (x2 - x1);
+    float n1 = y1 - m1 * x1;
 
     // Line 2
     float m2 = -m1;
     float n2 = n1;
 
     // Intersection
-    x = (n2 - n1) / (m1 - m2);
-    y = m1 * x + n1;
+    float x = (n2 - n1) / (m1 - m2);
+    float y = m1 * x + n1;
 
     if (x > 0) {
-        return PI + atan2(y / x);
+        return PI + atan(y / x);
     } else {
-        return atan2(y / x);
+        return atan(y / x);
     }
 }
 
