@@ -17,12 +17,12 @@ class Wall
     float getDistance() const { return distance; }
     float getAngle() const { return angle; }
 
+    float calcDistance(float x1, float y1, float x2, float y2);
+    float calcAngle(float x1, float y1, float x2, float y2);
   private:
     float distance;
     float angle;
 
-    float calcDistance(float x1, float y1, float x2, float y2);
-    float calcAngle(float x1, float y1, float x2, float y2);
 };
 
 
@@ -67,16 +67,20 @@ float Wall::calcAngle(float x1, float y1, float x2, float y2)
 
     // Line 2
     float m2 = -m1;
-    float n2 = n1;
+    float n2 = 0;
 
     // Intersection
     float x = (n2 - n1) / (m1 - m2);
     float y = m1 * x + n1;
 
-    if (x > 0) {
-        return PI + atan(y / x);
+    if (y < 0) {
+        if (x < 0) {
+            return PI - atan(y / x);
+        } else {
+            return -PI - atan(y / x);
+        }
     } else {
-        return atan(y / x);
+        return -atan(y / x);
     }
 }
 

@@ -25,9 +25,9 @@ class Ransac
     ///////////////////
     //   Variables   //
     ///////////////////
-    static const float POINT_COUNT_FOR_WALL = 100;  // Matches that makes  line to wall
-    static const float ITERATIONS           = 1000; // Number of iterations from ransac algo.
-    static const float ERROR                = 0.01; // Difference between line and points
+    static const float TRESHOLD   = 100;  // Matches that makes  line to wall
+    static const float ITERATIONS = 400; // Number of iterations from ransac algo.
+    static const float ERROR      = 0.02; // Difference between line and points
 
     ros::NodeHandle n;
     ros::Subscriber laserSubscriber;
@@ -38,7 +38,7 @@ class Ransac
     ///////////////////
     float calculateX(float angle, float distance);
     float calculateY(float angle, float distance);
-    std::vector<int> getMatches(Wall wall);
+    std::vector<int> getMatches(float wallX1, float wallY1, float wallX2, float wallY2);
     std::pair<float, float> getRandomXYCoords();
 
     void bubbleSort(std::vector<Wall*>& a);
@@ -52,56 +52,50 @@ class Ransac
  * */
 std::vector<Wall*> Ransac::getWalls()
 {
+    std::vector<Wall*> walls;
+
     // Get new sensor dates
     initialiseLaser();
 
-    // Variables
-    std::vector<Wall*> walls;
+    // We can maximal acknowledge 3 walls
+    for(int j = 0; j < 2; j++){
 
-    for (int i = 0; i < ITERATIONS; ++i) {
-        // Get coordiantes of two random selected points
-        std::pair<float, float> pointA = getRandomXYCoords();
-        std::pair<float, float> pointB = getRandomXYCoords();
+        // Variables
+        std::vector<int> bestMatches;
+        Wall *bestWall;
 
-        if (isnan(pointA.first) || isnan(pointB.first)) {
-            continue;
+        for (int i = 0; i < ITERATIONS; ++i) {
+            // Get coordiantes of two random selected points
+            std::pair<float, float> pointA = getRandomXYCoords();
+            std::pair<float, float> pointB = getRandomXYCoords();
+
+            if (isnan(pointA.first) || isnan(pointB.first)) {
+                continue;
+            }
+
+            Wall* currentWall = new Wall(pointA.first, pointA.second, pointB.first, pointB.second);
+
+            std::vector<int> currentMatches = getMatches(pointA.first, pointA.second, pointB.first, pointB.second);
+
+            if(currentMatches.size() > bestMatches.size()){
+                bestMatches = currentMatches;
+                bestWall = currentWall;
+            }
         }
-
-        Wall* currentWall = new Wall(pointA.first, pointA.second, pointB.first, pointB.second);
-
-        std::vector<int> matches = getMatches(*currentWall);
-        int matchSize = matches.size();
 
         // Check if currentLine better line fitting
         // point cloud was found
-        if (matchSize > POINT_COUNT_FOR_WALL) {
-            walls.push_back(currentWall);
+        if (bestMatches.size() > TRESHOLD) {
+            walls.push_back(bestWall);
 
             // Set found matches to nan
             // Better than to delete elements,
             // because we need to calculate the angle
-            for (int j = 0; j < matchSize; j++) {
-                ranges[matches[j]] = NAN;
+            for (int j = 0; j < bestMatches.size(); j++) {
+                ranges[bestMatches[j]] = NAN;
             }
         }
     }
-
-    // for (int i = 0; i < walls.size(); i++) {
-    //     for (int j = i+1; j < walls.size(); j++) {
-    //         ROS_INFO("i = %i, j = %i", i, j);
-    //         if(fabs(walls[i]->getAngle() - walls[j]->getAngle()) < 10) {
-    //             float newX1 = (walls[i]->getX1() + walls[j]->getX1()) / 2;
-    //             float newY1 = (walls[i]->getY1() + walls[j]->getY1()) / 2;
-    //             float newX2 = (walls[i]->getX2() + walls[j]->getX2()) / 2;
-    //             float newY2 = (walls[i]->getY2() + walls[j]->getY2()) / 2;
-    //             ROS_INFO("DELELTE");
-    //             walls.erase(walls.begin() + i);
-    //             walls.erase(walls.begin() + j - 1);
-    //             Wall* currentWall = new Wall(newX1, newY1, newX2, newY2);
-    //             walls.push_back(currentWall);
-    //         }
-    //     }
-    // }
 
     // Sort the return std::vector
     // The smaller the angle the sooner in the array.
@@ -150,37 +144,34 @@ float Ransac::calculateY(float angle, float distance) { return distance * sin(an
  *
  * Return: Number of matches
  */
-std::vector<int> Ransac::getMatches(Wall wall)
+std::vector<int> Ransac::getMatches(float wallX1, float wallY1, float wallX2, float wallY2)
 {
     std::vector<int> matches;
+    float angle;
+    float distanceFromRobotToPoint;
+
+    float a = wallY1 - wallY2;
+    float b = wallX2 - wallX1;
+    float c = wallX2 * wallY1 - wallX1 * wallY2;
+    float normalVector = sqrt(pow(a, 2) + pow(b, 2));
 
     // Iterate point cloud looking for points
     // close enough to current wall
     for (int j = 0; j < LASER_COUNT; j++) {
 
-        float distanceFromRobotToPoint = ranges[j];
-        float angle;
+        // Calculate angle to point
+        angle = j * (PI / LASER_COUNT);
+        distanceFromRobotToPoint = ranges[j];
 
-        float px = calculateX(angle, ranges[j]);
-        float py = calculateY(angle, ranges[j]);
         if (isnan(distanceFromRobotToPoint)) {
             continue;
         }
 
-        // Calculate angle to point
-        angle = j * (PI / LASER_COUNT);
+        // Coords to point
+        float px = calculateX(angle, ranges[j]);
+        float py = calculateY(angle, ranges[j]);
 
         // Calculate distance from line to point
-        float wallX1 = calculateX(angle, ranges[j]);
-        float wallY1 = calculateY(angle, ranges[j]);
-        float wallX2 = wallX1 + 1;
-        float wallY2 = wallY1 + tan((PI / 2) - wall.getAngle());
-
-        float a = wallY1 - wallY2;
-        float b = wallX2 - wallX1;
-        float c = wallX2 * wallY1 - wallX1 * wallY2;
-        float normalVector = sqrt(pow(a, 2) + pow(b, 2));
-
         float distance = fabs((a * px + b * py - c) / normalVector);
 
         if (distance < ERROR) {
