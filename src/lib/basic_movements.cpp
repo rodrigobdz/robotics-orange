@@ -194,7 +194,7 @@ bool BasicMovements::driveWall(float distanceInMeters, float speed)
 
             correcturFactor = walls[correctWall]->getDistance() / 0.40;
 
-            angleInRadians = ROB_BASE / 2 * sin(2 * walls[correctWall]->getAngle());
+            // angleInRadians = ROB_BASE / 2 * sin(2 * walls[correctWall]->getAngle());
             if (walls[correctWall]->getAngle() > -PI / 2 && walls[correctWall]->getAngle() < PI / 2) {
                 correcturFactor = walls[correctWall]->getDistance() / 0.40;
             } else if (walls[correctWall]->getAngle() > PI / 2 && walls[correctWall]->getAngle() < PI * 3 / 4) {

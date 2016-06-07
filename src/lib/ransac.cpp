@@ -26,7 +26,7 @@ class Ransac
     //   Variables   //
     ///////////////////
     static const float TRESHOLD   = 100;  // Matches that makes  line to wall
-    static const float ITERATIONS = 400; // Number of iterations from ransac algo.
+    static const float ITERATIONS = 1000; // Number of iterations from ransac algo.
     static const float ERROR      = 0.02; // Difference between line and points
 
     ros::NodeHandle n;
