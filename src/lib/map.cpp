@@ -1,13 +1,13 @@
-#ifndef WALL_LIB
-#define WALL_LIB
+#ifndef MAP_LIB
+#define MAP_LIB
 
 #include <stdlib.h>
 #include <constants.cpp>
 
-class Wall
+class Map
 {
   public:
-    Wall(float x1, float y1, float x2, float y2)
+    Map(float x1, float y1, float x2, float y2)
     {
         distance = calcDistance(x1, y1, x2, y2);
         angle = calcAngle(x1, y1, x2, y2);
@@ -65,37 +65,19 @@ float Wall::calcAngle(float x1, float y1, float x2, float y2)
     float m1 = (y2 - y1) / (x2 - x1);
     float n1 = y1 - m1 * x1;
 
-    if(isinf(m1)){
-        if(x1 > 0){
-            m1 = -100000000;
-            n1 = 100000000;
-        } else {
-            m1 = 100000000;
-            n1 = 100000000;
-        }
-    }
-
     // Line 2
-    float m2 = -1/m1;
-    float n2 = 0;
+    float m2 = -m1;
+    float n2 = n1;
 
     // Intersection
     float x = (n2 - n1) / (m1 - m2);
     float y = m1 * x + n1;
 
-    float oldAngle = atan2(y, x);
-
-    // ROS_INFO("x = %f, y = %f, angle = %f", x, y, newAngle);
-
-    float newAngle;
-    if (oldAngle > -PI / 2) {
-        newAngle = oldAngle - PI / 2;
+    if (x > 0) {
+        return PI + atan(y / x);
     } else {
-        newAngle = oldAngle + PI * 3 / 2 ;
+        return atan(y / x);
     }
-
-
-    return newAngle;
 }
 
 #endif

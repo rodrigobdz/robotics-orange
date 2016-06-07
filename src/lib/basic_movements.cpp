@@ -161,14 +161,14 @@ bool BasicMovements::driveWall(float distanceInMeters, float speed)
         ros::spinOnce();
         walls = ransac.getWalls();
         //ROS_INFO("leftEncoder %f, wishLeftEncoder %f", leftEncoder, wishLeftEncoder);
-        if (minimumRange < SAFETY_DIS) {
-            // Robot recognized an obstacle, distance could not be completed
-            stop();
-            return false;
-        }
+        //if (minimumRange < SAFETY_DIS) {
+        //    // Robot recognized an obstacle, distance could not be completed
+        //    stop();
+        //    return false;
+        //}
         if (walls.size() == 0) {
             // Drive forward
-            move(0.2, 0);
+            //move(0.2, 0); TODO
         } else {
             int correctWall = -1;
 
@@ -178,13 +178,7 @@ bool BasicMovements::driveWall(float distanceInMeters, float speed)
                 if(smallestDistance > walls[i]->getDistance()){
                     correctWall = i;
                     smallestDistance = walls[i]->getDistance();
-                    ROS_INFO("Distance = %f, Wall %i", walls[i]->getDistance(), i);
                 }
-            }
-
-            if(correctWall == -1){
-                move(0.2, 0);
-                continue;
             }
 
             // Correct Version old version with wrong angle from wall
@@ -193,33 +187,26 @@ bool BasicMovements::driveWall(float distanceInMeters, float speed)
             // float vLeft = 1 / RAD_RADIUS * (correcturFactor * speed / 20 + angleInRadians / 10);
             // float vRight = 1 / RAD_RADIUS * (speed / 20 - angleInRadians / 10);
 
+            float currentAngle = walls[correctWall]->getAngle();
             float correcturFactor;
-            float angleInRadians;
             float vLeft;
             float vRight;
 
-            ROS_INFO("Wall distance = %f, wall angle = %f", walls[correctWall]->getDistance(),
-                     walls[correctWall]->getAngle());
+            correcturFactor = walls[correctWall]->getDistance() / 0.40;
 
-            angleInRadians = ROB_BASE / 2 * sin(2 * wall[correctWall]->getAngle());
-            if (walls[correctWall]->getAngle() > -PI / 2 && walls[correctWall]->getAngle() < PI / 2) {
-                correcturFactor = walls[correctWall]->getDistance() / 0.40;
-            } else if (walls[correctWall]->getAngle() > PI / 2 && walls[correctWall]->getAngle() < PI * 3 / 4) {
-                correcturFactor = 0.40 / walls[correctWall]->getDistance();
-            } else {
-                ROS_INFO("Error in driveWall");
+            if (currentAngle >= 0){
+                vLeft = 1 / (RAD_RADIUS) * (ROB_BASE / 2 * currentAngle );
+                vRight = 1 / (RAD_RADIUS) * (-ROB_BASE / 2 * currentAngle );
+            } else if (currentAngle < 0) {
+                vLeft = 1 / (RAD_RADIUS) * (ROB_BASE / 2 * currentAngle );
+                vRight = 1 / (RAD_RADIUS) * (-ROB_BASE / 2 * currentAngle );
             }
 
-            vLeft = 1 / RAD_RADIUS * (correcturFactor * speed / 20 + angleInRadians);
-            vRight = 1 / RAD_RADIUS * (speed / 20 - angleInRadians);
-
+            ROS_INFO("vLeft = %f, vRight = %f", vLeft, vRight);
             diffDriveService.request.left = vLeft;
             diffDriveService.request.right = vRight;
 
             diffDriveClient.call(diffDriveService);
-
-            ROS_INFO("correcturFactor = %f, angleInRadians = %f, vLeft = %f, vRight = %f", correcturFactor,
-                     angleInRadians, vLeft, vRight);
         }
 
     }

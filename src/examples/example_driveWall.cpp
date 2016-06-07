@@ -16,8 +16,5 @@ int main(int argc, char **argv)
 
 	signal(SIGINT, stopMotors);
 
-	basicMovements.driveWall(4);
+    basicMovements.driveWall(4);
 }
-
-
-

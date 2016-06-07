@@ -17,10 +17,15 @@ find_package(
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 
 #uncomment if you have defined messages
-#add_message_files(FILES
-#)
-#uncomment if you have defined services
+add_message_files(
+    FILES
+    Cell.msg
+    Grid.msg
+    Pose.msg
+    Row.msg
+)
 
+#uncomment if you have defined services
 add_service_files(FILES ExecutePlan.srv)
 
 ## Generate added messages and services with any dependencies listed here
