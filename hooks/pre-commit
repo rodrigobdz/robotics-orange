@@ -1,0 +1,40 @@
+#!/bin/sh
+
+# For more info on git hooks read https://git-scm.com/docs/githooks
+# Git hook runs per default on shell not bash
+
+# Output helpers
+msg() { 
+  outputcolor='\033[94m'
+  line=$outputcolor'###################################'
+  message='\n'$line'\nPre-commit hook: '$1'\n'$line'\n'
+  echo $message
+  # Reset text output color
+  tput sgr0
+}
+errormsg() {
+  msg '\033[31m'"$1"
+}
+
+# Only run pre-commit hook on master branch
+if [ `git rev-parse --abbrev-ref HEAD` = 'master' ]; then
+  msg "Running hook"
+  # Navigate to catkin_workspace
+  cd ~/catkin_ws
+  # Clean catkin cache
+  catkin_make clean
+  # Build project from scratch
+  catkin_make
+  RESULT=$?
+  # Only commit if catkin_make succeeded
+  # Exiting with non-zero status from this script causes the git commit to abort.
+  [ $RESULT -ne 0 ] && 
+  errormsg "catkin_make failed\n\033[94mYour changes were not committed"
+  tput sgr0 && 
+  exit 1
+
+  msg "catkin_make succeeded"
+  # Reset text output color
+  tput sgr0
+  exit 0
+fi

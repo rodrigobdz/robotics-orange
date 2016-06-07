@@ -60,9 +60,9 @@ add_dependencies(example_ransac create_fundamentals_generate_messages_cpp)
 #              Test             #
 #################################
 
-# add_executable(test_laser src/tests/laser.cpp)
-# target_link_libraries(test_laser ${catkin_LIBRARIES})
-# add_dependencies(test_laser create_fundamentals_generate_messages_cpp)
+add_executable(test_laser src/tests/laser.cpp)
+target_link_libraries(test_laser ${catkin_LIBRARIES})
+add_dependencies(test_laser create_fundamentals_generate_messages_cpp)
 
 #################################
 #           HOMEWORKS           #
@@ -75,6 +75,10 @@ add_dependencies(example_ransac create_fundamentals_generate_messages_cpp)
 add_executable(execute_plan src/ha2/01moving_through_the_grid.cpp)
 target_link_libraries(execute_plan ${catkin_LIBRARIES})
 add_dependencies(execute_plan create_fundamentals_generate_messages_cpp)
+
+add_executable(execute_plan_smooth src/ha2/02moving_fast_and_smooth.cpp)
+target_link_libraries(execute_plan_smooth ${catkin_LIBRARIES})
+add_dependencies(execute_plan_smooth create_fundamentals_generate_messages_cpp)
 
 # add_executable(ransac_tb src/tests/ransac_tb.cpp)
 # target_link_libraries(ransac_tb ${catkin_LIBRARIES})

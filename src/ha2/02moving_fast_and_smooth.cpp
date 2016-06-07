@@ -14,7 +14,6 @@ bool executePlanCallback(orange_fundamentals::ExecutePlan::Request& req,
     res.success       = true;
     int lastDirection = UP;
 
-
     for (std::vector<int>::iterator it = plan.begin(); it != plan.end(); ++it) {
 
         ROS_INFO("execute_plan_callback: %d", *it);
@@ -84,7 +83,8 @@ bool executePlanCallback(orange_fundamentals::ExecutePlan::Request& req,
         default:
             break;
         }
-        basicMovements.driveWall(0.80);
+
+        res.success   = basicMovements.drive(CELL_LENGTH);
         lastDirection = *it;
     }
 
@@ -95,7 +95,6 @@ int main(int argc, char** argv)
 {
     ros::init(argc, argv, "execute_plan_server");
     ros::NodeHandle nh;
-
 
     // TODO: align to a cell
     Env env;

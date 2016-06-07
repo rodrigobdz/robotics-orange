@@ -17,12 +17,12 @@ class Wall
     float getDistance() const { return distance; }
     float getAngle() const { return angle; }
 
+    float calcDistance(float x1, float y1, float x2, float y2);
+    float calcAngle(float x1, float y1, float x2, float y2);
   private:
     float distance;
     float angle;
 
-    float calcDistance(float x1, float y1, float x2, float y2);
-    float calcAngle(float x1, float y1, float x2, float y2);
 };
 
 
@@ -93,7 +93,6 @@ float Wall::calcAngle(float x1, float y1, float x2, float y2)
     } else {
         newAngle = oldAngle + PI * 3 / 2 ;
     }
-
 
     return newAngle;
 }
