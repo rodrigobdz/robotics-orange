@@ -18,19 +18,18 @@ class BasicMovements
     BasicMovements()
     {
         // Set up encoders callback
-        encoderSubscriber   = n.subscribe("sensor_packet", 1, &BasicMovements::encoderCallback, this);
-        diffDriveClient     = n.serviceClient<create_fundamentals::DiffDrive>("diff_drive");
+        encoderSubscriber = n.subscribe("sensor_packet", 1, &BasicMovements::encoderCallback, this);
+        diffDriveClient = n.serviceClient<create_fundamentals::DiffDrive>("diff_drive");
 
         // Set up laser callback
-        laserSubscriber     = n.subscribe("scan_filtered", 1, &BasicMovements::laserCallback, this);
+        laserSubscriber = n.subscribe("scan_filtered", 1, &BasicMovements::laserCallback, this);
 
         // Set up reset encoders client
         resetEncodersClient = n.serviceClient<create_fundamentals::ResetEncoders>("reset_encoders");
 
         // Initialize minimum range to a default value to be able to stop when obstacle is found
-        laserInitialized   = false;
+        laserInitialized = false;
         encoderInitialized = false;
-
     }
 
     void stop();
@@ -44,11 +43,11 @@ class BasicMovements
     bool turnRight();
 
   private:
-    static const float DEFAULT_SPEED   = 5;
+    static const float DEFAULT_SPEED = 5;
     static const bool DETECT_OBSTACLES = true;
-    static const bool DEBUG            = true;  // Defines if output should be printed
-    static const bool CALLBACK_DEBUG   = false; // Decide to print output from callbacks
-    float minimumRange;                         // Global variable to store minimum distance to object if found
+    static const bool DEBUG = true;           // Defines if output should be printed
+    static const bool CALLBACK_DEBUG = false; // Decide to print output from callbacks
+    float minimumRange;                       // Global variable to store minimum distance to object if found
     bool laserInitialized;
     bool encoderInitialized;
 
@@ -64,7 +63,7 @@ class BasicMovements
     // Laser
     ros::Subscriber laserSubscriber;
 
-    //Ransac
+    // Ransac
     Ransac ransac;
 
     std::vector<float> ranges;
@@ -78,10 +77,10 @@ class BasicMovements
 
 bool BasicMovements::move(float desiredVelocity, float desiredTurningVelocity)
 {
-    float vLeft  = 1 / RAD_RADIUS * (desiredVelocity + ROB_BASE / 2 * desiredTurningVelocity);
+    float vLeft = 1 / RAD_RADIUS * (desiredVelocity + ROB_BASE / 2 * desiredTurningVelocity);
     float vRight = 1 / RAD_RADIUS * (desiredVelocity - ROB_BASE / 2 * desiredTurningVelocity);
 
-    diffDriveService.request.left  = vLeft;
+    diffDriveService.request.left = vLeft;
     diffDriveService.request.right = vRight;
 
     diffDriveClient.call(diffDriveService);
@@ -93,7 +92,7 @@ void BasicMovements::stop()
         ROS_INFO("STOP");
     }
 
-    diffDriveService.request.left  = 0;
+    diffDriveService.request.left = 0;
     diffDriveService.request.right = 0;
     diffDriveClient.call(diffDriveService);
 }
@@ -110,10 +109,10 @@ bool BasicMovements::drive(float distanceInMeters, float speed)
         ROS_INFO("diffDrive %f %f distance: %f m", speed, speed, distanceInMeters);
     }
 
-    speed                   = fabs(speed);
-    float sign              = distanceInMeters < 0 ? -1 : 1; // Check if speed positive or negative
+    speed = fabs(speed);
+    float sign = distanceInMeters < 0 ? -1 : 1; // Check if speed positive or negative
     float distanceInRadians = distanceInMeters * ONE_METER_IN_RAD;
-    float threshold         = fabs(distanceInRadians) - (fabs(distanceInRadians) * 0.025);
+    float threshold = fabs(distanceInRadians) - (fabs(distanceInRadians) * 0.025);
 
     resetEncoders();
 
@@ -137,7 +136,7 @@ bool BasicMovements::drive(float distanceInMeters, float speed)
             return true;
         }
 
-        diffDriveService.request.left  = sign * speed;
+        diffDriveService.request.left = sign * speed;
         diffDriveService.request.right = sign * speed;
         diffDriveClient.call(diffDriveService);
 
@@ -149,67 +148,72 @@ bool BasicMovements::drive(float distanceInMeters, float speed)
 
 bool BasicMovements::driveWall(float distanceInMeters, float speed)
 {
-    std::vector<Wall*> walls;
-    walls = ransac.getWalls();
-
     initialiseEncoder();
 
     float wishLeftEncoder = leftEncoder + distanceInMeters / RAD_RADIUS;
     float wishRightEncoder = rightEncoder + distanceInMeters / RAD_RADIUS;
 
+    std::vector<Wall*> walls;
+
     while (fabs(wishRightEncoder - rightEncoder) > 1) {
         ros::spinOnce();
         walls = ransac.getWalls();
-        //ROS_INFO("leftEncoder %f, wishLeftEncoder %f", leftEncoder, wishLeftEncoder);
-        //if (minimumRange < SAFETY_DIS) {
-        //    // Robot recognized an obstacle, distance could not be completed
-        //    stop();
-        //    return false;
-        //}
+
+        // if (minimumRange < SAFETY_DIS) {
+        //     // Robot recognized an obstacle, distance could not be completed
+        //     stop();
+        //     return false;
+        // }
+
         if (walls.size() == 0) {
             // Drive forward
-            //move(0.2, 0); TODO
+            move(0.2, 0);
         } else {
             int correctWall = -1;
 
             // Search for nearest wall
             float smallestDistance = 100;
-            for(int i = 0; i < walls.size(); i++){
-                if(smallestDistance > walls[i]->getDistance()){
+            for (int i = 0; i < walls.size(); i++) {
+                if (smallestDistance > walls[i]->getDistance()) {
                     correctWall = i;
                     smallestDistance = walls[i]->getDistance();
                 }
             }
 
-            // Correct Version old version with wrong angle from wall
-            // float correcturFactor = walls[correctWall]->getDistance() / 0.40;
-            // float angleInRadians = ROB_BASE / 2 * ((walls[correctWall]->getAngle() - 90) / 180 * PI);
-            // float vLeft = 1 / RAD_RADIUS * (correcturFactor * speed / 20 + angleInRadians / 10);
-            // float vRight = 1 / RAD_RADIUS * (speed / 20 - angleInRadians / 10);
+            float wallAngle = walls[correctWall]->getAngle();
+            float wallDistance = walls[correctWall]->getDistance();
 
-            float currentAngle = walls[correctWall]->getAngle();
             float correcturFactor;
-            float vLeft;
-            float vRight;
-
-            correcturFactor = walls[correctWall]->getDistance() / 0.40;
-
-            // angleInRadians = ROB_BASE / 2 * sin(2 * walls[correctWall]->getAngle());
-            if (walls[correctWall]->getAngle() > -PI / 2 && walls[correctWall]->getAngle() < PI / 2) {
-                correcturFactor = walls[correctWall]->getDistance() / 0.40;
-            } else if (walls[correctWall]->getAngle() > PI / 2 && walls[correctWall]->getAngle() < PI * 3 / 4) {
-                correcturFactor = 0.40 / walls[correctWall]->getDistance();
+            float driveAngle = tan(walls[correctWall]->getAngle()) * ROB_BASE / 2;
+            if (wallAngle > -3 * PI / 4 && wallAngle < -PI / 4) {
+                correcturFactor = 2.5 * wallDistance + 0;
+                driveAngle = (-tan(2 * wallAngle) / 3) * ROB_BASE / 2;
+            } else if (wallAngle > PI / 4 && wallAngle < 3 * PI / 4) {
+                correcturFactor = -2.5 * wallDistance + 1.5;
+                driveAngle = (tan(-2 * wallAngle) / 3) * ROB_BASE / 2;
             } else {
-                ROS_INFO("Error in driveWall");
+                correcturFactor = 0;
+                driveAngle = 0;
             }
+            // Just angle
+            // float vLeft = 1 / RAD_RADIUS * (PI * driveAngle / 2);
+            // float vRight = 1 / RAD_RADIUS * (-PI * driveAngle / 2);
+            // Just distance
+            // float vLeft = 1 / RAD_RADIUS * (correcturFactor * speed / 50);
+            // float vRight = 1 / RAD_RADIUS * (speed / 50);
 
-            ROS_INFO("vLeft = %f, vRight = %f", vLeft, vRight);
+            float vLeft = 1 / RAD_RADIUS * (correcturFactor * speed / 50 + PI * driveAngle / 2);
+            float vRight = 1 / RAD_RADIUS * (speed / 50 + -PI * driveAngle / 2);
+
+            ROS_INFO("distance = %f, correcturFactor = %f", wallDistance, correcturFactor);
+            ROS_INFO("angle = %f, driveAngle = %f", wallAngle, driveAngle);
+            // ROS_INFO("vLeft = %f, vRight = %f", vLeft, vRight);
+
             diffDriveService.request.left = vLeft;
             diffDriveService.request.right = vRight;
 
             diffDriveClient.call(diffDriveService);
         }
-
     }
     move(0, 0);
 
@@ -244,13 +248,13 @@ bool BasicMovements::rotateAbs(float angleInDegrees, float speed)
 bool BasicMovements::rotate(float angleInDegrees, float speed)
 {
     // Variables
-    float angleInRadians = angleInDegrees * (PI/2) / 90;
-    float threshold      = NINETY_DEGREES_IN_RAD / 10;
+    float angleInRadians = angleInDegrees * (PI / 2) / 90;
+    float threshold = NINETY_DEGREES_IN_RAD / 10;
 
     initialiseEncoder();
 
-    float wishLeftEncoder  = leftEncoder - 1 / RAD_RADIUS * ( ROB_BASE / 2 * angleInRadians);
-    float wishRightEncoder = rightEncoder + 1 / RAD_RADIUS * ( ROB_BASE / 2 * angleInRadians);
+    float wishLeftEncoder = leftEncoder - 1 / RAD_RADIUS * (ROB_BASE / 2 * angleInRadians);
+    float wishRightEncoder = rightEncoder + 1 / RAD_RADIUS * (ROB_BASE / 2 * angleInRadians);
 
     while (ros::ok()) {
         ros::spinOnce();
@@ -262,7 +266,7 @@ bool BasicMovements::rotate(float angleInDegrees, float speed)
             return true;
         }
 
-        if(wishLeftEncoder > leftEncoder) {
+        if (wishLeftEncoder > leftEncoder) {
             move(0, 1);
         } else {
             move(0, -1);
@@ -324,17 +328,17 @@ void BasicMovements::encoderCallback(const create_fundamentals::SensorPacket::Co
     }
 
     encoderInitialized = true;
-    leftEncoder        = msg->encoderLeft;
-    rightEncoder       = msg->encoderRight;
+    leftEncoder = msg->encoderLeft;
+    rightEncoder = msg->encoderRight;
 }
 
 void BasicMovements::laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg)
 {
     laserInitialized = true;
-    ranges           = msg->ranges;
+    ranges = msg->ranges;
 
     // Initialize minimum range to a default value
-    minimumRange     = LASER_MAX_REACH;
+    minimumRange = LASER_MAX_REACH;
     // Find minimum in ranges
     for (int i = 0; i < LASER_COUNT - 1; ++i) {
         if (ranges[i] < minimumRange) {
@@ -343,7 +347,6 @@ void BasicMovements::laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg)
         }
     }
 }
-
 
 void BasicMovements::initialiseEncoder()
 {

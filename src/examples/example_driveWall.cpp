@@ -5,9 +5,12 @@
 #include <wall.cpp>
 
 
-void stopMotors(int signal) {
+void mySigintHandler(int signal) {
     BasicMovements basicMovements;
-    basicMovements.stop();
+    while(true){
+        basicMovements.stop();
+        ros::shutdown();
+    }
 }
 
 int main(int argc, char **argv)
@@ -17,7 +20,7 @@ int main(int argc, char **argv)
     BasicMovements basicMovements;
     Ransac ransac;
 
-	signal(SIGINT, stopMotors);
+	signal(SIGINT, mySigintHandler);
 
 	basicMovements.driveWall(4);
 
