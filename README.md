@@ -29,6 +29,7 @@ To install this hook please follow the following instructions from the command l
 ## Sound_play
 
 We chose the sound_play package to reproduce sounds and songs because it offers more flexibility on what and how it reproduces on the robot rather than plain notes as in the traditional _Store Song_ and _Play Song_ functions.
+For more info go to http://wiki.ros.org/sound_play/
 
 ### Before you start
 
