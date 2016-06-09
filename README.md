@@ -1,7 +1,5 @@
 # Robotics: Fundamentals 2016
 
-[TOC]
-
 ## Orange Team - TU Berlin
 
 The codingstyleguide of this project is from https://www.kernel.org/doc/Documentation/CodingStyle.
