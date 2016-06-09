@@ -48,7 +48,7 @@ The installation process is not very well documented in the ROS tutorials. There
 2. You cand find another one under the page http://wenku.baidu.com/view/0b4285430b4e767f5acfce60.html, although it is in chinese. Have fun!
 3. The one that worked for me was https://fleshandmachines.wordpress.com/2016/04/23/ros-and-sounds-or-how-to-make-your-droid-to-say-the-dalek-exterminate/ . 
 
-The thirs is summarized as follows: 
+The best tutorial is summarized as follows: 
 
 1. `$ sudo apt-get install ros-indigo-sound-play`
 2. `$ rosdep install sound_play`
