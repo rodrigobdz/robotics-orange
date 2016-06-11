@@ -43,9 +43,9 @@ class BasicMovements
     bool turnRight();
 
   private:
-    static const float DEFAULT_SPEED = 5;
+    static constexpr float DEFAULT_SPEED = 5;
     static const bool DETECT_OBSTACLES = true;
-    static const bool DEBUG = true;           // Defines if output should be printed
+    static const bool DEBUG = false;           // Defines if output should be printed
     static const bool CALLBACK_DEBUG = false; // Decide to print output from callbacks
     float minimumRange;                       // Global variable to store minimum distance to object if found
     bool laserInitialized;

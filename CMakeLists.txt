@@ -39,6 +39,9 @@ catkin_package(
     CATKIN_DEPENDS roscpp rospy sensor_msgs create_fundamentals
 )
 
+set(GCC_COVERAGE_COMPILE_FLAGS "--std=c++11")
+add_definitions(${GCC_COVERAGE_COMPILE_FLAGS})
+
 include_directories(include ${catkin_INCLUDE_DIRS} src/lib)
 
 #############################################################################
@@ -77,11 +80,15 @@ add_dependencies(example_ransac create_fundamentals_generate_messages_cpp)
 # target_link_libraries(03align ${catkin_LIBRARIES})
 # add_dependencies(03align create_fundamentals_generate_messages_cpp)
 
-add_executable(execute_plan src/ha2/01moving_through_the_grid.cpp)
-target_link_libraries(execute_plan ${catkin_LIBRARIES})
-add_dependencies(execute_plan create_fundamentals_generate_messages_cpp)
+# add_executable(execute_plan src/ha2/01moving_through_the_grid.cpp)
+# target_link_libraries(execute_plan ${catkin_LIBRARIES})
+# add_dependencies(execute_plan create_fundamentals_generate_messages_cpp)
 
-add_executable(execute_plan_smooth src/ha2/02moving_fast_and_smooth.cpp)
-target_link_libraries(execute_plan_smooth ${catkin_LIBRARIES})
-add_dependencies(execute_plan_smooth create_fundamentals_generate_messages_cpp)
+# add_executable(execute_plan_smooth src/ha2/02moving_fast_and_smooth.cpp)
+# target_link_libraries(execute_plan_smooth ${catkin_LIBRARIES})
+# add_dependencies(execute_plan_smooth create_fundamentals_generate_messages_cpp)
+
+add_executable(global_localization src/ha3/01GlobalLocalization.cpp)
+target_link_libraries(global_localization ${catkin_LIBRARIES})
+add_dependencies(global_localization create_fundamentals_generate_messages_cpp)
 
