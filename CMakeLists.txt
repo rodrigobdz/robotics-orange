@@ -11,6 +11,8 @@ find_package(
     sensor_msgs
     create_fundamentals
     message_generation
+    visualization_msgs
+    std_msgs
 )
 
 #set the default path for built executables to the "bin" directory
@@ -45,32 +47,20 @@ add_definitions(${GCC_COVERAGE_COMPILE_FLAGS})
 include_directories(include ${catkin_INCLUDE_DIRS} src/lib)
 
 #############################################################################
-#                          EXECUTABLES                                      #
+#                               EXECUTABLES                                 #
 #############################################################################
 
-                #################################
-                #            EXAMPLES           #
-                #################################
+                     #################################
+                     #            EXAMPLES           #
+                     #################################
 
-add_executable(example_driveWall src/examples/example_driveWall.cpp)
-target_link_libraries(example_driveWall ${catkin_LIBRARIES})
-add_dependencies(example_driveWall create_fundamentals_generate_messages_cpp)
-
-add_executable(example_ransac src/examples/example_ransac.cpp)
-target_link_libraries(example_ransac ${catkin_LIBRARIES})
-add_dependencies(example_ransac create_fundamentals_generate_messages_cpp)
+# add_executable(example_driveWall src/examples/example_driveWall.cpp)
+# target_link_libraries(example_driveWall ${catkin_LIBRARIES})
+# add_dependencies(example_driveWall create_fundamentals_generate_messages_cpp)
 
 # add_executable(test_laser src/tests/laser.cpp)
 # target_link_libraries(test_laser ${catkin_LIBRARIES})
 # add_dependencies(test_laser create_fundamentals_generate_messages_cpp)
-
-# add_executable(ransac_tb src/tests/ransac_tb.cpp)
-# target_link_libraries(ransac_tb ${catkin_LIBRARIES})
-# add_dependencies(ransac_tb create_fundamentals_generate_messages_cpp)
-
-# add_executable(env_tb src/tests/env_tb.cpp)
-# target_link_libraries(env_tb ${catkin_LIBRARIES})
-# add_dependencies(env_tb create_fundamentals_generate_messages_cpp)
 
                 #################################
                 #           HOMEWORKS           #
@@ -91,4 +81,3 @@ add_dependencies(example_ransac create_fundamentals_generate_messages_cpp)
 add_executable(global_localization src/ha3/01GlobalLocalization.cpp)
 target_link_libraries(global_localization ${catkin_LIBRARIES})
 add_dependencies(global_localization create_fundamentals_generate_messages_cpp)
-

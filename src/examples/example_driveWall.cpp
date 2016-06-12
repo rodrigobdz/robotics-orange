@@ -7,10 +7,8 @@
 
 void mySigintHandler(int signal) {
     BasicMovements basicMovements;
-    while(true){
-        basicMovements.stop();
-        ros::shutdown();
-    }
+    basicMovements.stop();
+    ros::shutdown();
 }
 
 int main(int argc, char **argv)
@@ -24,4 +22,5 @@ int main(int argc, char **argv)
 
 	basicMovements.driveWall(4);
 
+	return 0;
 }

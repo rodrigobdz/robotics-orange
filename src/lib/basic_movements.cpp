@@ -159,54 +159,51 @@ bool BasicMovements::driveWall(float distanceInMeters, float speed)
         ros::spinOnce();
         walls = ransac.getWalls();
 
-        // if (minimumRange < SAFETY_DIS) {
-        //     // Robot recognized an obstacle, distance could not be completed
-        //     stop();
-        //     return false;
-        // }
-
-        if (walls.size() == 0) {
-            // Drive forward
+        if (walls.size() == 0) { // Drive forward
             move(0.2, 0);
         } else {
-            int correctWall = -1;
 
             // Search for nearest wall
             float smallestDistance = 100;
+            Wall nearestWall(0,0);
+
             for (int i = 0; i < walls.size(); i++) {
                 if (smallestDistance > walls[i]->getDistance()) {
-                    correctWall = i;
+                    nearestWall = *walls[i];
                     smallestDistance = walls[i]->getDistance();
                 }
             }
 
-            float wallAngle = walls[correctWall]->getAngle();
-            float wallDistance = walls[correctWall]->getDistance();
+            float wallAngle = nearestWall.getAngle();
+            float wallDistance = nearestWall.getDistance();
 
-            float correcturFactor;
-            float driveAngle = tan(walls[correctWall]->getAngle()) * ROB_BASE / 2;
-            if (wallAngle > -3 * PI / 4 && wallAngle < -PI / 4) {
-                correcturFactor = 2.5 * wallDistance + 0;
-                driveAngle = (-tan(2 * wallAngle) / 3) * ROB_BASE / 2;
-            } else if (wallAngle > PI / 4 && wallAngle < 3 * PI / 4) {
-                correcturFactor = -2.5 * wallDistance + 1.5;
-                driveAngle = (tan(-2 * wallAngle) / 3) * ROB_BASE / 2;
+            float distanceCorrectur;
+            float angleCorrectur;
+
+            if (nearestWall.isLeftWall()) {
+                distanceCorrectur = (0.625 * PI) * wallDistance - PI / 4;
+                angleCorrectur = -tan(2 * wallAngle) * PI / 4;
+            } else if (nearestWall.isRightWall()) {
+                distanceCorrectur = -(0.625 * PI) * wallDistance + PI / 4;
+                angleCorrectur = -tan(2 * wallAngle) * PI / 4;
             } else {
-                correcturFactor = 0;
-                driveAngle = 0;
+                if (nearestWall.isFrontWall() && wallDistance < 0.2) {
+                    // Robot recognized an obstacle, distance could not be completed
+                    stop();
+                    return false;
+                }
             }
             // Just angle
-            // float vLeft = 1 / RAD_RADIUS * (PI * driveAngle / 2);
-            // float vRight = 1 / RAD_RADIUS * (-PI * driveAngle / 2);
+            // float vLeft = 1 / RAD_RADIUS * (angleCorrectur * ROB_BASE / 2);
+            // float vRight = 1 / RAD_RADIUS * (-angleCorrectur * ROB_BASE / 2);
             // Just distance
-            // float vLeft = 1 / RAD_RADIUS * (correcturFactor * speed / 50);
-            // float vRight = 1 / RAD_RADIUS * (speed / 50);
+            // float vLeft = 1 / RAD_RADIUS * (-distanceCorrectur * ROB_BASE / 2);
+            // float vRight = 1 / RAD_RADIUS * (distanceCorrectur * ROB_BASE / 2);
 
-            float vLeft = 1 / RAD_RADIUS * (correcturFactor * speed / 50 + PI * driveAngle / 2);
-            float vRight = 1 / RAD_RADIUS * (speed / 50 + -PI * driveAngle / 2);
+            float vLeft = 1 / RAD_RADIUS * (0.2 + (angleCorrectur - distanceCorrectur) * ROB_BASE / 2);
+            float vRight = 1 / RAD_RADIUS * (0.2 + (-angleCorrectur + distanceCorrectur) * ROB_BASE / 2);
 
-            ROS_INFO("distance = %f, correcturFactor = %f", wallDistance, correcturFactor);
-            ROS_INFO("angle = %f, driveAngle = %f", wallAngle, driveAngle);
+            // ROS_INFO("distanceCorrectur = %f, angleCorrectur = %f", distanceCorrectur, angleCorrectur);
             // ROS_INFO("vLeft = %f, vRight = %f", vLeft, vRight);
 
             diffDriveService.request.left = vLeft;

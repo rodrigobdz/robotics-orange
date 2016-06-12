@@ -17,14 +17,17 @@ class Wall
     float getDistance() const { return distance; }
     float getAngle() const { return angle; }
 
-    float calcDistance(float x1, float y1, float x2, float y2);
-    float calcAngle(float x1, float y1, float x2, float y2);
+    bool isLeftWall();
+    bool isRightWall();
+    bool isFrontWall();
+
   private:
     float distance;
     float angle;
 
+    float calcDistance(float x1, float y1, float x2, float y2);
+    float calcAngle(float x1, float y1, float x2, float y2);
 };
-
 
 /////////////////////////////////////////////////////
 ////////////////////// Helpers //////////////////////
@@ -65,8 +68,8 @@ float Wall::calcAngle(float x1, float y1, float x2, float y2)
     float m1 = (y2 - y1) / (x2 - x1);
     float n1 = y1 - m1 * x1;
 
-    if(isinf(m1)){
-        if(x1 > 0){
+    if (isinf(m1)) {
+        if (x1 > 0) {
             m1 = -100000000;
             n1 = 100000000;
         } else {
@@ -76,7 +79,7 @@ float Wall::calcAngle(float x1, float y1, float x2, float y2)
     }
 
     // Line 2
-    float m2 = -1/m1;
+    float m2 = -1 / m1;
     float n2 = 0;
 
     // Intersection
@@ -91,10 +94,16 @@ float Wall::calcAngle(float x1, float y1, float x2, float y2)
     if (oldAngle > -PI / 2) {
         newAngle = oldAngle - PI / 2;
     } else {
-        newAngle = oldAngle + PI * 3 / 2 ;
+        newAngle = oldAngle + PI * 3 / 2;
     }
 
     return newAngle;
 }
+
+bool Wall::isLeftWall() { return (angle > PI / 4 && angle < 3 * PI / 4); }
+
+bool Wall::isRightWall() { return (angle > -3 * PI / 4 && angle < -PI / 4); }
+
+bool Wall::isFrontWall() { return (angle < PI / 4 && angle > -PI / 4); }
 
 #endif

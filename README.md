@@ -8,7 +8,7 @@ The codingstyleguide of this project is from https://www.kernel.org/doc/Document
 
 This runs the commands from every assignment to make sure that everything compiles before committing. This measure is to avoid errors on the master branch. If catkin_make fails the commit won't take effect.
 
-Assignment commands: `cd~/catkin_ws; catkin_make clean; catkin_make`
+Assignment commands: `cd ~/catkin_ws; catkin_make clean; catkin_make`
 
 ### Installation
 
@@ -16,7 +16,7 @@ To install this hook please follow the following instructions from the command l
 
 1. `cd` to root directory of this project
 
-2. Given that .git folder is not tracked by git we have to make a symbolic link from our tracked file to the pre-commit hook file`ln -s ../../hooks/pre-commit .git/hooks/pre-commit`. 
+2. Given that .git folder is not tracked by git we have to make a symbolic link from our tracked file to the pre-commit hook file`ln -s ../../hooks/pre-commit .git/hooks/pre-commit`.
 
    **Note:** `../../` is used as a prefix on the first argument when making a symbolic link because the path is relative to `.git/hooks/pre-commit`
 
@@ -41,13 +41,13 @@ This steps were taken from https://fleshandmachines.wordpress.com/2016/04/23/ros
 
 ### Installation
 
-The installation process is not very well documented in the ROS tutorials. There are three notable tutorials for installing *sound_play*. 
+The installation process is not very well documented in the ROS tutorials. There are three notable tutorials for installing *sound_play*.
 
 1. The easiest to find is http://wiki.ros.org/sound_play/Tutorials/ConfiguringAndUsingSpeakers . It is horribly documented and outdated. Good luck!
 2. You cand find another one under the page http://wenku.baidu.com/view/0b4285430b4e767f5acfce60.html, although it is in chinese. Have fun!
-3. The one that worked for me was https://fleshandmachines.wordpress.com/2016/04/23/ros-and-sounds-or-how-to-make-your-droid-to-say-the-dalek-exterminate/ . 
+3. The one that worked for me was https://fleshandmachines.wordpress.com/2016/04/23/ros-and-sounds-or-how-to-make-your-droid-to-say-the-dalek-exterminate/ .
 
-The best tutorial is summarized as follows: 
+The best tutorial is summarized as follows:
 
 1. `$ sudo apt-get install ros-indigo-sound-play`
 2. `$ rosdep install sound_play`
