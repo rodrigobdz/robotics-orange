@@ -30,8 +30,6 @@ using namespace orange_fundamentals;
 #define DEBUG true
 #define not_implemented_yet -2
 
-enum directions { RIGHT = 0, TOP, LEFT, BOTTOM };
-
 // global pointer to the current map
 std::vector<Row> rows;
 
@@ -45,7 +43,7 @@ std::string WallsToString(std::vector<int> v);
    used to check if there is a wall right in front of the robot */
 bool filter90d(const Wall* w);
 
-/* get and set the wallpattern of @c */
+/* get the wallpattern of @walls */
 wallpattern getWallPattern(std::vector<int> walls);
 
 /** -------------------------------end---------------------------------- */
@@ -85,17 +83,17 @@ void parseMap(void)
 
             // setup a cell structure, fill in all informations
             std::pair<int,int> coord = std::make_pair(i,j);
-            struct cell c = maze[INDEX(coord)];
-            c.coordinates = coord;
-            c.walls = walls;
-            std::sort(c.walls.begin(), c.walls.end());
-            c.pattern = getWallPattern(c.walls);
+            struct cell* c = &maze[INDEX(coord)];
+            c->coordinates = coord;
+            c->walls = walls;
+            std::sort(c->walls.begin(), c->walls.end());
+            c->pattern = getWallPattern(c->walls);
 
             if(DEBUG) ROS_INFO("parseMap: (%d,%d) -> %s (%s)",
-                               c.coordinates.first,
-                               c.coordinates.second,
-                               WallsToString(c.walls).c_str(),
-                               wp_lookup[c.pattern].c_str());
+                               c->coordinates.first,
+                               c->coordinates.second,
+                               WallsToString(c->walls).c_str(),
+                               wp_lookup[c->pattern].c_str());
         }
     }
 }
@@ -125,8 +123,21 @@ wallpattern getWallPattern(std::vector<int> walls)
 }
 
 // FIXME: not tested!
+// TODO: change function to meet following expectations
+//   The function should return a vector with directions which
+//   correspond to scanned walls and the robots orientation.
+//   Additionally the robot should not face a wall, its orientation
+//   should be a direction were its free to move. (note: if the robot
+//   previously just came to this cell, it should not be this direction
+//   the robot faces, except there is no else direction to go)
+// TODO: return walls sorted
 std::vector<int> scanCurrentCell(void)
 {
+#if 1 // for testing
+    int w[] = {LEFT,BOTTOM,TOP};
+    return std::vector<int>(w, w+3);
+#endif
+
     int i = 0; // count the rotations
     Ransac rs;
     BasicMovements bm;
@@ -158,6 +169,101 @@ std::vector<int> scanCurrentCell(void)
     return walls;
 }
 
+/* macro EQUAL: return true if @w1 and @w2 contain the same elements */
+#define EQUAL(w1,w2) (std::equal((w1).begin(), (w1).end(), (w2).begin()))
+
+void localization(void)
+{
+    // hold all possible cells which could be
+    // the current location; if P shrinks to |P|=1
+    // we know excatly were we are;
+    // at the beginning P is just a copy of the maze,
+    // because every field is a possible location
+    std::vector<cell> P (DIMENSION*DIMENSION);
+    std::copy(maze, maze + (DIMENSION*DIMENSION), P.begin());
+
+    // hold possible positions
+    // 0: x coordinate of cell
+    // 1: y coordinate of cell
+    // 2: orientation
+    std::vector<int*> pos;
+
+    // debug
+    //ROS_INFO("P.size()=%d", (int)P.size());
+    //ROS_INFO("pattern: %d != %d", P.at(1).pattern, maze[1].pattern);
+
+    // scanCurrentCell should return an integer vector of size n
+    // where n is at most equal to 4, the n's member is a direction which
+    // is the orientation of the Robot, the first (n-1) are although directions
+    // which are scanned walls
+    std::vector<int> curr;
+    wallpattern wp;
+    directions orientation;
+
+
+    while(P.size()>1) {
+        curr = scanCurrentCell();
+        orientation = (directions) curr.back();
+        curr.pop_back();
+
+        if(DEBUG) ROS_INFO("localization: curr: %s", WallsToString(curr).c_str());
+
+        // sort out all cells with a not matching wall pattern
+        wp = getWallPattern(curr);
+        FILTERPATTERN(P,wp);
+
+        // iterate over all cells left
+        for(std::vector<cell>::iterator ic = P.begin(); ic != P.end(); ++ic) {
+            std::vector<int> curr_w = (*ic).walls;
+            directions curr_o = TOP;
+
+            if(DEBUG) ROS_INFO("localization: curr_w: (%d,%d) %s",
+                               (*ic).coordinates.first,
+                               (*ic).coordinates.second,
+                               WallsToString(curr_w).c_str());
+
+            for(int i=0; i<4; i++) {
+
+                if(EQUAL(curr,curr_w)) {
+
+                    pos.push_back(new int[3]);
+                    pos.back()[0] = (*ic).coordinates.first;
+                    pos.back()[1] = (*ic).coordinates.second;
+                    pos.back()[2] = curr_o;
+
+                    if(DEBUG) ROS_INFO("localization: pos: [%d,%d,%d]",
+                                       pos.back()[0],
+                                       pos.back()[1],
+                                       pos.back()[2]);
+
+                    move(pos.back());
+                    break;
+                }
+
+                ROTATE_R(curr_o);
+                ROTATEALL(curr_w);
+                std::sort(curr_w.begin(), curr_w.end());
+
+                if(DEBUG) ROS_INFO("localization: -->r curr_w: %s|%c",
+                                   WallsToString(curr_w).c_str(),
+                                   directions_lookup[curr_o]);
+            }
+        } // end iterator over P
+
+        //P.clear();
+
+        break;
+    }
+
+    if(DEBUG) ROS_INFO("localization: pos.size()=%d, curr.size()=%d, wp=%s, o=%d",
+                       (int) pos.size(),
+                       (int) curr.size(),
+                       wp_lookup[wp].c_str(),
+                       orientation);
+
+    if(DEBUG) ROS_INFO("localization: P.size()=%d", (int)P.size());
+}
+
 int main(int argc, char** argv)
 {
     ros::init(argc, argv, "global_localization");
@@ -182,6 +288,7 @@ int main(int argc, char** argv)
     ros::spinOnce();
 
     parseMap();
+    localization();
     //scanCurrentCell();
 
     // TODO: publish the map coordinates and orientation to /pose
@@ -213,7 +320,6 @@ bool filter90d(const Wall* w)
 std::string WallsToString(std::vector<int> v)
 {
     int bytesWritten = 0; // pointer to the current write position in buffer
-    char directions_lookup[] = { 'R', 'T', 'L', 'B' };
     char buffer[v.size()*2 + 2];
 
     bytesWritten += snprintf(buffer, sizeof(buffer), "[");
