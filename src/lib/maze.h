@@ -76,11 +76,13 @@ cell maze[DIMENSION*DIMENSION];
    to an move in the given direction. */
 inline void move(int* position)
 {
+    ROS_INFO("move: pos2:%d", position[2]);
+
     switch(position[2]) {
-    case RIGHT:  position[1] = position[1] + 1; break;
-    case TOP:    position[0] = position[0] - 1; break;
-    case LEFT:   position[1] = position[1] - 1; break;
-    case BOTTOM: position[0] = position[0] + 1; break;
+    case RIGHT:  position[1] += 1; break;
+    case TOP:    position[0] -= 1; break;
+    case LEFT:   position[1] -= 1; break;
+    case BOTTOM: position[0] += 1; break;
     default: ;
     }
 }

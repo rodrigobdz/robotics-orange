@@ -122,6 +122,8 @@ wallpattern getWallPattern(std::vector<int> walls)
     }
 }
 
+int counter = 0;
+
 // FIXME: not tested!
 // TODO: change function to meet following expectations
 //   The function should return a vector with directions which
@@ -134,7 +136,21 @@ wallpattern getWallPattern(std::vector<int> walls)
 std::vector<int> scanCurrentCell(void)
 {
 #if 1 // for testing
-    int w[] = {LEFT,BOTTOM,TOP};
+    int w[3];
+    switch(counter) {
+    case 0:
+        w[0] = LEFT;
+        w[1] = BOTTOM;
+        w[2] = TOP;
+        counter++;
+        break;
+    case 1:
+        w[0] = TOP;
+        w[1] = LEFT;
+        w[2] = TOP;
+        counter++;
+        break;
+    }
     return std::vector<int>(w, w+3);
 #endif
 
@@ -170,98 +186,113 @@ std::vector<int> scanCurrentCell(void)
 }
 
 /* macro EQUAL: return true if @w1 and @w2 contain the same elements */
-#define EQUAL(w1,w2) (std::equal((w1).begin(), (w1).end(), (w2).begin()))
+#define EQUAL(w1,w2) ((w1).size() == (w2).size() && std::equal((w1).begin(), (w1).end(), (w2).begin()))
 
 void localization(void)
 {
-    // hold all possible cells which could be
-    // the current location; if P shrinks to |P|=1
-    // we know excatly were we are;
-    // at the beginning P is just a copy of the maze,
-    // because every field is a possible location
-    std::vector<cell> P (DIMENSION*DIMENSION);
-    std::copy(maze, maze + (DIMENSION*DIMENSION), P.begin());
 
     // hold possible positions
     // 0: x coordinate of cell
     // 1: y coordinate of cell
     // 2: orientation
     std::vector<int*> pos;
+    std::vector<int*> tmp;
 
-    // debug
-    //ROS_INFO("P.size()=%d", (int)P.size());
-    //ROS_INFO("pattern: %d != %d", P.at(1).pattern, maze[1].pattern);
+    // at the beginning every cell is a possible location, therefore
+    // generate a position in @pos for each cell in the maze
+    for(int i=0; i<DIMENSION*DIMENSION; i++) {
+        pos.push_back(new int[3]);
+        pos.back()[0] = maze[i].coordinates.first;
+        pos.back()[1] = maze[i].coordinates.second;
+        pos.back()[2] = TOP; // initial orientation
+    }
 
     // scanCurrentCell should return an integer vector of size n
     // where n is at most equal to 4, the n's member is a direction which
     // is the orientation of the Robot, the first (n-1) are although directions
     // which are scanned walls
-    std::vector<int> curr;
-    wallpattern wp;
+    std::vector<int> curr_w;
     directions orientation;
+    BasicMovements bm;
 
+    while(pos.size()>1) {
+        curr_w = scanCurrentCell();
+        orientation = (directions) curr_w.back();
+        curr_w.pop_back();
 
-    while(P.size()>1) {
-        curr = scanCurrentCell();
-        orientation = (directions) curr.back();
-        curr.pop_back();
+        if(DEBUG) ROS_INFO("localization: curr_w: %s|%d",
+                           WallsToString(curr_w).c_str(),
+                           orientation);
 
-        if(DEBUG) ROS_INFO("localization: curr: %s", WallsToString(curr).c_str());
+        // iterate over all positions left
+        for(std::vector<int*>::iterator ipos = pos.begin(); ipos != pos.end(); ++ipos) {
 
-        // sort out all cells with a not matching wall pattern
-        wp = getWallPattern(curr);
-        FILTERPATTERN(P,wp);
+            if(DEBUG) ROS_INFO("localization: ipos: (%d,%d) %d",
+                               (*ipos)[0],
+                               (*ipos)[1],
+                               (*ipos)[2]);
 
-        // iterate over all cells left
-        for(std::vector<cell>::iterator ic = P.begin(); ic != P.end(); ++ic) {
-            std::vector<int> curr_w = (*ic).walls;
-            directions curr_o = TOP;
+            std::vector<int> ipos_w =
+                maze[INDEX(std::make_pair((*ipos)[0],(*ipos)[1]))].walls;
 
-            if(DEBUG) ROS_INFO("localization: curr_w: (%d,%d) %s",
-                               (*ic).coordinates.first,
-                               (*ic).coordinates.second,
-                               WallsToString(curr_w).c_str());
+            //directions ipos_o = (directions)(*ipos)[2];
+            directions ipos_o = TOP;
+
+            if(DEBUG) ROS_INFO("localization: ipos_w: (%d,%d) %s",
+                               (*ipos)[0],
+                               (*ipos)[1],
+                               WallsToString(ipos_w).c_str());
 
             for(int i=0; i<4; i++) {
 
-                if(EQUAL(curr,curr_w)) {
+                if(EQUAL(curr_w,ipos_w)) {
+                    if(DEBUG) ROS_INFO("localization: pos: (%d,%d)|%c ->w %s",
+                                       (*ipos)[0],
+                                       (*ipos)[1],
+                                       directions_lookup[ipos_o],
+                                       WallsToString(ipos_w).c_str());
 
-                    pos.push_back(new int[3]);
-                    pos.back()[0] = (*ic).coordinates.first;
-                    pos.back()[1] = (*ic).coordinates.second;
-                    pos.back()[2] = curr_o;
-
-                    if(DEBUG) ROS_INFO("localization: pos: [%d,%d,%d]",
-                                       pos.back()[0],
-                                       pos.back()[1],
-                                       pos.back()[2]);
-
-                    move(pos.back());
+                    tmp.push_back(new int[3]);
+                    tmp.back()[0] = (*ipos)[0];
+                    tmp.back()[1] = (*ipos)[1];
+                    tmp.back()[2] = ipos_o;
                     break;
                 }
 
-                ROTATE_R(curr_o);
-                ROTATEALL(curr_w);
-                std::sort(curr_w.begin(), curr_w.end());
+                ROTATE_R(ipos_o);
+                ROTATEALL(ipos_w);
+                std::sort(ipos_w.begin(), ipos_w.end());
 
-                if(DEBUG) ROS_INFO("localization: -->r curr_w: %s|%c",
-                                   WallsToString(curr_w).c_str(),
-                                   directions_lookup[curr_o]);
+                if(!DEBUG) ROS_INFO("localization: -->r curr_w: %s|%c",
+                                   WallsToString(ipos_w).c_str(),
+                                   directions_lookup[ipos_o]);
             }
-        } // end iterator over P
+        } // end iterator over positions
 
-        //P.clear();
-
-        break;
-    }
-
-    if(DEBUG) ROS_INFO("localization: pos.size()=%d, curr.size()=%d, wp=%s, o=%d",
+        if(DEBUG) ROS_INFO("localization: pos.size()=%d, tmp.size()=%d, o=%d",
                        (int) pos.size(),
-                       (int) curr.size(),
-                       wp_lookup[wp].c_str(),
+                       (int) tmp.size(),
                        orientation);
 
-    if(DEBUG) ROS_INFO("localization: P.size()=%d", (int)P.size());
+        pos.clear();
+        pos.swap(tmp);
+        tmp.clear();
+
+        if(counter == 2) {
+            ROS_INFO("pos[0]=(%d,%d,%d)", pos.at(0)[0],pos.at(0)[1],pos.at(0)[2]);
+            break;
+        }
+
+        std::for_each(pos.begin(),pos.end(), move);
+#if 0 // really move the robot
+        bm.driveWall(0.8);
+#endif
+    }
+
+    if(DEBUG) ROS_INFO("localization: pos.size()=%d, tmp.size()=%d, o=%d",
+                       (int) pos.size(),
+                       (int) tmp.size(),
+                       orientation);
 }
 
 int main(int argc, char** argv)
