@@ -13,6 +13,8 @@ int main(int argc, char **argv)
   ros::init(argc, argv, "example");
   ros::NodeHandle n;
   ros::Subscriber sub = n.subscribe("scan_filtered", 1, laserCallback);
-  ros::spin();
+  while (true){
+    ros::spin();
+  }
   return 0;
 }

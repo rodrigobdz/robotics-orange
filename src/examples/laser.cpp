@@ -37,6 +37,10 @@ int main(int argc, char** argv)
     while (n.ok()) {
         ros::spinOnce();
 
+        ROS_INFO("Laser[252] = %f", ranges[252]);
+        ROS_INFO("Laser[253] = %f", ranges[253]);
+        ROS_INFO("Laser[254] = %f", ranges[254]);
+        ROS_INFO("Laser[255] = %f", ranges[255]);
         ROS_INFO("Laser[256] = %f", ranges[256]);
         loop_rate.sleep();
 
