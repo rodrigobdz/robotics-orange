@@ -11,6 +11,8 @@ find_package(
     sensor_msgs
     create_fundamentals
     message_generation
+    visualization_msgs
+    std_msgs
 )
 
 #set the default path for built executables to the "bin" directory
@@ -42,7 +44,7 @@ catkin_package(
 include_directories(include ${catkin_INCLUDE_DIRS} src/lib)
 
 #############################################################################
-#                          EXECUTABLES
+#                               EXECUTABLES                                 #
 #############################################################################
 
 #################################
@@ -53,37 +55,18 @@ add_executable(example_driveWall src/examples/example_driveWall.cpp)
 target_link_libraries(example_driveWall ${catkin_LIBRARIES})
 add_dependencies(example_driveWall create_fundamentals_generate_messages_cpp)
 
-add_executable(example_ransac src/examples/example_ransac.cpp)
-target_link_libraries(example_ransac ${catkin_LIBRARIES})
-add_dependencies(example_ransac create_fundamentals_generate_messages_cpp)
-#################################
-#              Test             #
-#################################
-
-add_executable(test_laser src/tests/laser.cpp)
-target_link_libraries(test_laser ${catkin_LIBRARIES})
-add_dependencies(test_laser create_fundamentals_generate_messages_cpp)
+# add_executable(example_ransac src/examples/example_ransac.cpp)
+# target_link_libraries(example_ransac ${catkin_LIBRARIES})
+# add_dependencies(example_ransac create_fundamentals_generate_messages_cpp)
+#
+# add_executable(example_marker src/examples/example_marker.cpp)
+# target_link_libraries(example_marker ${catkin_LIBRARIES})
+# add_dependencies(example_marker create_fundamentals_generate_messages_cpp)
 
 #################################
 #           HOMEWORKS           #
 #################################
 
-# add_executable(03align src/ha1/03align.cpp)
-# target_link_libraries(03align ${catkin_LIBRARIES})
-# add_dependencies(03align create_fundamentals_generate_messages_cpp)
-
-add_executable(execute_plan src/ha2/01moving_through_the_grid.cpp)
-target_link_libraries(execute_plan ${catkin_LIBRARIES})
-add_dependencies(execute_plan create_fundamentals_generate_messages_cpp)
-
-add_executable(execute_plan_smooth src/ha2/02moving_fast_and_smooth.cpp)
-target_link_libraries(execute_plan_smooth ${catkin_LIBRARIES})
-add_dependencies(execute_plan_smooth create_fundamentals_generate_messages_cpp)
-
-# add_executable(ransac_tb src/tests/ransac_tb.cpp)
-# target_link_libraries(ransac_tb ${catkin_LIBRARIES})
-# add_dependencies(ransac_tb create_fundamentals_generate_messages_cpp)
-
-# add_executable(env_tb src/tests/env_tb.cpp)
-# target_link_libraries(env_tb ${catkin_LIBRARIES})
-# add_dependencies(env_tb create_fundamentals_generate_messages_cpp)
+# add_executable(execute_plan_smooth src/ha2/02moving_fast_and_smooth.cpp)
+# target_link_libraries(execute_plan_smooth ${catkin_LIBRARIES})
+# add_dependencies(execute_plan_smooth create_fundamentals_generate_messages_cpp)
