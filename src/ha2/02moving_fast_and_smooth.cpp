@@ -1,6 +1,7 @@
 #include "ros/ros.h"
 #include "orange_fundamentals/ExecutePlan.h"
 #include <basic_movements.cpp>
+#include <environment.cpp>
 
 enum directions { RIGHT = 0, UP, LEFT, DOWN };
 
@@ -17,7 +18,7 @@ bool executePlanCallback(orange_fundamentals::ExecutePlan::Request& req,
     basicMovements.driveWall(-0,2)
 
     for (std::vector<int>::iterator it = plan.begin(); it != plan.end(); ++it) {
-        
+
         ROS_INFO("execute_plan_callback: %d", *it);
         ROS_INFO("Drive in %i, lastDirection = %i", *it, lastDirection);
 
@@ -90,7 +91,7 @@ bool executePlanCallback(orange_fundamentals::ExecutePlan::Request& req,
         lastDirection = *it;
         
     }
-    
+
     return true;
 }
 
@@ -100,6 +101,8 @@ int main(int argc, char** argv)
     ros::NodeHandle nh;
 
     // TODO: align to a cell
+    Env env;
+    env.alignToGrid();
 
     ros::ServiceServer service = nh.advertiseService("execute_plan", executePlanCallback);
     ROS_INFO("ExecutePlan Service is ready.");

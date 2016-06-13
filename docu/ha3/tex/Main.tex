@@ -1,0 +1,37 @@
+\documentclass[a4paper, 12pt]{article}
+
+\input{tex/Einstellungen.tex}
+
+\begin{document}
+
+%%% Kopfzeile linker Bereich
+%      gerade Seite   ungerade Seite
+\lhead[\leftmark]{\textbf{\project}}
+%%% Kopfzeile mittlerer Bereich
+%      gerade Seite   ungerade Seite
+\chead[\rightmark]{\rightmark{}}
+%%% Kopfzeile linker Bereich
+%      gerade Seite             ungerade Seite
+
+
+	%-- Deckblatt --
+\title{\textbf{\project\\[0.25cm] \normalsize{\subtitle} \\[0.5cm]}}
+%\large{\supervisors}} %Thema ändern
+\author{\supervisors}
+\date{Letzte Änderung: \datum} %Datum ändern
+\maketitle
+\newpage
+
+\renewcommand{\labelenumi}{\alph{enumi})}
+\renewcommand{\labelenumii}{(\roman{enumii})}
+\renewcommand{\labelenumiii}{\arabic{enumiii}.}
+%\renewcommand{\labelenumii}{\textbf{-}}
+%-- Eigentlicher Text --
+
+\input{tex/Aufgabe1.tex}
+\input{tex/Aufgabe2.tex}
+\input{tex/Aufgabe3.tex}
+\input{tex/BonusFrage.tex}
+\input{tex/Aufgabenteilung.tex}
+
+\end{document}
