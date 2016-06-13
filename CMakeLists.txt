@@ -62,6 +62,10 @@ include_directories(include ${catkin_INCLUDE_DIRS} src/lib)
 # target_link_libraries(test_laser ${catkin_LIBRARIES})
 # add_dependencies(test_laser create_fundamentals_generate_messages_cpp)
 
+add_executable(example_song src/examples/ros/example_song.cpp)
+target_link_libraries(example_song ${catkin_LIBRARIES})
+add_dependencies(example_song create_fundamentals_generate_messages_cpp)
+
                 #################################
                 #           HOMEWORKS           #
                 #################################
@@ -78,6 +82,6 @@ include_directories(include ${catkin_INCLUDE_DIRS} src/lib)
 # target_link_libraries(execute_plan_smooth ${catkin_LIBRARIES})
 # add_dependencies(execute_plan_smooth create_fundamentals_generate_messages_cpp)
 
-add_executable(global_localization src/ha3/01GlobalLocalization.cpp)
-target_link_libraries(global_localization ${catkin_LIBRARIES})
-add_dependencies(global_localization create_fundamentals_generate_messages_cpp)
+# add_executable(global_localization src/ha3/01GlobalLocalization.cpp)
+# target_link_libraries(global_localization ${catkin_LIBRARIES})
+# add_dependencies(global_localization create_fundamentals_generate_messages_cpp)
