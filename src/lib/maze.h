@@ -5,9 +5,20 @@
 #ifndef MAZELIB
 #define MAZELIB
 
+#include <vector>
 #include <utility>
 #include <algorithm>
 #include <string>
+
+#include "ros/ros.h"
+
+#include <constants.cpp>
+
+#include "orange_fundamentals/Grid.h"
+#include "orange_fundamentals/Cell.h"
+#include "orange_fundamentals/Row.h"
+#include "orange_fundamentals/Pose.h"
+//#include "orange_fundamentals/ExecutePlan.h"
 
 /* macro ROTATE_? left|right: @param d is a direction which is mapped
    on the left|right hand side direction.
@@ -24,9 +35,12 @@
                      d = (directions) di;          \
   } while (0)
 
-#define ROTATEALL(V) (                    \
-    std::for_each((V).begin(), (V).end(), \
-                  [](int &n) { ROTATE_L(n); }))
+#define ROTATEALL(V) do {                                        \
+                      std::for_each((V).begin(),                 \
+                                    (V).end(),                   \
+                                    [](int &n) { ROTATE_L(n); });\
+                      std::sort((V).begin(), (V).end());         \
+  } while (0)
 
 enum directions { RIGHT = 0, TOP, LEFT, BOTTOM };
 char directions_lookup[] = { 'R', 'T', 'L', 'B' };
@@ -69,23 +83,7 @@ cell maze[DIMENSION*DIMENSION];
                                return !(c.pattern == (p)); \
                              }), (V).end()))
 
-
-/* move: @param position is an integer array with length 3, which
-   fields are 0: x coordinate in the maze, 1: y coordinate in the maze,
-   2: orientation. The function changes the coordinates in place according
-   to an move in the given direction. */
-inline void move(int* position)
-{
-    ROS_INFO("move: pos2:%d", position[2]);
-
-    switch(position[2]) {
-    case RIGHT:  position[1] += 1; break;
-    case TOP:    position[0] -= 1; break;
-    case LEFT:   position[1] -= 1; break;
-    case BOTTOM: position[0] += 1; break;
-    default: ;
-    }
-}
+#include "maze.cpp"
 
 #if 0 // experimental - for not working stuff and testing
 
