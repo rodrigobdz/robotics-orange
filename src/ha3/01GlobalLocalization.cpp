@@ -185,7 +185,6 @@ int main(int argc, char** argv)
     ros::NodeHandle nh;
     ros::Rate r(1);
 
-
     // Align the robot to the center of a cell
     // TODO: fix the align function
 #if 0
@@ -208,17 +207,17 @@ int main(int argc, char** argv)
     ros::spinOnce();
 
     parseMap(rows);
-    localize();
+    //localize();
 
 #endif
 
     //scanCurrentCell();
 
-#if 0
+#if 1
     int* pos = localize();
 
     ros::Publisher pose = nh.advertise<Pose>("pose", 1000);
-    ros::ServiceServer service = nh.advertiseService("execute_plan", executePlanCallback);
+    //ros::ServiceServer service = nh.advertiseService("execute_plan", executePlanCallback);
 
     while(ros::ok()) {
         Pose msg;

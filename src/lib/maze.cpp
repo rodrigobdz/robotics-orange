@@ -113,7 +113,7 @@ std::vector<int> scanCurrentCell(void)
             bool blocked = true;
             while(blocked) {
                 bm.rotate(90);
-                //ROTATEALL(walls);
+                ROTATEALL(walls);
                 orientation++;
                 if(!(walls.at(TOP) == TOP))
                     blocked = false;
@@ -124,13 +124,13 @@ std::vector<int> scanCurrentCell(void)
             ROS_INFO("is corner.");
             if(contains(walls, RIGHT)) {
                 bm.rotate(90);
-                //ROTATEALL(walls);
-                //ROTATEALL(walls);
-                //ROTATEALL(walls);
+                ROTATEALL(walls);
+                ROTATEALL(walls);
+                ROTATEALL(walls);
                 orientation++;
             } else {
                 bm.rotate(-90);
-                //ROTATEALL(walls);
+                ROTATEALL(walls);
                 orientation--;
             }
         }
@@ -138,7 +138,7 @@ std::vector<int> scanCurrentCell(void)
         if(getWallPattern(walls) == wall or getWallPattern(walls) == path) {
             ROS_INFO("is wall or path.");
             bm.rotate(90);
-            //ROTATEALL(walls);
+            ROTATEALL(walls);
             orientation++;
         }
     }
@@ -184,7 +184,7 @@ int* localize(void)
 
     bool first_run = true;
     while(pos.size()>1) {
-        curr_w = scanCurrentCell_test();
+        curr_w = scanCurrentCell();
         orientation = (directions) curr_w.back();
         curr_w.pop_back();
 
@@ -212,12 +212,11 @@ int* localize(void)
                     tmp.push_back(new int[3]);
                     tmp.back()[0] = (*ipos)[0];
                     tmp.back()[1] = (*ipos)[1];
-                    //tmp.back()[2] = ipos_o;
-                    tmp.back()[2] = orientation;
+                    tmp.back()[2] = ipos_o;
                     break;
                 }
 
-                //ROTATE_R(ipos_o);
+                ROTATE_R(ipos_o);
                 ROTATEALL(ipos_w);
                 std::sort(ipos_w.begin(), ipos_w.end());
 
@@ -244,7 +243,7 @@ int* localize(void)
 
         std::for_each(pos.begin(),pos.end(), move);
 
-#if 0 // really move the robot
+#if 1 // really move the robot
         bm.driveWall(0.8);
 #endif
 
@@ -324,15 +323,15 @@ std::vector<int> scanCurrentCell_test()
     int w[3];
     switch(counter) {
     case 0:
-        w[0] = RIGHT;
-        w[1] = TOP;
-        w[2] = BOTTOM;
+        w[0] = TOP;
+        w[1] = LEFT;
+        w[2] = TOP;
         counter++;
         break;
     case 1:
         w[0] = TOP;
         w[1] = LEFT;
-        w[2] = RIGHT;
+        w[2] = TOP;
         counter++;
         break;
     }
