@@ -13,6 +13,9 @@ bool executePlanCallback(orange_fundamentals::ExecutePlan::Request& req,
     std::vector<int> plan = req.plan;
     res.success       = true;
     int lastDirection = UP;
+    bool driveStraight = false;
+    turnUntilFree();
+    basicMovements.driveWall(-0,2)
 
     for (std::vector<int>::iterator it = plan.begin(); it != plan.end(); ++it) {
 
@@ -23,13 +26,13 @@ bool executePlanCallback(orange_fundamentals::ExecutePlan::Request& req,
         case RIGHT:
             switch (*it) {
             case UP:
-                basicMovements.rotate(90);
+                basicMovements.turnLeft();
                 break;
             case LEFT:
                 basicMovements.rotate(180);
                 break;
             case DOWN:
-                basicMovements.rotate(-90);
+                basicMovements.turnRight();
                 break;
             default:
                 break;
@@ -38,10 +41,10 @@ bool executePlanCallback(orange_fundamentals::ExecutePlan::Request& req,
         case UP:
             switch (*it) {
             case RIGHT:
-                basicMovements.rotate(-90);
+                basicMovements.turnRight();
                 break;
             case LEFT:
-                basicMovements.rotate(90);
+                basicMovements.turnLeft();
                 break;
             case DOWN:
                 basicMovements.rotate(180);
@@ -56,10 +59,10 @@ bool executePlanCallback(orange_fundamentals::ExecutePlan::Request& req,
                 basicMovements.rotate(180);
                 break;
             case UP:
-                basicMovements.rotate(-90);
+                basicMovements.turnRight();
                 break;
             case DOWN:
-                basicMovements.rotate(90);
+                basicMovements.turnLeft();
                 break;
             default:
                 break;
@@ -68,13 +71,13 @@ bool executePlanCallback(orange_fundamentals::ExecutePlan::Request& req,
         case DOWN:
             switch (*it) {
             case RIGHT:
-                basicMovements.rotate(90);
+                basicMovements.turnRight();
                 break;
             case UP:
                 basicMovements.rotate(180);
                 break;
             case LEFT:
-                basicMovements.rotate(-90);
+                basicMovements.turnLeft();
                 break;
             default:
                 break;
@@ -83,9 +86,10 @@ bool executePlanCallback(orange_fundamentals::ExecutePlan::Request& req,
         default:
             break;
         }
-
+  
         res.success   = basicMovements.drive(CELL_LENGTH);
         lastDirection = *it;
+        
     }
 
     return true;

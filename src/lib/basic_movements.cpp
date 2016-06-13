@@ -146,6 +146,19 @@ bool BasicMovements::drive(float distanceInMeters, float speed)
     return false;
 }
 
+bool BasicMovements::turnUntilFree()
+{
+    std::vector<Wall*> walls;
+    walls = ransac.getWalls();
+
+    while(walls.size()>0) {
+        if (walls.getAngle>45 || walls.getAngle<135) {
+            turnLeft();
+        }
+    }
+    
+}
+
 bool BasicMovements::driveWall(float distanceInMeters, float speed)
 {
     initialiseEncoder();
