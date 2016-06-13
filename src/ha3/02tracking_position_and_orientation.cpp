@@ -1,6 +1,7 @@
 #include "ros/ros.h"
 #include "orange_fundamentals/ExecutePlan.h"
 #include <basic_movements.cpp>
+#include <play_song.cpp>
 #include <environment.cpp>
 #include <cstdlib>
 #include "create_fundamentals/PlaySong.h"
@@ -21,6 +22,29 @@ int currentOrientation = 0;
 // TODO: Implement this function
 void localize(void){}
 
+inline void move(int* position) {}
+
+/*
+    Rotate the robot to look upward regarding the map
+*/
+void rotateUP()
+{
+    BasicMovements basicMovements;  
+    switch(currentOrientation) {
+        case RIGHT:
+            basicMovements.rotate(90);
+            break;
+        case LEFT:
+            basicMovements.rotate(-90);
+        case DOWN:
+            basicMovements.rotate(180);
+            break;
+        default:
+            break;
+    }
+    currentOrientation = UP;
+}
+
 void publishPositionAndOrientation(int row, int column, int orientation) {
     Pose msg;
     msg.row         = row;
@@ -38,6 +62,8 @@ bool executePlanCallback(orange_fundamentals::ExecutePlan::Request& req,
                            orange_fundamentals::ExecutePlan::Response& res)
 {
     BasicMovements basicMovements;
+    PlaySongLib playSongLib;
+
     std::vector<int> plan = req.plan;
     res.success           = true;
 
@@ -111,9 +137,22 @@ bool executePlanCallback(orange_fundamentals::ExecutePlan::Request& req,
         default:
             break;
         }
-        res.sucess = basicMovements.driveWall(CELL_LENGTH);
+        res.success = res.success && basicMovements.driveWall(CELL_LENGTH);
+        
         currentOrientation = *it;
+        // TODO: Tripel hier als argument übergeben.
+        move(moveArg);
         publishPositionAndOrientation(currentRow, currentColumn, currentOrientation);
+
+        if(res.success == false) {
+            playSongLib.starWars();
+            Env env;
+            env.alignToGrid();
+            localize();
+            // Prepare for next plan execution with UP orientation
+            rotateUP();
+            return res.success;
+        }
     }
 
     return res.success;
@@ -129,6 +168,7 @@ int main(int argc, char **argv)
     // TODO: Import localize function
     localize();
 
+    rotateUP();
     ros::ServiceServer service = nh.advertiseService("execute_plan", executePlanCallback);
     ROS_INFO("ExecutePlan Service is ready.");
 
