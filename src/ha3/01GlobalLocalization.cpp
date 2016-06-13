@@ -32,6 +32,48 @@
 // global pointer to the current map
 std::vector<Row> rows;
 
+ros::Publisher pose;
+
+// TODO: Values will be updated from localize function
+// TODO: Current orientation must be UP
+int currentRow         = 0;
+int currentColumn      = 0;
+int currentOrientation = 0;
+
+void publishPositionAndOrientation(int row, int column, int orientation) {
+    Pose msg;
+    msg.row         = row;
+    msg.column      = column;
+    msg.orientation = orientation;
+
+    pose.publish(msg);
+    ros::spinOnce();
+
+    ros::Rate r(1);
+    r.sleep();
+}
+
+/*
+    Rotate the robot to look upward regarding the map
+*/
+void rotateUP()
+{
+    BasicMovements basicMovements;
+    switch(currentOrientation) {
+        case RIGHT:
+            basicMovements.rotate(90);
+            break;
+        case LEFT:
+            basicMovements.rotate(-90);
+        case BOTTOM:
+            basicMovements.rotate(180);
+            break;
+        default:
+            break;
+    }
+    currentOrientation = TOP;
+}
+
 bool executePlanCallback(orange_fundamentals::ExecutePlan::Request& req,
                            orange_fundamentals::ExecutePlan::Response& res)
 {
@@ -50,20 +92,20 @@ bool executePlanCallback(orange_fundamentals::ExecutePlan::Request& req,
         switch (currentOrientation) {
         case RIGHT:
             switch (*it) {
-            case UP:
+            case TOP:
                 res.success = res.success && basicMovements.rotate(90);
                 break;
             case LEFT:
                 res.success = res.success && basicMovements.rotate(180);
                 break;
-            case DOWN:
+            case BOTTOM:
                 res.success = res.success && basicMovements.rotate(-90);
                 break;
             default:
                 break;
             }
             break;
-        case UP:
+        case TOP:
             switch (*it) {
             case RIGHT:
                 res.success = res.success && basicMovements.rotate(-90);
@@ -71,7 +113,7 @@ bool executePlanCallback(orange_fundamentals::ExecutePlan::Request& req,
             case LEFT:
                 res.success = res.success && basicMovements.rotate(90);
                 break;
-            case DOWN:
+            case BOTTOM:
                 res.success = res.success && basicMovements.rotate(180);
                 break;
             default:
@@ -83,22 +125,22 @@ bool executePlanCallback(orange_fundamentals::ExecutePlan::Request& req,
             case RIGHT:
                 res.success = res.success && basicMovements.rotate(180);
                 break;
-            case UP:
+            case TOP:
                 res.success = res.success && basicMovements.rotate(-90);
                 break;
-            case DOWN:
+            case BOTTOM:
                 res.success = res.success && basicMovements.rotate(90);
                 break;
             default:
                 break;
             }
             break;
-        case DOWN:
+        case BOTTOM:
             switch (*it) {
             case RIGHT:
                 res.success = res.success && basicMovements.rotate(90);
                 break;
-            case UP:
+            case TOP:
                 res.success = res.success && basicMovements.rotate(180);
                 break;
             case LEFT:
@@ -114,7 +156,7 @@ bool executePlanCallback(orange_fundamentals::ExecutePlan::Request& req,
         res.success = res.success && basicMovements.driveWall(CELL_LENGTH);
         currentOrientation = *it;
         // TODO: Tripel hier als argument übergeben.
-        move(moveArg);
+        //move(moveArg);
         publishPositionAndOrientation(currentRow, currentColumn, currentOrientation);
 
         if(res.success == false) {
