@@ -18,6 +18,11 @@
 #include <environment.cpp>
 #include <constants.cpp>
 #include <ransac.cpp>
+#include <play_song.cpp>
+
+#include "create_fundamentals/PlaySong.h"
+#include "create_fundamentals/StoreSong.h"
+#include "orange_fundamentals/ExecutePlan.h"
 
 /* /src/lib/maze.h - all maze (map) related stuff */
 #include <maze.h>
@@ -26,6 +31,105 @@
 
 // global pointer to the current map
 std::vector<Row> rows;
+
+bool executePlanCallback(orange_fundamentals::ExecutePlan::Request& req,
+                           orange_fundamentals::ExecutePlan::Response& res)
+{
+    BasicMovements basicMovements;
+    PlaySongLib playSongLib;
+
+    std::vector<int> plan = req.plan;
+    res.success           = true;
+
+    publishPositionAndOrientation(currentRow, currentColumn, currentOrientation);
+
+    for (std::vector<int>::iterator it = plan.begin(); it != plan.end(); ++it) {
+
+        ROS_INFO("execute_plan_callback: %d", *it);
+
+        switch (currentOrientation) {
+        case RIGHT:
+            switch (*it) {
+            case UP:
+                res.success = res.success && basicMovements.rotate(90);
+                break;
+            case LEFT:
+                res.success = res.success && basicMovements.rotate(180);
+                break;
+            case DOWN:
+                res.success = res.success && basicMovements.rotate(-90);
+                break;
+            default:
+                break;
+            }
+            break;
+        case UP:
+            switch (*it) {
+            case RIGHT:
+                res.success = res.success && basicMovements.rotate(-90);
+                break;
+            case LEFT:
+                res.success = res.success && basicMovements.rotate(90);
+                break;
+            case DOWN:
+                res.success = res.success && basicMovements.rotate(180);
+                break;
+            default:
+                break;
+            }
+            break;
+        case LEFT:
+            switch (*it) {
+            case RIGHT:
+                res.success = res.success && basicMovements.rotate(180);
+                break;
+            case UP:
+                res.success = res.success && basicMovements.rotate(-90);
+                break;
+            case DOWN:
+                res.success = res.success && basicMovements.rotate(90);
+                break;
+            default:
+                break;
+            }
+            break;
+        case DOWN:
+            switch (*it) {
+            case RIGHT:
+                res.success = res.success && basicMovements.rotate(90);
+                break;
+            case UP:
+                res.success = res.success && basicMovements.rotate(180);
+                break;
+            case LEFT:
+                res.success = res.success && basicMovements.rotate(-90);
+                break;
+            default:
+                break;
+            }
+            break;
+        default:
+            break;
+        }
+        res.success = res.success && basicMovements.driveWall(CELL_LENGTH);
+        currentOrientation = *it;
+        // TODO: Tripel hier als argument übergeben.
+        move(moveArg);
+        publishPositionAndOrientation(currentRow, currentColumn, currentOrientation);
+
+        if(res.success == false) {
+            playSongLib.starWars();
+            Env env;
+            env.alignToGrid();
+            localize();
+            // Prepare for next plan execution with UP orientation
+            rotateUP();
+            return res.success;
+        }
+    }
+
+    return res.success;
+}
 
 // just update the global @rows vector
 void mapCallback(const Grid::ConstPtr& msg)
@@ -38,6 +142,7 @@ int main(int argc, char** argv)
     ros::init(argc, argv, "global_localization");
     ros::NodeHandle nh;
     ros::Rate r(1);
+
 
     // Align the robot to the center of a cell
     // TODO: fix the align function
@@ -71,6 +176,8 @@ int main(int argc, char** argv)
     int* pos = localize();
 
     ros::Publisher pose = nh.advertise<Pose>("pose", 1000);
+    ros::ServiceServer service = nh.advertiseService("execute_plan", executePlanCallback);
+
     while(ros::ok()) {
         Pose msg;
         msg.row = pos[0];
