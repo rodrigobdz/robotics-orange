@@ -7,17 +7,24 @@
 #include "create_fundamentals/StoreSong.h"
 #include "orange_fundamentals/Pose.h"
 
+using namespace orange_fundamentals;
+
+ros::Publisher pose;
 enum directions { RIGHT = 0, UP, LEFT, DOWN };
 
 // TODO: Values will be updated from localize function
-int currentPosition = 0;
-int currentColumn = 0;
+// TODO: Current orientation must be UP
+int currentRow         = 0;
+int currentColumn      = 0;
 int currentOrientation = 0;
+
+// TODO: Implement this function
+void localize(void){}
 
 void publishPositionAndOrientation(int row, int column, int orientation) {
     Pose msg;
-    msg.row = row;
-    msg.column column;
+    msg.row         = row;
+    msg.column      = column;
     msg.orientation = orientation;
 
     pose.publish(msg);
@@ -33,26 +40,24 @@ bool executePlanCallback(orange_fundamentals::ExecutePlan::Request& req,
     BasicMovements basicMovements;
     std::vector<int> plan = req.plan;
     res.success           = true;
-    int lastOrientation   = UP;
 
-    publishPositionAndOrientation(row, column, lastOrientation);
+    publishPositionAndOrientation(currentRow, currentColumn, currentOrientation);
 
     for (std::vector<int>::iterator it = plan.begin(); it != plan.end(); ++it) {
 
         ROS_INFO("execute_plan_callback: %d", *it);
-        ROS_INFO("Drive in %i, lastOrientation = %i", *it, lastOrientation);
 
-        switch (lastOrientation) {
+        switch (currentOrientation) {
         case RIGHT:
             switch (*it) {
             case UP:
-                basicMovements.rotate(90);
+                res.success = res.success && basicMovements.rotate(90);
                 break;
             case LEFT:
-                basicMovements.rotate(180);
+                res.success = res.success && basicMovements.rotate(180);
                 break;
             case DOWN:
-                basicMovements.rotate(-90);
+                res.success = res.success && basicMovements.rotate(-90);
                 break;
             default:
                 break;
@@ -61,13 +66,13 @@ bool executePlanCallback(orange_fundamentals::ExecutePlan::Request& req,
         case UP:
             switch (*it) {
             case RIGHT:
-                basicMovements.rotate(-90);
+                res.success = res.success && basicMovements.rotate(-90);
                 break;
             case LEFT:
-                basicMovements.rotate(90);
+                res.success = res.success && basicMovements.rotate(90);
                 break;
             case DOWN:
-                basicMovements.rotate(180);
+                res.success = res.success && basicMovements.rotate(180);
                 break;
             default:
                 break;
@@ -76,13 +81,13 @@ bool executePlanCallback(orange_fundamentals::ExecutePlan::Request& req,
         case LEFT:
             switch (*it) {
             case RIGHT:
-                basicMovements.rotate(180);
+                res.success = res.success && basicMovements.rotate(180);
                 break;
             case UP:
-                basicMovements.rotate(-90);
+                res.success = res.success && basicMovements.rotate(-90);
                 break;
             case DOWN:
-                basicMovements.rotate(90);
+                res.success = res.success && basicMovements.rotate(90);
                 break;
             default:
                 break;
@@ -91,13 +96,13 @@ bool executePlanCallback(orange_fundamentals::ExecutePlan::Request& req,
         case DOWN:
             switch (*it) {
             case RIGHT:
-                basicMovements.rotate(90);
+                res.success = res.success && basicMovements.rotate(90);
                 break;
             case UP:
-                basicMovements.rotate(180);
+                res.success = res.success && basicMovements.rotate(180);
                 break;
             case LEFT:
-                basicMovements.rotate(-90);
+                res.success = res.success && basicMovements.rotate(-90);
                 break;
             default:
                 break;
@@ -106,11 +111,12 @@ bool executePlanCallback(orange_fundamentals::ExecutePlan::Request& req,
         default:
             break;
         }
-        basicMovements.driveWall(0.80);
-        lastOrientation = *it;
+        res.sucess = basicMovements.driveWall(CELL_LENGTH);
+        currentOrientation = *it;
+        publishPositionAndOrientation(currentRow, currentColumn, currentOrientation);
     }
 
-    return true;
+    return res.success;
 }
 
 int main(int argc, char **argv)
@@ -118,10 +124,10 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "execute_plan_server");
     ros::NodeHandle nh;
     
-    ros::Publisher pose = nh.advertise<Pose>("pose", 1000);
+    pose = nh.advertise<Pose>("pose", 1000);
 
     // TODO: Import localize function
-    localization();
+    localize();
 
     ros::ServiceServer service = nh.advertiseService("execute_plan", executePlanCallback);
     ROS_INFO("ExecutePlan Service is ready.");
