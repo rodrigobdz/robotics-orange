@@ -1,0 +1,3 @@
+<launch>
+    <node name="global_localization" pkg="orange_fundamentals" type="global_localization" output="screen"/>
+</launch>

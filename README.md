@@ -63,7 +63,7 @@ Three simple steps to let the robot speak.
 2. On second terminal run `$ rosrun sound_play soundplay_node.py`
    ​
 
-On a third one type the following:
+On a third one type the followong:
 
 If you wish to play a song on the robot run
 
