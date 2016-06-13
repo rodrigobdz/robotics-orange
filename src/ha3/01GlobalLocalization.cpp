@@ -17,6 +17,7 @@
 #include <basic_movements.cpp>
 #include <environment.cpp>
 #include <ransac.cpp>
+#include <constants.cpp>
 
 /* /src/lib/maze.h - all maze (map) related stuff */
 #include <maze.h>
@@ -24,6 +25,7 @@
 #include "orange_fundamentals/Grid.h"
 #include "orange_fundamentals/Cell.h"
 #include "orange_fundamentals/Row.h"
+
 //#include "orange_fundamentals/ExecutePlan.h"
 using namespace orange_fundamentals;
 
@@ -139,29 +141,55 @@ std::vector<int> scanCurrentCell(void)
 #endif
 
     int i = 0; // count the rotations
-    Ransac rs;
+    
     BasicMovements bm;
 
     std::vector<int> walls;
 
     // rotate four times 90 degrees
     for(i; i<4; i++) {
-        std::vector<Wall*> w = rs.getWalls();
 
-        // erase all walls from w which aren't almost at 0 degrees
-        // that means just hold the wall right in front
-        // if there is one
-        w.erase(
-                std::remove_if(w.begin(), w.end(), [](const Wall* _w) {return not filter90d(_w);}),
-                w.end()
-                );
-        if(w.size() > 0)
-            walls.push_back(i);
-        bm.rotate(90);
+        // check if wall in front
+        if(isWallInFront() {
+            walls.push_back(TOP);
+        }
+        bm.rotate(PI/2);
+        bm.ROTATEALL(walls);
     }
 
-    // get back to initial orientation
-    bm.rotate(90);
+    std::sort(walls.begin(), walls.end());
+    
+    if(walls.at(TOP) == TOP) {
+            // robot in dead end
+        if(getWallPattern(walls) == end) { //nicht in dead end reingefahren
+            bool blocked = true;
+            while (blocked) {
+                bm.rotate(PI/2);
+                bm.ROTATEALL(walls);
+                if (!(walls.at(TOP) == TOP)) {
+                    blocked = false;
+                }
+            }
+        }
+
+        // robot entered corner
+        if(getWallPattern(walls) == corner) {
+            if(walls.at(RIGHT) == RIGHT) {
+                bm.rotate(-PI/2);
+                bm.ROTATEALL(walls);
+                bm.ROTATEALL(walls);
+                bm.ROTATEALL(walls);
+            } else {
+                bm.rotate(PI/2);
+                bm.ROTATEALL(walls);
+            }
+        }
+
+        // wall in front of robot
+        if(getWallPattern(walls) == wall) {
+                bm.rotate(PI/2);
+                bm.ROTATEALL(walls);
+        }
 
     // debug
     //ROS_INFO("scanCurrentCell: walls.size() = %d", (int) walls.size());
@@ -304,15 +332,27 @@ int main(int argc, char** argv)
 /** ------------------------helper-functions------------------------- */
 
 
+bool isWallInFront() {
+    Ransac rs;
+    std::vector<Wall*> w = rs.getWalls();
+    for (int i=0; i<rs.size(); i++){
+        if(rs[i]->getAngle < 0.1 && rs[i]->getAngle > -0.1) {
+            return true;
+        }
+    }
+    return false;
+    if(DEBUG) ROS_INFO("filterWall: w.getAngle() = %f", rs->getAngle());
+}
+
 bool filter90d(const Wall* w)
 {
     if(DEBUG) ROS_INFO("filterWall: w.getAngle() = %f", w->getAngle());
-    /* OLD APPROCH, FIXME: delete if the new code is tested
-    if(w->getAngle() < 0.1 && w->getAngle() > -0.1)
-        return true;
-    else
-        return false;
-    */
+    //  OLD APPROCH, FIXME: delete if the new code is tested
+    // if(w->getAngle() < 0.1 && w->getAngle() > -0.1)
+    //     return true;
+    // else
+    //     return false;
+    
 
     return (w->getAngle() < 0.1 && w->getAngle() > -0.1);
 }

@@ -1,3 +1,6 @@
 \newpage
 \section{Aufgabe 01}
+Die erste Aufgabe besch\"aftigt sich mit dem Lokalisierung.
+Wir l\"osen das Problem, indem wir eine Funktion geschrieben haben,
+bei der sich der Roboter erst in einer Zelle ausrichetet und sich dann in seiner aktuellen Zelle vier mal um 90 Grad dreht und dabei pr\"uft, ob sich eine Wand vor ihm befindet. Das Ergebnis wird dann mit allen m\"oglichen Positionen der gegebenen Map verglichen. Zus\"atzlich richtet der Roboter sich in eine Richtung ohne Wand aus, wobei, außer in einer Sackgasse, eine Richtung w\"ahlt aus der er nicht gekommen ist. Sollte der Robotoer seine Position nicht eindeutig bestimmen k\"onnen, bewegt sich eine Zelle nach vorn und wiederholt den ersten Schritt. Dies tut er so lang, bis er eindeutige Koordinaten und eine eindeutige Position ausfindig machen konnte.
 
