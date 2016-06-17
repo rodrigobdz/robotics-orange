@@ -60,20 +60,20 @@ The best tutorial is summarized as follows:
 Three simple steps to let the robot speak.
 
 1. Start *roscore*
+
 2. On second terminal run `$ rosrun sound_play soundplay_node.py`
-   ​
 
-On a third one type the followong:
+3. On a third one type the followong:
 
-If you wish to play a song on the robot run
+   If you wish to play a song on the robot run 
 
-`$ rosrun sound_play play.py <PATH TO WAV FILE>`
+   `$ rosrun sound_play play.py <PATH TO WAV FILE>`
 
-If you wish to let the robot say something
+   If you wish to let the robot say something
 
-`$ rosrun sound_play say.py "Hello World"`
+   `$ rosrun sound_play say.py "hello world"`
 
-You should now hear **hello world** or your song.
+   You should now hear **hello world** or your song.
 
 
 
