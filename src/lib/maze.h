@@ -1,10 +1,3 @@
-
-// emacs-lisp:
-// (setq c-basic-offset 4)
-
-#ifndef MAZELIB
-#define MAZELIB
-
 #include <vector>
 #include <utility>
 #include <algorithm>

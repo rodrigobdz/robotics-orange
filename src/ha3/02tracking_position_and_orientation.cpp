@@ -29,7 +29,7 @@ inline void move(int* position) {}
 */
 void rotateUP()
 {
-    BasicMovements basicMovements;  
+    BasicMovements basicMovements;
     switch(currentOrientation) {
         case RIGHT:
             basicMovements.rotate(90);
@@ -138,10 +138,10 @@ bool executePlanCallback(orange_fundamentals::ExecutePlan::Request& req,
             break;
         }
         res.success = res.success && basicMovements.driveWall(CELL_LENGTH);
-        
+
         currentOrientation = *it;
         // TODO: Tripel hier als argument übergeben.
-        move(moveArg);
+        basicMovements.driveWall(0.7);
         publishPositionAndOrientation(currentRow, currentColumn, currentOrientation);
 
         if(res.success == false) {
@@ -162,7 +162,7 @@ int main(int argc, char **argv)
 {
     ros::init(argc, argv, "execute_plan_server");
     ros::NodeHandle nh;
-    
+
     pose = nh.advertise<Pose>("pose", 1000);
 
     // TODO: Import localize function

@@ -8,7 +8,7 @@
 
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "ransac_testbench");
+  ros::init(argc, argv, "example_align");
   ros::NodeHandle n;
   ros::Rate r(5);
 
@@ -23,7 +23,7 @@ int main(int argc, char** argv)
 
     if(wall) {
       ROS_INFO("getAngle(): %f", wall->getAngle());
-      ROS_INFO("getDistance(): %f", wall->getDistance(0,-DISTANCE_LASER_TO_ROBOT_CENTER));
+      ROS_INFO("getDistance(): %f", wall->getDistance());
     }
 
     r.sleep();
