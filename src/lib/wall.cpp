@@ -16,6 +16,7 @@ class Wall
 
     float getDistanceInMeters() const { return distance; }
     float getAngleInRadians() const { return angle; }
+    float getAngleInDegrees() const { return angle*180/PI; }
 
     bool isLeftWall();
     bool isRightWall();
