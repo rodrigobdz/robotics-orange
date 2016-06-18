@@ -12,70 +12,73 @@
 #include <ransac.cpp>
 #include <math.h>
 #include "basic_movements.cpp"
+#include <Cell.cpp>
 
-#include <std>
-using std::string;
-using std::vector;
+#include "orange_fundamentals/Grid.h"
+#include "orange_fundamentals/Cell.h"
+#include "orange_fundamentals/Row.h"
+
 
 #define DEBUG true
 
 class Maze
 {
   public:
-    Maze(vector<Row> rows) { parseMap(rows); }
+    Maze() {
+        // TODO This function needs to list to the map topic and retrieve it
+        parseMap();
+        localize();
+    }
 
-    void move(int* position);
-    vector<int> scanCurrentCell();
-    int* localize(void);
+    // TODO Need better name to differ from real move to theoretically move
+    // Maybe boolean to differ between move forward and backward
+    // Unneccesary for the first implementation
+    void moveOnMap();
+    // TODO Better generic name for left
+    // Boolean to differ between right and left turn
+    void turnOnMap(bool left);
+
+    void localize();
+
+    //TODO Implement getPosition
+    //Position getPosition();
 
   private:
-    int counter = 0;
+    Cell[][] givenMap;
 
-    void parseMap(vector<Row> rows);
+    // TODO Implement position class, maybe connect with cell
+    Position robot;
 
-    // helper functions
-    wallpattern getWallPattern(vector<int> walls);
-    string      wallsToString(vector<int> v);
+    void parseMap(std::vector<Row> rows);
+
+    // TODO Implement deepCopyMap to copy given map
+    Cell[][] deepCopyMap();
+
+    std::vector<int> scanCurrentCell();
+
+    wallpattern getWallPattern(std::vector<int> walls);
+    std::string      wallsToString(std::vector<int> v);
     bool        filter90d(const Wall* w);
-    bool        contains(vector<int> v, int e);
-    vector<int> scanCurrentCell_test(void);
+    bool        contains(std::vector<int> v, int e);
+    std::vector<int> scanCurrentCell_test();
 };
 
-/*
- * move:
- * The function changes the coordinates in place according
- * to an move in the given direction.
- *
- * @param position is an integer array with length 3, which
- * fields are
- *     0: x coordinate in the maze,
- *     1: y coordinate in the maze,
- *     2: orientation.
+/**
+ *  Returns the current position of the robot.
  * */
-void move(int* position)
-{
-    switch (position[2]) {
-    case RIGHT:
-        position[1] += 1;
-        break;
-    case TOP:
-        position[0] -= 1;
-        break;
-    case LEFT:
-        position[1] -= 1;
-        break;
-    case BOTTOM:
-        position[0] += 1;
-        break;
-    default:
-        ROS_INFO("Wrong input in maze.cpp in function move");
-    }
+Position getPosition(){
+    return;
 }
 
+void turnOnMap(bool left){
+    return;
+
+}
 /**
+ *  TODO needs refactoring
  *  Builds up the local representation of the maze
  * */
-void parseMap(vector<Row> rows)
+void parseMap(std::vector<Row> rows)
 {
     if (rows.empty()) {
         if (DEBUG)
@@ -84,17 +87,17 @@ void parseMap(vector<Row> rows)
     }
 
     int x = -1, y = -1;
-    vector<Cell> cells;
-    vector<int> walls;
+    std::vector<Cell> cells;
+    std::vector<int> walls;
 
     if (DEBUG)
         ROS_INFO("parseMap: READ IN THE CURRENT MAP");
 
-    for (vector<Row>::iterator irow = rows.begin(); irow != rows.end(); ++irow) {
+    for (std::vector<Row>::iterator irow = rows.begin(); irow != rows.end(); ++irow) {
         x = (x + 1) % DIMENSION; // increment row index
         cells = (*irow).cells;   // cells of the row[x]
 
-        for (vector<Cell>::iterator icell = cells.begin(); icell != cells.end(); ++icell) {
+        for (std::vector<Cell>::iterator icell = cells.begin(); icell != cells.end(); ++icell) {
             y = (y + 1) % DIMENSION; // increment column index
             walls = (*icell).walls;  // walls of cell[x][y]
 
@@ -113,16 +116,16 @@ void parseMap(vector<Row> rows)
     }
 }
 
-vector<int> scanCurrentCell(void)
+std::vector<int> scanCurrentCell(void)
 {
     Ransac rs;
     BasicMovements bm;
-    vector<int> walls;
+    std::vector<int> walls;
     int orientation = (int)TOP;
 
     // rotate four times 90 degrees
     for (int i = 0; i < 4; i++) {
-        vector<Wall*> w = rs.getWalls();
+        std::vector<Wall*> w = rs.getWalls();
 
         // erase all walls from w which aren't almost at 0 degrees
         // that means just hold the wall right in front
@@ -187,14 +190,18 @@ vector<int> scanCurrentCell(void)
 /* macro EQUAL: return true if @w1 and @w2 contain the same elements */
 #define EQUAL(w1, w2) ((w1).size() == (w2).size() && std::equal((w1).begin(), (w1).end(), (w2).begin()))
 
+/*
+ * TODO Needs refactoring
+ * Localize the robot to the given map.
+ * */
 int* localize(void)
 {
     // hold possible positions
     // 0: x coordinate of cell
     // 1: y coordinate of cell
     // 2: orientation
-    vector<int*> pos;
-    vector<int*> tmp;
+    std::vector<int*> pos;
+    std::vector<int*> tmp;
 
     // at the beginning every cell is a possible location, therefore
     // generate a position in @pos for each cell in the maze
@@ -209,7 +216,7 @@ int* localize(void)
     // where n is at most equal to 4, the n's member is a direction which
     // is the orientation of the Robot, the first (n-1) are although directions
     // which are scanned walls
-    vector<int> curr_w;
+    std::vector<int> curr_w;
     directions orientation;
     BasicMovements bm;
 
@@ -220,8 +227,8 @@ int* localize(void)
         curr_w.pop_back();
 
         // iterate over all positions left
-        for (vector<int*>::iterator ipos = pos.begin(); ipos != pos.end(); ++ipos) {
-            vector<int> ipos_w = maze[INDEX(std::make_pair((*ipos)[0], (*ipos)[1]))].walls;
+        for (std::vector<int*>::iterator ipos = pos.begin(); ipos != pos.end(); ++ipos) {
+            std::vector<int> ipos_w = maze[INDEX(std::make_pair((*ipos)[0], (*ipos)[1]))].walls;
 
             directions ipos_o;
             if (first_run)
@@ -280,7 +287,7 @@ int* localize(void)
 /*-------------------------helper-functions-------------------------*/
 
 /* @return a matching wallpattern for the given @walls vector. */
-wallpattern getWallPattern(vector<int> walls)
+wallpattern getWallPattern(std::vector<int> walls)
 {
     if (walls.empty()) {
         if (DEBUG)
@@ -306,19 +313,19 @@ wallpattern getWallPattern(vector<int> walls)
     }
 }
 
-string wallsToString(vector<int> v)
+std::string wallsToString(std::vector<int> v)
 {
     int bytesWritten = 0; // pointer to the current write position in buffer
     char buffer[v.size() * 2 + 2];
 
     bytesWritten += snprintf(buffer, sizeof(buffer), "[");
-    for (vector<int>::iterator iv = v.begin(); iv != v.end(); ++iv) {
+    for (std::vector<int>::iterator iv = v.begin(); iv != v.end(); ++iv) {
         bytesWritten += snprintf(buffer + bytesWritten, sizeof(buffer), "%c", directions_lookup[*iv]);
         if (std::next(iv) != v.end())
             bytesWritten += snprintf(buffer + bytesWritten, sizeof(buffer), ",");
     }
     snprintf(buffer + bytesWritten, sizeof(buffer), "]");
-    return string(buffer);
+    return std::string(buffer);
 }
 
 bool filter90d(const Wall* w)
@@ -336,16 +343,16 @@ bool filter90d(const Wall* w)
     // return (w->getAngle() < 0.1 && w->getAngle() > -0.1);
 }
 
-bool contains(vector<int> v, int e)
+bool contains(std::vector<int> v, int e)
 {
-    for (vector<int>::iterator iv = v.begin(); iv != v.end(); ++iv) {
+    for (std::vector<int>::iterator iv = v.begin(); iv != v.end(); ++iv) {
         if ((*iv) == e)
             return true;
     }
     return false;
 }
 
-vector<int> scanCurrentCell_test()
+std::vector<int> scanCurrentCell_test()
 {
     int w[3];
     switch (counter) {
@@ -362,7 +369,7 @@ vector<int> scanCurrentCell_test()
         counter++;
         break;
     }
-    return vector<int>(w, w + 3);
+    return std::vector<int>(w, w + 3);
 }
 
 #endif // MAZELIB

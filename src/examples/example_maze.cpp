@@ -14,16 +14,21 @@ int main(int argc, char** argv)
   ros::NodeHandle n;
   ros::Rate r(5);
 
-  int32[] walls1_1;
-  Cell[] cells1;
-  Cell[] cells2;
-  Cell[] cells3;
-  vector<Row> rows;
+  int32[] walls1_1 = [ 0, 1, 2, 3 ];
+  ROS_INFO("walls1_1[0] = %i", walls1_1[0];
+  // Cell[] cells1 = new Cell[1];
+  // cells1[1] = walls1_1;
 
-  Maze maze;
+  // vector<Row> rows = new vector<Row>;
 
 
-  maze.parseMap();
+
+  // Maze maze;
+
+  // maze.parseMap();
+
+
+  // maze.parseMap();
   return 0;
 
 }
