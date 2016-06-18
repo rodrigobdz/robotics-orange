@@ -20,7 +20,7 @@ class Env
 
     bool align(void);
     bool alignToSingleWall(void);
-    Wall* getWallClosestTo90(void);
+    Wall* getWallInFront(void);
 
     std::vector<Wall*> getWalls(void) 
     { 
@@ -40,57 +40,66 @@ class Env
 };
 
 /* Call ransac.getWalls for a fresh set of collected walls.
-   Return the wall which angle is closest to ninety degrees. */
-Wall* Env::getWallClosestTo90(void)
+   Return the wall which most direct in front of the robot. */
+Wall* Env::getWallInFront(void)
 {
     walls = getWalls();
-    if (walls.size() == 0) {
+    countWalls = walls.size();
+    if (countWalls == 0) {
         return NULL;
     }
 
-    Wall* w = walls[0];
-    for (std::vector<Wall*>::iterator it = walls.begin(); it != walls.end(); ++it) {
-        if (fabs((*it)->getAngleInRadians() - 90) < fabs(w->getAngleInRadians() - 90)) {
-            w = *it;
+    wallInFront = walls[0];
+    for (int i = 0; i < countWalls; i++) {
+        if (fabs(walls[i]->getAngleInRadians()) < fabs(walls[i]->getAngleInRadians())) {
+            wallInFront = walls[i];
         }
     }
-    return w;
+
+    return wallInFront;
 }
 
 bool Env::align(void)
 {
-    ros::Rate r(LOOP_RATE);
-    int aligned = 0;
+    // ros::Rate r(LOOP_RATE);
+    // int aligned = 0;
 
-    while (ros::ok()) {
+    // while (ros::ok()) {
         walls = getWalls();
-        int s = walls.size();
-        ROS_INFO("Size %i", s);
-        if (walls.size() >= 2) {
-            ROS_INFO("align call alignToSingleWall 1.");
-            alignToSingleWall();
-            ROS_INFO("align rotate right.");
-            _basicMovements.rotateAbs(0, 2);
-            ROS_INFO("align call alignToSingleWall 2.");
-            alignToSingleWall();
-            aligned = 2;
+        int countWalls = walls.size();
+        for (int i = 0; i < countWalls; i++){
+            float a = walls[i]->getAngleInDegrees();
+            ROS_INFO("Size %f", a);
         }
+        if(countWalls > 0) {
+            alignToSingleWall();
+        }
+        
+    //     if (walls.size() >= 2) {
+    //         ROS_INFO("align call alignToSingleWall 1.");
+    //         alignToSingleWall();
+    //         ROS_INFO("align rotate right.");
+    //         _basicMovements.rotateAbs(0, 2);
+    //         ROS_INFO("align call alignToSingleWall 2.");
+    //         alignToSingleWall();
+    //         aligned = 2;
+    //     }
 
-        if (aligned == 2) {
-            break;
-        }
-        else {
-            r.sleep();
-        }
-    }
-    return true;
+    //     if (aligned == 2) {
+    //         break;
+    //     }
+    //     else {
+    //         r.sleep();
+    //     }
+    // }
+    // return true;
 }
 
 bool Env::alignToSingleWall(void)
 {
     ros::Rate r(LOOP_RATE);
     while (ros::ok()) {
-        Wall* wall = getWallClosestTo90();
+        Wall* wall = getWallInFront();
         if (wall) {
             _basicMovements.rotateAbs(wall->getAngleInRadians(), 1);
             r.sleep();
@@ -98,7 +107,7 @@ bool Env::alignToSingleWall(void)
 
             // check the angel again and leave if its ok
             // otherwise enter another loop
-            wall = getWallClosestTo90();
+            wall = getWallInFront();
             if (fabs(wall->getAngleInRadians() - PI/2) < 5) {
                 break;
             }
