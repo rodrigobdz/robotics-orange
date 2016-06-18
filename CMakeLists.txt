@@ -70,7 +70,7 @@ add_dependencies(example_maze create_fundamentals_generate_messages_cpp)
                     #           HOMEWORKS           #
                     #################################
 
-# add_executable(global_localization src/ha3/01GlobalLocalization.cpp)
+# add_executable(global_localization src/ha3/01global_localization.cpp)
 # target_link_libraries(global_localization ${catkin_LIBRARIES})
 # add_dependencies(global_localization create_fundamentals_generate_messages_cpp)
 
