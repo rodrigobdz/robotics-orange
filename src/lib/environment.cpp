@@ -59,7 +59,7 @@ bool Env::align(void)
         _basicMovements.drive(0.5, 255);
     }
 
-    if (walls->isLeftWall()) {
+    if (_ransac.hasLeftWall()) {
         _basicMovements.rotate(-90, 1);    
     } else {
         _basicMovements.rotate(90, 1);
@@ -67,8 +67,7 @@ bool Env::align(void)
     
     // align to second wall
     while (ros::ok()) {
-        walls = getWalls();
-        if (walls->isFrontWall()) {
+        if (_ransac.hasFrontWall()) {
             alignToSingleWall();
             break;
         }
@@ -110,12 +109,12 @@ bool Env::alignToSingleWall(void)
 Wall* Env::getClosestWallToFront(void)
 {
     walls = getWalls();
-    countWalls = walls.size();
+    int countWalls = walls.size();
     if (countWalls == 0) {
         return NULL;
     }
 
-    wallInFront = walls[0];
+    Wall* wallInFront = walls[0];
     for (int i = 0; i < countWalls; i++) {
         if (fabs(walls[i]->getAngleInRadians()) < fabs(wallInFront->getAngleInRadians())) {
             wallInFront = walls[i];
