@@ -58,7 +58,7 @@ std::vector<Wall*> Ransac::getWalls()
     initialiseLaser();
 
     // We can maximal acknowledge 3 walls
-    for(int j = 0; j < 2; j++){
+    for(int j = 0; j <= 2; j++){
 
         // Variables
         std::vector<int> bestMatches;
