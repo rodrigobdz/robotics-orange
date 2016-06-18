@@ -169,14 +169,14 @@ bool BasicMovements::driveWall(float distanceInMeters, float speed)
             Wall nearestWall(0,0);
 
             for (int i = 0; i < walls.size(); i++) {
-                if (smallestDistance > walls[i]->getDistance()) {
+                if (smallestDistance > walls[i]->getDistanceInMeters()) {
                     nearestWall = *walls[i];
-                    smallestDistance = walls[i]->getDistance();
+                    smallestDistance = walls[i]->getDistanceInMeters();
                 }
             }
 
-            float wallAngle = nearestWall.getAngle();
-            float wallDistance = nearestWall.getDistance();
+            float wallAngle = nearestWall.getAngleInRadians();
+            float wallDistance = nearestWall.getDistanceInMeters();
 
             float distanceCorrectur;
             float angleCorrectur;

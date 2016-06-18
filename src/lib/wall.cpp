@@ -9,13 +9,13 @@ class Wall
   public:
     Wall(float x1, float y1, float x2, float y2)
     {
-        distance = calcDistance(x1, y1, x2, y2);
-        angle = calcAngle(x1, y1, x2, y2);
+        distance = calcDistanceInMeters(x1, y1, x2, y2);
+        angle = calcAngleInRadians(x1, y1, x2, y2);
     }
     Wall(float distance, float angle) : distance(distance), angle(angle) {}
 
-    float getDistance() const { return distance; }
-    float getAngle() const { return angle; }
+    float getDistanceInMeters() const { return distance; }
+    float getAngleInRadians() const { return angle; }
 
     bool isLeftWall();
     bool isRightWall();
@@ -25,8 +25,8 @@ class Wall
     float distance;
     float angle;
 
-    float calcDistance(float x1, float y1, float x2, float y2);
-    float calcAngle(float x1, float y1, float x2, float y2);
+    float calcDistanceInMeters(float x1, float y1, float x2, float y2);
+    float calcAngleInRadians(float x1, float y1, float x2, float y2);
 };
 
 /////////////////////////////////////////////////////
@@ -41,7 +41,7 @@ class Wall
  * Returns: Calculated distance to point in
  *          cartesian coordinate system
  */
-float Wall::calcDistance(float x1, float y1, float x2, float y2)
+float Wall::calcDistanceInMeters(float x1, float y1, float x2, float y2)
 {
     // Variables for Hesse normal form computation
     // from two-point form
@@ -62,7 +62,7 @@ float Wall::calcDistance(float x1, float y1, float x2, float y2)
  *
  * Returns: Angle to wall in radians
  * */
-float Wall::calcAngle(float x1, float y1, float x2, float y2)
+float Wall::calcAngleInRadians(float x1, float y1, float x2, float y2)
 {
     // Line 1
     float m1 = (y2 - y1) / (x2 - x1);

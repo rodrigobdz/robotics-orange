@@ -330,17 +330,17 @@ std::string wallsToString(std::vector<int> v)
 
 bool filter90d(const Wall* w)
 {
-    // if(DEBUG) ROS_INFO("filterWall: w.getAngle() = %f", w->getAngle());
+    // if(DEBUG) ROS_INFO("filterWall: w.getAngleInRadians() = %f", w->getAngleInRadians());
     /* OLD APPROCH, FIXME: delete if the new code is tested
     */
-    if (w->getAngle() < 0.2 && w->getAngle() > -0.2) {
+    if (w->getAngleInRadians() < 0.2 && w->getAngleInRadians() > -0.2) {
         // ROS_INFO("filterWall: return true;");
         return true;
     }
 
     return false;
 
-    // return (w->getAngle() < 0.1 && w->getAngle() > -0.1);
+    // return (w->getAngleInRadians() < 0.1 && w->getAngleInRadians() > -0.1);
 }
 
 bool contains(std::vector<int> v, int e)

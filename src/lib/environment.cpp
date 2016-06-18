@@ -50,7 +50,7 @@ Wall* Env::getWallClosestTo90(void)
 
     Wall* w = walls[0];
     for (std::vector<Wall*>::iterator it = walls.begin(); it != walls.end(); ++it) {
-        if (fabs((*it)->getAngle() - 90) < fabs(w->getAngle() - 90)) {
+        if (fabs((*it)->getAngleInRadians() - 90) < fabs(w->getAngleInRadians() - 90)) {
             w = *it;
         }
     }
@@ -92,14 +92,14 @@ bool Env::alignToSingleWall(void)
     while (ros::ok()) {
         Wall* wall = getWallClosestTo90();
         if (wall) {
-            _basicMovements.rotateAbs(wall->getAngle(), 1);
+            _basicMovements.rotateAbs(wall->getAngleInRadians(), 1);
             r.sleep();
-            _basicMovements.drive(wall->getDistance() - CELL_CENTER, 1);
+            _basicMovements.drive(wall->getDistanceInMeters() - CELL_CENTER, 1);
 
             // check the angel again and leave if its ok
             // otherwise enter another loop
             wall = getWallClosestTo90();
-            if (fabs(wall->getAngle() - PI/2) < 5) {
+            if (fabs(wall->getAngleInRadians() - PI/2) < 5) {
                 break;
             }
         }

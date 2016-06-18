@@ -113,7 +113,7 @@ void Ransac::bubbleSort(std::vector<Wall*>& a)
     while (swapp) {
         swapp = false;
         for (int i = 0; i < a.size() - 1; i++) {
-            if (a[i]->getAngle() > a[i + 1]->getAngle()) {
+            if (a[i]->getAngleInRadians() > a[i + 1]->getAngleInRadians()) {
                 tmp = a[i];
                 a[i] = a[i + 1];
                 a[i + 1] = tmp;
