@@ -274,6 +274,7 @@ bool BasicMovements::rotate(float angleInDegrees, float speed)
     return false;
 }
 
+// turn 90 degress counter clockwise
 bool BasicMovements::turnLeft()
 {
     initialiseEncoder();
@@ -295,6 +296,7 @@ bool BasicMovements::turnLeft()
     return false;
 }
 
+// turn 90 degress clockwise
 bool BasicMovements::turnRight()
 {
     initialiseEncoder();

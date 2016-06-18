@@ -101,10 +101,10 @@ float Wall::calcAngleInRadians(float x1, float y1, float x2, float y2)
     return newAngle;
 }
 
-bool Wall::isLeftWall() { return (angle > PI / 4 && angle < 3 * PI / 4); }
+bool Wall::isLeftWall() { return (angle > PI / 4 && angle < 3 * PI / 4); }// angle between 45 and 135 degrees
 
-bool Wall::isRightWall() { return (angle > -3 * PI / 4 && angle < -PI / 4); }
+bool Wall::isRightWall() { return (angle > -3 * PI / 4 && angle < -PI / 4); } // angle between -45 and -135 degrees
 
-bool Wall::isFrontWall() { return (angle < PI / 4 && angle > -PI / 4); }
+bool Wall::isFrontWall() { return (angle < PI / 4 && angle > -PI / 4); } // angle between -45 and 45 degrees
 
 #endif
