@@ -62,9 +62,9 @@ include_directories(include ${catkin_INCLUDE_DIRS} src/lib)
 # target_link_libraries(test_laser ${catkin_LIBRARIES})
 # add_dependencies(test_laser create_fundamentals_generate_messages_cpp)
 
-add_executable(example_align src/examples/example_align.cpp)
-target_link_libraries(example_align ${catkin_LIBRARIES})
-add_dependencies(example_align create_fundamentals_generate_messages_cpp)
+add_executable(example_maze src/examples/example_maze.cpp)
+target_link_libraries(example_maze ${catkin_LIBRARIES})
+add_dependencies(example_maze create_fundamentals_generate_messages_cpp)
 
                     #################################
                     #           HOMEWORKS           #
