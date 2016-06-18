@@ -283,7 +283,7 @@ std::vector<int> scanCurrentCell(void)
         // Align the robot to the center of a cell
         // TODO: fix the align function
         // Env env;
-        // env.alignToGrid();
+        // env.align();
 
         ros::Subscriber map;
         map = nh.subscribe("map", 1, &mapCallback);

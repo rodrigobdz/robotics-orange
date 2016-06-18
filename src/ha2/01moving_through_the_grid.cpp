@@ -99,7 +99,7 @@ int main(int argc, char** argv)
 
     // TODO: align to a cell
     Env env;
-    env.alignToGrid();
+    env.align();
 
     ros::ServiceServer service = nh.advertiseService("execute_plan", executePlanCallback);
     ROS_INFO("ExecutePlan Service is ready.");

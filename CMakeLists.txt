@@ -54,17 +54,9 @@ include_directories(include ${catkin_INCLUDE_DIRS} src/lib)
                     #            EXAMPLES           #
                     #################################
 
-# add_executable(example_driveWall src/examples/example_driveWall.cpp)
-# target_link_libraries(example_driveWall ${catkin_LIBRARIES})
-# add_dependencies(example_driveWall create_fundamentals_generate_messages_cpp)
-
-# add_executable(test_laser src/tests/laser.cpp)
-# target_link_libraries(test_laser ${catkin_LIBRARIES})
-# add_dependencies(test_laser create_fundamentals_generate_messages_cpp)
-
-add_executable(example_maze src/examples/example_maze.cpp)
-target_link_libraries(example_maze ${catkin_LIBRARIES})
-add_dependencies(example_maze create_fundamentals_generate_messages_cpp)
+add_executable(example_align src/examples/example_align.cpp)
+target_link_libraries(example_align ${catkin_LIBRARIES})
+add_dependencies(example_align create_fundamentals_generate_messages_cpp)
 
                     #################################
                     #           HOMEWORKS           #
@@ -74,7 +66,7 @@ add_dependencies(example_maze create_fundamentals_generate_messages_cpp)
 # target_link_libraries(global_localization ${catkin_LIBRARIES})
 # add_dependencies(global_localization create_fundamentals_generate_messages_cpp)
 
-add_executable(track_position_and_orientation src/ha3/02tracking_position_and_orientation.cpp)
-target_link_libraries(track_position_and_orientation ${catkin_LIBRARIES})
-add_dependencies(track_position_and_orientation create_fundamentals_generate_messages_cpp)
+# add_executable(track_position_and_orientation src/ha3/02tracking_position_and_orientation.cpp)
+# target_link_libraries(track_position_and_orientation ${catkin_LIBRARIES})
+# add_dependencies(track_position_and_orientation create_fundamentals_generate_messages_cpp)
 
