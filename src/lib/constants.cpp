@@ -23,4 +23,10 @@ static const float NINETY_DEGREES_IN_RAD          = 30.798 * 0.196349; // 2pir^2
 
 static const int LOOP_RATE                        = 16; // Used for loop rate
 
+// Robot position
+static const int   UP 							  = 0;
+static const int   LEFT 						  = 1;
+static const int   DOWN 						  = 2;
+static const int   RIGHT 						  = 3;
+
 #endif // CONSTANTS_LIB

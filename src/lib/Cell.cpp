@@ -1,5 +1,5 @@
-#ifndef CELLLIB
-#define CELLLIB
+#ifndef CELL_LIB
+#define CELL_LIB
 
 // Needed includes for this library to work
 #include "ros/ros.h"

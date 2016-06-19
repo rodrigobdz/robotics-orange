@@ -27,6 +27,7 @@ class Maze
     Maze() {
         // TODO This function needs to list to the map topic and retrieve it
         parseMap();
+        deepCopyMap();
         localize();
     }
 
@@ -44,15 +45,17 @@ class Maze
     //Position getPosition();
 
   private:
-    Cell[][] givenMap;
+    Cell[][] originalMap;
+
+
+    Cell[][][] copiedMap; // TODO Implement deepCopyMap to copy given map
 
     // TODO Implement position class, maybe connect with cell
     Position robot;
 
-    void parseMap(std::vector<Row> rows);
+    // get map from
+    void parseMap();
 
-    // TODO Implement deepCopyMap to copy given map
-    Cell[][] deepCopyMap();
 
     std::vector<int> scanCurrentCell();
 
@@ -62,6 +65,15 @@ class Maze
     bool        contains(std::vector<int> v, int e);
     std::vector<int> scanCurrentCell_test();
 };
+
+void deepCopyMap()
+{
+
+}
+
+
+
+
 
 /**
  *  Returns the current position of the robot.
@@ -74,15 +86,28 @@ void turnOnMap(bool left){
     return;
 
 }
+
+// global pointer to the current map
+std::vector<Row> rows;
+
+// update the global @rows vector
+void mapCallback(const Grid::ConstPtr& msg) { rows = msg->rows; }
+
 /**
  *  TODO needs refactoring
  *  Builds up the local representation of the maze
  * */
 void parseMap(std::vector<Row> rows)
 {
+    ros::init(argc, argv, "initialize parse map");
+    ros::NodeHandle n;
+    
+    ros::Subscriber map;
+    map = nh.subscribe("map", 1, &mapCallback);
+
     if (rows.empty()) {
         if (DEBUG)
-            ROS_INFO("parseMap: Error - rows vector is empty -> mapCallback hasn't run yet");
+            ROS_INFO("parseMap: Error - rows vector is empty");
         return;
     }
 
