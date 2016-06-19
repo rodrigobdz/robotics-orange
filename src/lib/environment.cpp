@@ -50,7 +50,7 @@ bool Env::align(void)
             ROS_INFO("Angle %i %f",i , a);
         }
 
-        if (countWalls != 0) {
+        if (countWalls > 0) {
             alignToSingleWall();
             break;
         }
@@ -86,25 +86,36 @@ bool Env::align(void)
 bool Env::alignToSingleWall(void)
 {
     ros::Rate r(LOOP_RATE);
-    Wall* wall = getClosestWallInFront();
+    Wall* wall;
+    float angleErrorMarginInRadians = 0.2;
     while (ros::ok()) {
+        // Check the angle again and leave if its ok
+        // otherwise enter another loop
+        wall = getClosestWallInFront();
+
         if (wall) {
-            basicMovements.rotate(wall->getAngleInRadians(), 1);
-            r.sleep();
-            basicMovements.drive(wall->getDistanceInMeters() + DISTANCE_LASER_TO_ROBOT_CENTER - CELL_CENTER, 1);
-            // check the angel again and leave if its ok
-            // otherwise enter another loop
-            wall = getClosestWallInFront();
-            if (fabs(wall->getAngleInRadians()) < 0.1) {
             if(DEBUG) {
                 ROS_INFO("Wall angle %f ", wall->getAngleInDegrees());
             }
+
+            // If angle of wall in front and distance under margin error 
+            // then error acceptable.
+            bool angleIsAcceptable = fabs(wall->getAngleInRadians()) < angleErrorMarginInRadians;
+            bool distanceIsAcceptable = wall->getDistanceInMeters() - CELL_CENTER < 0.1;
+
             if(DEBUG) {
                 ROS_INFO("Wall distance = %f ",wall->getDistanceInMeters());
                 ROS_INFO("Drive distance %f",wall->getDistanceInMeters() - CELL_CENTER);
             }
+
+            if (angleIsAcceptable && distanceIsAcceptable) {
                 break;
             }
+
+            basicMovements.rotate(wall->getAngleInDegrees(), 1);
+            r.sleep();            
+
+            basicMovements.drive(wall->getDistanceInMeters() - CELL_CENTER, 1);
         }
 
         r.sleep();
