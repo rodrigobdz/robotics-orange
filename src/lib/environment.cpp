@@ -26,6 +26,7 @@ class Env
     std::vector<float> ranges;
     std::vector<Wall*> walls;
     bool DEBUG = true;
+    int ENVIRONMENT_SPEED = 5; 
 
     // External libraries
     BasicMovements basicMovements;
@@ -56,13 +57,13 @@ bool Env::align(void)
         }
 
         // Drive until wall in sight
-        basicMovements.drive(0.5, 10);
+        basicMovements.drive(0.5, ENVIRONMENT_SPEED);
     }
 
     if (ransac.hasLeftWall()) {
-        basicMovements.rotate(-90, 1);
+        basicMovements.rotate(-90, ENVIRONMENT_SPEED);
     } else {
-        basicMovements.rotate(90, 1);
+        basicMovements.rotate(90, ENVIRONMENT_SPEED);
     }
     
     // align to second wall
@@ -71,7 +72,7 @@ bool Env::align(void)
             alignToSingleWall();
             break;
         }
-        basicMovements.driveWall(0.5, 10);
+        basicMovements.driveWall(0.5, ENVIRONMENT_SPEED);
     }
 
     return true;
@@ -112,10 +113,10 @@ bool Env::alignToSingleWall(void)
                 break;
             }
 
-            basicMovements.rotate(wall->getAngleInDegrees(), 10);
+            basicMovements.rotate(wall->getAngleInDegrees(), ENVIRONMENT_SPEED);
             r.sleep();            
 
-            basicMovements.drive(wall->getDistanceInMeters() - CELL_CENTER, 10);
+            basicMovements.drive(wall->getDistanceInMeters() - CELL_CENTER, ENVIRONMENT_SPEED);
         }
 
         r.sleep();
