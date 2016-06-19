@@ -25,10 +25,13 @@ class Env
     ros::Subscriber laser;
     std::vector<float> ranges;
     std::vector<Wall*> walls;
+    bool DEBUG = true;
 
+    // External libraries
     BasicMovements basicMovements;
     Ransac ransac;
 
+    // Private functions
     bool alignToSingleWall(void);
     Wall* getClosestWallInFront(void);
     void laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg);
@@ -44,13 +47,15 @@ bool Env::align(void)
 
         for (int i = 0; i < countWalls; i++){
             float a = walls[i]->getAngleInDegrees();
-            ROS_INFO("Size %f", a);
+            ROS_INFO("Angle %i %f",i , a);
         }
 
         if (countWalls != 0) {
             alignToSingleWall();
             break;
         }
+
+        // Drive until wall in sight
         basicMovements.drive(0.5, 255);
     }
 
@@ -68,6 +73,7 @@ bool Env::align(void)
         }
         basicMovements.driveWall(0.5, 255);
     }
+
     return true;
 }
 
@@ -90,6 +96,13 @@ bool Env::alignToSingleWall(void)
             // otherwise enter another loop
             wall = getClosestWallInFront();
             if (fabs(wall->getAngleInRadians()) < 0.1) {
+            if(DEBUG) {
+                ROS_INFO("Wall angle %f ", wall->getAngleInDegrees());
+            }
+            if(DEBUG) {
+                ROS_INFO("Wall distance = %f ",wall->getDistanceInMeters());
+                ROS_INFO("Drive distance %f",wall->getDistanceInMeters() - CELL_CENTER);
+            }
                 break;
             }
         }
