@@ -36,7 +36,6 @@ class BasicMovements
     bool move(float desiredVelocity, float desiredTurningVelocity);
     bool drive(float distanceInMeters, float speed = DEFAULT_SPEED);
     bool rotate(float angleInDegrees, float speed = DEFAULT_SPEED);
-    bool rotateAbs(float angleInDegrees, float speed = DEFAULT_SPEED);
 
     bool driveWall(float distanceInMeters, float speed = DEFAULT_SPEED);
     bool turnLeft();
@@ -216,25 +215,6 @@ bool BasicMovements::driveWall(float distanceInMeters, float speed)
     move(0, 0);
 
     return true;
-}
-
-/*
- * Rotate the robot corresponding to its local coordinate system.
- * That means the robots face lays is exactly 90 degrees and its
- * righthandside is 0 degrees. So if you 30 degrees to this
- * function, the robot will rotate 60 degrees to the right.
- * */
-bool BasicMovements::rotateAbs(float angleInDegrees, float speed)
-{
-    if (angleInDegrees > 180) {
-        angleInDegrees = 180;
-    }
-
-    if (angleInDegrees < 0) {
-        angleInDegrees = 0;
-    }
-
-    return rotate(angleInDegrees - 90, speed);
 }
 
 /*
