@@ -56,11 +56,11 @@ bool Env::align(void)
         }
 
         // Drive until wall in sight
-        basicMovements.drive(0.5, 255);
+        basicMovements.drive(0.5, 10);
     }
 
     if (ransac.hasLeftWall()) {
-        basicMovements.rotate(-90, 1);    
+        basicMovements.rotate(-90, 1);
     } else {
         basicMovements.rotate(90, 1);
     }
@@ -71,7 +71,7 @@ bool Env::align(void)
             alignToSingleWall();
             break;
         }
-        basicMovements.driveWall(0.5, 255);
+        basicMovements.driveWall(0.5, 10);
     }
 
     return true;
@@ -112,10 +112,10 @@ bool Env::alignToSingleWall(void)
                 break;
             }
 
-            basicMovements.rotate(wall->getAngleInDegrees(), 1);
+            basicMovements.rotate(wall->getAngleInDegrees(), 10);
             r.sleep();            
 
-            basicMovements.drive(wall->getDistanceInMeters() - CELL_CENTER, 1);
+            basicMovements.drive(wall->getDistanceInMeters() - CELL_CENTER, 10);
         }
 
         r.sleep();
