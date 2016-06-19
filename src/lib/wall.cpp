@@ -10,13 +10,13 @@ class Wall
     Wall(float x1, float y1, float x2, float y2)
     {
         distance = calcDistanceInMeters(x1, y1, x2, y2);
-        angle = calcAngleInRadians(x1, y1, x2, y2);
+        angleInRadians = calcAngleInRadians(x1, y1, x2, y2);
     }
-    Wall(float distance, float angle) : distance(distance), angle(angle) {}
+    Wall(float distance, float angleInRadians) : distance(distance), angleInRadians(angleInRadians) {}
 
     float getDistanceInMeters() const { return distance; }
-    float getAngleInRadians() const { return angle; }
-    float getAngleInDegrees() const { return angle*180/PI; }
+    float getAngleInRadians() const { return angleInRadians; }
+    float getAngleInDegrees() const { return angleInRadians*180/PI; }
 
     bool isLeftWall();
     bool isRightWall();
@@ -24,7 +24,7 @@ class Wall
 
   private:
     float distance;
-    float angle;
+    float angleInRadians;
 
     float calcDistanceInMeters(float x1, float y1, float x2, float y2);
     float calcAngleInRadians(float x1, float y1, float x2, float y2);
@@ -87,24 +87,24 @@ float Wall::calcAngleInRadians(float x1, float y1, float x2, float y2)
     float x = (n2 - n1) / (m1 - m2);
     float y = m1 * x + n1;
 
-    float oldAngle = atan2(y, x);
+    float oldAngleInRadians = atan2(y, x);
 
-    // ROS_INFO("x = %f, y = %f, angle = %f", x, y, newAngle);
+    // ROS_INFO("x = %f, y = %f, angle = %f", x, y, newAngleInRadians);
 
-    float newAngle;
-    if (oldAngle > -PI / 2) {
-        newAngle = oldAngle - PI / 2;
+    float newAngleInRadians;
+    if (oldAngleInRadians > -PI / 2) {
+        newAngleInRadians = oldAngleInRadians - PI / 2;
     } else {
-        newAngle = oldAngle + PI * 3 / 2;
+        newAngleInRadians = oldAngleInRadians + PI * 3 / 2;
     }
 
-    return newAngle;
+    return newAngleInRadians;
 }
 
-bool Wall::isLeftWall() { return (angle > PI / 4 && angle < 3 * PI / 4); }// angle between 45 and 135 degrees
+bool Wall::isLeftWall() { return (angleInRadians > PI / 4 && angleInRadians < 3 * PI / 4); }// angle between 45 and 135 degrees
 
-bool Wall::isRightWall() { return (angle > -3 * PI / 4 && angle < -PI / 4); } // angle between -45 and -135 degrees
+bool Wall::isRightWall() { return (angleInRadians > -3 * PI / 4 && angleInRadians < -PI / 4); } // angle between -45 and -135 degrees
 
-bool Wall::isFrontWall() { return (angle < PI / 4 && angle > -PI / 4); } // angle between -45 and 45 degrees
+bool Wall::isFrontWall() { return (angleInRadians < PI / 4 && angleInRadians > -PI / 4); } // angle between -45 and 45 degrees
 
 #endif
