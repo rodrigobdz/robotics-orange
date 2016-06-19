@@ -20,7 +20,7 @@ class Env
 
     bool align(void);
     bool alignToSingleWall(void);
-    Wall* getClosestWallToFront(void);
+    Wall* getClosestWallInFront(void);
 
     std::vector<Wall*> getWalls(void) 
     { 
@@ -85,7 +85,7 @@ bool Env::align(void)
 bool Env::alignToSingleWall(void)
 {
     ros::Rate r(LOOP_RATE);
-    Wall* wall = getClosestWallToFront();
+    Wall* wall = getClosestWallInFront();
     while (ros::ok()) {
         if (wall) {
             _basicMovements.rotate(wall->getAngleInRadians(), 1);
@@ -93,7 +93,7 @@ bool Env::alignToSingleWall(void)
             _basicMovements.drive(wall->getDistanceInMeters() + DISTANCE_LASER_TO_ROBOT_CENTER - CELL_CENTER, 1);
             // check the angel again and leave if its ok
             // otherwise enter another loop
-            wall = getClosestWallToFront();
+            wall = getClosestWallInFront();
             if (fabs(wall->getAngleInRadians()) < 0.1) {
                 break;
             }
@@ -106,7 +106,7 @@ bool Env::alignToSingleWall(void)
 
 /* Call ransac.getWalls for a fresh set of collected walls.
    Return the wall which most direct in front of the robot. */
-Wall* Env::getClosestWallToFront(void)
+Wall* Env::getClosestWallInFront(void)
 {
     walls = getWalls();
     int countWalls = walls.size();
