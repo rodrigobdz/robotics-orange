@@ -13,9 +13,9 @@ class Env
     Env()
     {
         // Initialize ranges
-        _ranges = *(new std::vector<float>(512));
+        ranges = *(new std::vector<float>(512));
         // Subscribe to filtered laser scan
-        _laser = _nh.subscribe("scan_filtered", 1, &Env::laserCallback, this);
+        laser = nh.subscribe("scan_filtered", 1, &Env::laserCallback, this);
     }
 
     bool align(void);
@@ -28,13 +28,13 @@ class Env
     };
 
   private:
-    ros::NodeHandle _nh;
-    ros::Subscriber _laser;
-    std::vector<float> _ranges;
+    ros::NodeHandle nh;
+    ros::Subscriber laser;
+    std::vector<float> ranges;
     std::vector<Wall*> walls;
 
-    BasicMovements _basicMovements;
-    Ransac _ransac;
+    BasicMovements basicMovements;
+    Ransac ransac;
 
     void laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg);
 };
@@ -44,7 +44,7 @@ bool Env::align(void)
     int countWalls = 0;
     // align to first wall
     while (ros::ok()) {
-        walls = getWalls();
+        walls = ransac.getWalls();
         countWalls = walls.size();
 
         for (int i = 0; i < countWalls; i++){
@@ -56,22 +56,22 @@ bool Env::align(void)
             alignToSingleWall();
             break;
         }
-        _basicMovements.drive(0.5, 255);
+        basicMovements.drive(0.5, 255);
     }
 
-    if (_ransac.hasLeftWall()) {
-        _basicMovements.rotate(-90, 1);    
+    if (ransac.hasLeftWall()) {
+        basicMovements.rotate(-90, 1);    
     } else {
-        _basicMovements.rotate(90, 1);
+        basicMovements.rotate(90, 1);
     }
     
     // align to second wall
     while (ros::ok()) {
-        if (_ransac.hasFrontWall()) {
+        if (ransac.hasFrontWall()) {
             alignToSingleWall();
             break;
         }
-        _basicMovements.driveWall(0.5, 255);
+        basicMovements.driveWall(0.5, 255);
     }
     return true;
 }
@@ -88,9 +88,9 @@ bool Env::alignToSingleWall(void)
     Wall* wall = getClosestWallInFront();
     while (ros::ok()) {
         if (wall) {
-            _basicMovements.rotate(wall->getAngleInRadians(), 1);
+            basicMovements.rotate(wall->getAngleInRadians(), 1);
             r.sleep();
-            _basicMovements.drive(wall->getDistanceInMeters() + DISTANCE_LASER_TO_ROBOT_CENTER - CELL_CENTER, 1);
+            basicMovements.drive(wall->getDistanceInMeters() + DISTANCE_LASER_TO_ROBOT_CENTER - CELL_CENTER, 1);
             // check the angel again and leave if its ok
             // otherwise enter another loop
             wall = getClosestWallInFront();
@@ -108,7 +108,7 @@ bool Env::alignToSingleWall(void)
    Return the wall which most direct in front of the robot. */
 Wall* Env::getClosestWallInFront(void)
 {
-    walls = getWalls();
+    walls = ransac.getWalls();
     int countWalls = walls.size();
     if (countWalls == 0) {
         return NULL;
@@ -126,7 +126,7 @@ Wall* Env::getClosestWallInFront(void)
 
 void Env::laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg) 
 { 
-    _ranges = msg->ranges; 
+    ranges = msg->ranges; 
 }
 
 #endif
