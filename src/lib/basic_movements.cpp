@@ -236,10 +236,15 @@ bool BasicMovements::rotate(float angleInDegrees, float speed)
 
     while (ros::ok()) {
         ros::spinOnce();
-        ROS_INFO("leftEncoder %f, wishLeftEncoder %f", leftEncoder, wishLeftEncoder);
+        if(DEBUG) {
+            // ROS_INFO("leftEncoder %f, wishLeftEncoder %f", leftEncoder, wishLeftEncoder);
+            ROS_INFO("fabs((wishLeftEncoder - leftEncoder)) = %f", fabs((wishLeftEncoder - leftEncoder)));
+        }
 
         if (fabs((wishLeftEncoder - leftEncoder)) < 0.1) {
-            ROS_INFO("Perfect Angle");
+            if(DEBUG) {
+                ROS_INFO("Perfect Angle");
+            }
             stop();
             return true;
         }
