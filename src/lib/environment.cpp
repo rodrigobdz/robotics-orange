@@ -19,13 +19,6 @@ class Env
     }
 
     bool align(void);
-    bool alignToSingleWall(void);
-    Wall* getClosestWallInFront(void);
-
-    std::vector<Wall*> getWalls(void) 
-    { 
-        return _ransac.getWalls(); 
-    };
 
   private:
     ros::NodeHandle nh;
@@ -36,6 +29,8 @@ class Env
     BasicMovements basicMovements;
     Ransac ransac;
 
+    bool alignToSingleWall(void);
+    Wall* getClosestWallInFront(void);
     void laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg);
 };
 
