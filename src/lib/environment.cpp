@@ -61,9 +61,9 @@ bool Env::align(void)
     }
 
     if (ransac.hasLeftWall()) {
-        basicMovements.rotate(-90, ENVIRONMENT_SPEED);
-    } else {
         basicMovements.rotate(90, ENVIRONMENT_SPEED);
+    } else {
+        basicMovements.rotate(-90, ENVIRONMENT_SPEED);
     }
     
     // align to second wall
