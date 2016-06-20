@@ -10,6 +10,7 @@
 #include "create_fundamentals/ResetEncoders.h"
 #include <constants.cpp>
 #include <ransac.cpp>
+#include <wall.cpp>
 #include <math.h>
 
 class BasicMovements
@@ -169,49 +170,31 @@ bool BasicMovements::driveWall(float distanceInMeters, float speed)
         if (walls.size() == 0) { // Drive forward
             move(0.2, 0);
         } else {
-
             // Search for nearest wall
-            float smallestDistance = 100;
-            Wall nearestWall(0,0);
+            Wall* nearestWall = ransac.getNearestWall(walls);
 
-            for (int i = 0; i < walls.size(); i++) {
-                if (smallestDistance > walls[i]->getDistanceInMeters()) {
-                    nearestWall = *walls[i];
-                    smallestDistance = walls[i]->getDistanceInMeters();
-                }
-            }
-
-            float wallAngle = nearestWall.getAngleInRadians();
-            float wallDistance = nearestWall.getDistanceInMeters();
+            float wallAngle = nearestWall->getAngleInRadians();
+            float wallDistance = nearestWall->getDistanceInMeters();
 
             float distanceCorrectur;
             float angleCorrectur;
 
-            if (nearestWall.isLeftWall()) {
+            if (nearestWall->isLeftWall()) {
                 distanceCorrectur = (0.625 * PI) * wallDistance - PI / 4;
                 angleCorrectur = -tan(2 * wallAngle) * PI / 4;
-            } else if (nearestWall.isRightWall()) {
+            } else if (nearestWall->isRightWall()) {
                 distanceCorrectur = -(0.625 * PI) * wallDistance + PI / 4;
                 angleCorrectur = -tan(2 * wallAngle) * PI / 4;
             } else {
-                if (nearestWall.isFrontWall() && wallDistance < SAFETY_DISTANCE) {
+                if (nearestWall->isFrontWall() && wallDistance < SAFETY_DISTANCE) {
                     // Robot recognized an obstacle, distance could not be completed
                     stop();
                     return false;
                 }
             }
-            // Just angle
-            // float vLeft = 1 / RAD_RADIUS * (angleCorrectur * ROB_BASE / 2);
-            // float vRight = 1 / RAD_RADIUS * (-angleCorrectur * ROB_BASE / 2);
-            // Just distance
-            // float vLeft = 1 / RAD_RADIUS * (-distanceCorrectur * ROB_BASE / 2);
-            // float vRight = 1 / RAD_RADIUS * (distanceCorrectur * ROB_BASE / 2);
 
             float vLeft = 1 / RAD_RADIUS * (0.2 + (angleCorrectur - distanceCorrectur) * ROB_BASE / 2);
             float vRight = 1 / RAD_RADIUS * (0.2 + (-angleCorrectur + distanceCorrectur) * ROB_BASE / 2);
-
-            // ROS_INFO("distanceCorrectur = %f, angleCorrectur = %f", distanceCorrectur, angleCorrectur);
-            // ROS_INFO("vLeft = %f, vRight = %f", vLeft, vRight);
 
             diffDriveService.request.left  = vLeft;
             diffDriveService.request.right = vRight;
@@ -266,17 +249,17 @@ bool BasicMovements::rotate(float angleInDegrees, float speed)
     return false;
 }
 
-bool BasicMovements::rotateLeft(float speed = DEFAULT_SPEED)
+bool BasicMovements::rotateLeft(float speed)
 {
     return rotate(90, speed);
 }
 
-bool BasicMovements::rotateRight(float speed = DEFAULT_SPEED)
+bool BasicMovements::rotateRight(float speed)
 {
     return rotate(-90, speed);
 }
 
-bool BasicMovements::rotateBackwards(float speed = DEFAULT_SPEED)
+bool BasicMovements::rotateBackwards(float speed)
 {
     return rotate(180, speed);
 }

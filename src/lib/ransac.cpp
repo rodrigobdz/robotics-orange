@@ -15,37 +15,29 @@ class Ransac
         // Set up laser callback
         laserSubscriber = n.subscribe("scan_filtered", 1, &Ransac::laserCallback, this);
 
-        ranges          = *(new std::vector<float>(LASER_COUNT));
+        ranges = *(new std::vector<float>(LASER_COUNT));
         srand(time(NULL));
     }
 
     std::vector<Wall*> getWalls();
-    bool hasLeftWall();
-    bool hasFrontWall();
-    bool hasRightWall();
 
-    bool hasLeftWall();
-    bool hasFrontWall();
-    bool hasRightWall();
+    Wall* getLeftWall(std::vector<Wall*> walls);
+    Wall* getFrontWall(std::vector<Wall*> walls);
+    Wall* getRightWall(std::vector<Wall*> walls);
 
-    Wall getNearestWall(std::vector<Wall*> walls);
-
+    Wall* getNearestWall(std::vector<Wall*> walls);
 
   private:
-    ///////////////////
-    //   Variables   //
-    ///////////////////
-    const float TRESHOLD   = 100;  // Matches that makes  line to wall
+    // Variables
+    const float TRESHOLD = 100;    // Matches that makes  line to wall
     const float ITERATIONS = 1000; // Number of iterations from ransac algo.
-    const float ERROR      = 0.02; // Difference between line and points
+    const float ERROR = 0.02;      // Difference between line and points
 
     ros::NodeHandle n;
     ros::Subscriber laserSubscriber;
     std::vector<float> ranges;
 
-    ///////////////////
-    //   Functions   //
-    ///////////////////
+    // Helper
     float calculateX(float angleInRadians, float distanceInMeters);
     float calculateY(float angleInRadians, float distanceInMeters);
     std::vector<int> getMatches(float wallX1, float wallY1, float wallX2, float wallY2);
@@ -68,11 +60,10 @@ std::vector<Wall*> Ransac::getWalls()
     initialiseLaser();
 
     // We can maximal acknowledge 3 walls
-    for(int j = 0; j <= 2; j++){
-
+    for (int j = 0; j <= 2; j++) {
         // Variables
         std::vector<int> bestMatches;
-        Wall *bestWall;
+        Wall* bestWall;
 
         for (int i = 0; i < ITERATIONS; ++i) {
             // Get coordiantes of two random selected points
@@ -87,7 +78,7 @@ std::vector<Wall*> Ransac::getWalls()
 
             std::vector<int> currentMatches = getMatches(pointA.first, pointA.second, pointB.first, pointB.second);
 
-            if(currentMatches.size() > bestMatches.size()){
+            if (currentMatches.size() > bestMatches.size()) {
                 bestMatches = currentMatches;
                 bestWall = currentWall;
             }
@@ -116,49 +107,51 @@ std::vector<Wall*> Ransac::getWalls()
     return walls;
 }
 
-bool Ransac::hasLeftWall(std::vector<Wall*> walls)
+Wall* Ransac::getLeftWall(std::vector<Wall*> walls)
 {
-    for (int i = 0; i < walls.size(); ++i)
-    {
-        if (walls[i]->isLeftWall()) { return true; }
-    }
-    return false;
-}
-
-bool Ransac::hasFrontWall(std::vector<Wall*> walls)
-{
-    for (int i = 0; i < walls.size(); ++i)
-    {
-        if (walls[i]->isFrontWall()) { return true; }
-    }
-    return false;
-}
-
-bool Ransac::hasRightWall(std::vector<Wall*> walls)
-{
-    for (int i = 0; i < walls.size(); ++i)
-    {
-        if (walls[i]->isRightWall()) { return true; }
-    }
-    return false;
-}
-
-void Ransac::bubbleSort(std::vector<Wall*>& a)
-{
-    bool swapp = true;
-    Wall* tmp;
-    while (swapp) {
-        swapp = false;
-        for (int i = 0; i < a.size() - 1; i++) {
-            if (a[i]->getAngleInRadians() > a[i + 1]->getAngleInRadians()) {
-                tmp = a[i];
-                a[i] = a[i + 1];
-                a[i + 1] = tmp;
-                swapp = true;
-            }
+    for (int i = 0; i < walls.size(); ++i) {
+        if (walls[i]->isLeftWall()) {
+            return walls[i];
         }
     }
+    return NULL;
 }
+
+Wall* Ransac::getFrontWall(std::vector<Wall*> walls)
+{
+    for (int i = 0; i < walls.size(); ++i) {
+        if (walls[i]->isFrontWall()) {
+            return walls[i];
+        }
+    }
+    return NULL;
+}
+
+Wall* Ransac::getRightWall(std::vector<Wall*> walls)
+{
+    for (int i = 0; i < walls.size(); ++i) {
+        if (walls[i]->isRightWall()) {
+            return walls[i];
+        }
+    }
+    return NULL;
+}
+
+Wall* Ransac::getNearestWall(std::vector<Wall*> walls)
+{
+    Wall* nearestWall = NULL;
+    float smallestDistance = 100;
+
+    for (int i = 0; i < walls.size(); i++) {
+        if (smallestDistance > walls[i]->getDistanceInMeters()) {
+            nearestWall = walls[i];
+            smallestDistance = walls[i]->getDistanceInMeters();
+        }
+    }
+    return nearestWall;
+}
+
+/********************** HELPERS *****************************/
 
 /*
  * angleInRadians: from laser scanner first point to some point
@@ -166,7 +159,10 @@ void Ransac::bubbleSort(std::vector<Wall*>& a)
  *
  * Returns: x coordinate in robot coordinate system
  **/
-float Ransac::calculateX(float angleInRadians, float distanceInMeters) { return distanceInMeters * cos(angleInRadians); }
+float Ransac::calculateX(float angleInRadians, float distanceInMeters)
+{
+    return distanceInMeters * cos(angleInRadians);
+}
 
 /*
  * angleInRadians: from laser scanner first point to some point
@@ -174,7 +170,10 @@ float Ransac::calculateX(float angleInRadians, float distanceInMeters) { return 
  *
  * Returns: y coordinate in robot coordinate system
  **/
-float Ransac::calculateY(float angleInRadians, float distanceInMeters) { return distanceInMeters * sin(angleInRadians); }
+float Ransac::calculateY(float angleInRadians, float distanceInMeters)
+{
+    return distanceInMeters * sin(angleInRadians);
+}
 
 /*
  * Calculates the matches from given line to points from ranges.
@@ -195,7 +194,6 @@ std::vector<int> Ransac::getMatches(float wallX1, float wallY1, float wallX2, fl
     // Iterate point cloud looking for points
     // close enough to current wall
     for (int j = 0; j < LASER_COUNT; j++) {
-
         // Calculate angle to point
         angleInRadians = j * (PI / LASER_COUNT);
         distanceFromRobotToPoint = ranges[j];
@@ -241,8 +239,6 @@ std::pair<float, float> Ransac::getRandomXYCoords()
     return std::pair<float, float>(calculateX(angleInRadians, a), calculateY(angleInRadians, a));
 }
 
-/********************** HELPERS *****************************/
-
 void Ransac::laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg) { ranges = msg->ranges; }
 
 void Ransac::initialiseLaser()
@@ -255,4 +251,20 @@ void Ransac::initialiseLaser()
     }
 }
 
+void Ransac::bubbleSort(std::vector<Wall*>& a)
+{
+    bool swapp = true;
+    Wall* tmp;
+    while (swapp) {
+        swapp = false;
+        for (int i = 0; i < a.size() - 1; i++) {
+            if (a[i]->getAngleInRadians() > a[i + 1]->getAngleInRadians()) {
+                tmp = a[i];
+                a[i] = a[i + 1];
+                a[i + 1] = tmp;
+                swapp = true;
+            }
+        }
+    }
+}
 #endif
