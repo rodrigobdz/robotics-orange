@@ -46,11 +46,6 @@ bool Env::align(void)
         walls = ransac.getWalls();
         countWalls = walls.size();
 
-        for (int i = 0; i < countWalls; i++){
-            float a = walls[i]->getAngleInDegrees();
-            ROS_INFO("Angle %i %f",i , a);
-        }
-
         if (countWalls > 0) {
             alignToSingleWall();
             break;
