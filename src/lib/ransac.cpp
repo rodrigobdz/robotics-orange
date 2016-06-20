@@ -21,6 +21,13 @@ class Ransac
 
     std::vector<Wall*> getWalls();
 
+    bool hasLeftWall();
+    bool hasFrontWall();
+    bool hasRightWall();
+
+    Wall getNearestWall(std::vector<Wall*> walls);
+
+
   private:
     ///////////////////
     //   Variables   //
@@ -104,6 +111,33 @@ std::vector<Wall*> Ransac::getWalls()
     }
 
     return walls;
+}
+
+bool Ransac::hasLeftWall(std::vector<Wall*> walls)
+{
+    for (int i = 0; i < walls.size(); ++i)
+    {
+        if (walls[i]->isLeftWall()) { return true; }
+    }
+    return false;
+}
+
+bool Ransac::hasFrontWall(std::vector<Wall*> walls)
+{
+    for (int i = 0; i < walls.size(); ++i)
+    {
+        if (walls[i]->isFrontWall()) { return true; }
+    }
+    return false;
+}
+
+bool Ransac::hasRightWall(std::vector<Wall*> walls)
+{
+    for (int i = 0; i < walls.size(); ++i)
+    {
+        if (walls[i]->isRightWall()) { return true; }
+    }
+    return false;
 }
 
 void Ransac::bubbleSort(std::vector<Wall*>& a)

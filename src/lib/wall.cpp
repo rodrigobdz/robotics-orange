@@ -12,10 +12,14 @@ class Wall
         distance = calcDistance(x1, y1, x2, y2);
         angle = calcAngle(x1, y1, x2, y2);
     }
-    Wall(float distance, float angle) : distance(distance), angle(angle) {}
+    Wall(float distanceInMeters, float angleInRadians)
+        : distanceInMeters(distanceInMeters), angleInRadians(angleInRadians)
+    {
+    }
 
-    float getDistance() const { return distance; }
-    float getAngle() const { return angle; }
+    float getDistanceInMeters() const { return distanceInMeters; }
+    float getAngleInRadians() const { return angleInRadians; }
+    float getAngleInDegrees() const { return angleInRadians * 180 / PI; }
 
     bool isLeftWall();
     bool isRightWall();
@@ -28,10 +32,6 @@ class Wall
     float calcDistance(float x1, float y1, float x2, float y2);
     float calcAngle(float x1, float y1, float x2, float y2);
 };
-
-/////////////////////////////////////////////////////
-////////////////////// Helpers //////////////////////
-/////////////////////////////////////////////////////
 
 /*
  * x1, y1: First point
@@ -100,10 +100,23 @@ float Wall::calcAngle(float x1, float y1, float x2, float y2)
     return newAngle;
 }
 
-bool Wall::isLeftWall() { return (angle > PI / 4 && angle < 3 * PI / 4); }
+bool Wall::isLeftWall()
+{
+    return (angleInRadians > PI / 4 && angleInRadians < 3 * PI / 4);
+} // angle between 45 and 135 degrees
 
-bool Wall::isRightWall() { return (angle > -3 * PI / 4 && angle < -PI / 4); }
+bool Wall::isRightWall()
+{
+    return (angleInRadians > -3 * PI / 4 && angleInRadians < -PI / 4);
+} // angle between -45 and -135 degrees
 
-bool Wall::isFrontWall() { return (angle < PI / 4 && angle > -PI / 4); }
+bool Wall::isFrontWall()
+{
+    return (angleInRadians < PI / 4 && angleInRadians > -PI / 4);
+} // angle between -45 and 45 degrees
+
+/////////////////////////////////////////////////////
+////////////////////// Helpers //////////////////////
+/////////////////////////////////////////////////////
 
 #endif

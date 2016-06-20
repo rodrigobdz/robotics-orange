@@ -18,11 +18,11 @@ class BasicMovements
     BasicMovements()
     {
         // Set up encoders callback
-        encoderSubscriber = n.subscribe("sensor_packet", 1, &BasicMovements::encoderCallback, this);
-        diffDriveClient = n.serviceClient<create_fundamentals::DiffDrive>("diff_drive");
+        encoderSubscriber   = n.subscribe("sensor_packet", 1, &BasicMovements::encoderCallback, this);
+        diffDriveClient     = n.serviceClient<create_fundamentals::DiffDrive>("diff_drive");
 
         // Set up laser callback
-        laserSubscriber = n.subscribe("scan_filtered", 1, &BasicMovements::laserCallback, this);
+        laserSubscriber     = n.subscribe("scan_filtered", 1, &BasicMovements::laserCallback, this);
 
         // Set up reset encoders client
         resetEncodersClient = n.serviceClient<create_fundamentals::ResetEncoders>("reset_encoders");
@@ -246,12 +246,12 @@ bool BasicMovements::rotateAbs(float angleInDegrees, float speed)
 bool BasicMovements::rotate(float angleInDegrees, float speed)
 {
     // Variables
-    float angleInRadians = angleInDegrees * (PI / 2) / 90;
-    float threshold = NINETY_DEGREES_IN_RAD / 10;
+    float angleInRadians   = angleInDegrees * (PI / 2) / 90;
+    float threshold        = NINETY_DEGREES_IN_RAD / 10;
 
     initialiseEncoder();
 
-    float wishLeftEncoder = leftEncoder - 1 / RAD_RADIUS * (ROB_BASE / 2 * angleInRadians);
+    float wishLeftEncoder  = leftEncoder - 1 / RAD_RADIUS * (ROB_BASE / 2 * angleInRadians);
     float wishRightEncoder = rightEncoder + 1 / RAD_RADIUS * (ROB_BASE / 2 * angleInRadians);
 
     while (ros::ok()) {
@@ -274,6 +274,26 @@ bool BasicMovements::rotate(float angleInDegrees, float speed)
     return false;
 }
 
+bool BasicMovements::rotateLeft()
+{
+    return rotate(90);
+}
+
+bool BasicMovements::rotateRight()
+{
+    return rotate(-90);
+}
+
+bool BasicMovements::rotateBackwards()
+{
+    return rotate(180);
+}
+
+/*
+ * Turns left around a corner. This is not the same as rotate left.
+ *
+ * Returns: false if obstacle was found otherwise true
+**/
 bool BasicMovements::turnLeft()
 {
     initialiseEncoder();
