@@ -145,7 +145,12 @@ bool BasicMovements::drive(float distanceInMeters, float speed)
     return false;
 }
 
-
+/*
+ * Drives straight forward keeping distance to the wall and at the
+ * same time aligning to it.
+ *
+ * Returns: false if obstacle was found otherwise true
+**/
 bool BasicMovements::driveWall(float distanceInMeters, float speed)
 {
     initialiseEncoder();
@@ -259,7 +264,11 @@ bool BasicMovements::rotate(float angleInDegrees, float speed)
     return false;
 }
 
-// turn 90 degress counter clockwise
+/*
+ * Turns left around a corner. This is not the same as rotate left.
+ *
+ * Returns: false if obstacle was found otherwise true
+**/
 bool BasicMovements::turnLeft()
 {
     initialiseEncoder();
@@ -281,7 +290,11 @@ bool BasicMovements::turnLeft()
     return false;
 }
 
-// turn 90 degress clockwise
+/*
+ * Turns right around a corner. This is not the same as rotate right.
+ *
+ * Returns: false if obstacle was found otherwise true
+**/
 bool BasicMovements::turnRight()
 {
     initialiseEncoder();
