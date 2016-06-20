@@ -35,6 +35,9 @@ class BasicMovements
     void stop();
     bool drive(float distanceInMeters, float speed = DEFAULT_SPEED);
     bool rotate(float angleInDegrees, float speed = DEFAULT_SPEED);
+    bool rotateLeft();
+    bool rotateRight();
+    bool rotateBackwards();
 
     bool driveWall(float distanceInMeters, float speed = DEFAULT_SPEED);
     bool turnLeft();
@@ -192,7 +195,7 @@ bool BasicMovements::driveWall(float distanceInMeters, float speed)
                 distanceCorrectur = -(0.625 * PI) * wallDistance + PI / 4;
                 angleCorrectur = -tan(2 * wallAngle) * PI / 4;
             } else {
-                if (nearestWall.isFrontWall() && wallDistance < 0.2) {
+                if (nearestWall.isFrontWall() && wallDistance < SAFETY_DISTANCE) {
                     // Robot recognized an obstacle, distance could not be completed
                     stop();
                     return false;
@@ -264,6 +267,21 @@ bool BasicMovements::rotate(float angleInDegrees, float speed)
     return false;
 }
 
+bool BasicMovements::rotateLeft() 
+{
+    return rotate(90);
+}
+
+bool BasicMovements::rotateRight() 
+{
+    return rotate(-90);
+}
+
+bool BasicMovements::rotateBackwards() 
+{
+    return rotate(180);
+}
+
 /*
  * Turns left around a corner. This is not the same as rotate left.
  *
@@ -273,8 +291,8 @@ bool BasicMovements::turnLeft()
 {
     initialiseEncoder();
 
-    float wishLeftEncoder  = leftEncoder + (1 / (RAD_RADIUS * 2)) * (0.8 - ROB_BASE / 2 + ROB_BASE / 2 * PI / 2);
-    float wishRightEncoder = rightEncoder + (1 / (RAD_RADIUS * 2)) * (0.8 - ROB_BASE / 2 - ROB_BASE / 2 * PI / 2);
+    float wishLeftEncoder  = leftEncoder + (1 / (RAD_RADIUS * 2)) * (CELL_LENGTH - ROB_BASE / 2 + ROB_BASE / 2 * PI / 2);
+    float wishRightEncoder = rightEncoder + (1 / (RAD_RADIUS * 2)) * (CELL_LENGTH - ROB_BASE / 2 - ROB_BASE / 2 * PI / 2);
 
     while (ros::ok()) {
         ros::spinOnce();
@@ -284,7 +302,7 @@ bool BasicMovements::turnLeft()
             return true;
         }
 
-        move((0.8 - ROB_BASE / 2) / 3, -PI / 2 / 3);
+        move((CELL_LENGTH - ROB_BASE / 2) / 3, -PI / 2 / 3);
     }
 
     return false;
@@ -299,8 +317,8 @@ bool BasicMovements::turnRight()
 {
     initialiseEncoder();
 
-    float wishLeftEncoder  = leftEncoder + (1 / (RAD_RADIUS * 2)) * (0.8 - ROB_BASE / 2 + ROB_BASE / 2 * -PI / 2);
-    float wishRightEncoder = rightEncoder + (1 / (RAD_RADIUS * 2)) * (0.8 - ROB_BASE / 2 - ROB_BASE / 2 * -PI / 2);
+    float wishLeftEncoder  = leftEncoder + (1 / (RAD_RADIUS * 2)) * (CELL_LENGTH - ROB_BASE / 2 + ROB_BASE / 2 * -PI / 2);
+    float wishRightEncoder = rightEncoder + (1 / (RAD_RADIUS * 2)) * (CELL_LENGTH - ROB_BASE / 2 - ROB_BASE / 2 * -PI / 2);
 
     while (ros::ok()) {
         ros::spinOnce();
@@ -311,7 +329,7 @@ bool BasicMovements::turnRight()
             return true;
         }
 
-        move((0.8 - ROB_BASE / 2) / 3, PI / 2 / 3);
+        move((CELL_LENGTH - ROB_BASE / 2) / 3, PI / 2 / 3);
     }
 
     return false;

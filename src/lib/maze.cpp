@@ -135,7 +135,7 @@ std::vector<int> scanCurrentCell(void)
         if (w.size() > 0)
             walls.push_back(TOP);
 
-        bm.rotate(-90);
+        bm.rotateRight();
         ROTATEALL(walls);
     }
 
@@ -148,7 +148,7 @@ std::vector<int> scanCurrentCell(void)
         if (getWallPattern(walls) == end) {
             bool blocked = true;
             while (blocked) {
-                bm.rotate(90);
+                bm.rotateLeft();
                 ROTATEALL(walls);
                 orientation++;
                 if (!(walls.at(TOP) == TOP))
@@ -159,13 +159,13 @@ std::vector<int> scanCurrentCell(void)
         if (getWallPattern(walls) == corner) {
             ROS_INFO("is corner.");
             if (contains(walls, RIGHT)) {
-                bm.rotate(90);
+                bm.rotateLeft();
                 ROTATEALL(walls);
                 ROTATEALL(walls);
                 ROTATEALL(walls);
                 orientation++;
             } else {
-                bm.rotate(-90);
+                bm.rotateRight();
                 ROTATEALL(walls);
                 orientation--;
             }
@@ -173,7 +173,7 @@ std::vector<int> scanCurrentCell(void)
 
         if (getWallPattern(walls) == wall or getWallPattern(walls) == path) {
             ROS_INFO("is wall or path.");
-            bm.rotate(90);
+            bm.rotateLeft();
             ROTATEALL(walls);
             orientation++;
         }

@@ -26,13 +26,13 @@ bool Plan::execute(std::vector<int> plan)
         case RIGHT:
             switch (*it) {
             case UP:
-                basicMovements.rotate(90);
+                basicMovements.rotateLeft();
                 break;
             case LEFT:
-                basicMovements.rotate(180);
+                basicMovements.rotateBackwards();
                 break;
             case DOWN:
-                basicMovements.rotate(-90);
+                basicMovements.rotateRight();
                 break;
             default:
                 break;
@@ -41,13 +41,13 @@ bool Plan::execute(std::vector<int> plan)
         case UP:
             switch (*it) {
             case RIGHT:
-                basicMovements.rotate(-90);
+                basicMovements.rotateRight();
                 break;
             case LEFT:
-                basicMovements.rotate(90);
+                basicMovements.rotateLeft();
                 break;
             case DOWN:
-                basicMovements.rotate(180);
+                basicMovements.rotateBackwards();
                 break;
             default:
                 break;
@@ -56,13 +56,13 @@ bool Plan::execute(std::vector<int> plan)
         case LEFT:
             switch (*it) {
             case RIGHT:
-                basicMovements.rotate(180);
+                basicMovements.rotateBackwards();
                 break;
             case UP:
-                basicMovements.rotate(-90);
+                basicMovements.rotateRight();
                 break;
             case DOWN:
-                basicMovements.rotate(90);
+                basicMovements.rotateLeft();
                 break;
             default:
                 break;
@@ -71,13 +71,13 @@ bool Plan::execute(std::vector<int> plan)
         case DOWN:
             switch (*it) {
             case RIGHT:
-                basicMovements.rotate(90);
+                basicMovements.rotateLeft();
                 break;
             case UP:
-                basicMovements.rotate(180);
+                basicMovements.rotateBackwards();
                 break;
             case LEFT:
-                basicMovements.rotate(-90);
+                basicMovements.rotateRight();
                 break;
             default:
                 break;
