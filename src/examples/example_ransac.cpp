@@ -8,7 +8,7 @@ int main(int argc, char** argv)
 
     WallRecognition wall_recognition;
     std::vector<Wall*> walls;
-    ros::Rate r(10);
+    ros::Rate r(LOOP_RATE);
 
     while (n.ok()) {
         walls = wall_recognition.getWalls();

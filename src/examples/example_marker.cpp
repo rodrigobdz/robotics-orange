@@ -10,7 +10,7 @@ int main(int argc, char** argv)
 
     WallRecognition wall_recognition;
     std::vector<Wall*> walls;
-    ros::Rate r(10);
+    ros::Rate r(LOOP_RATE);
 
     // ros::Publisher vis_pub = n.advertise<visualization_msgs::Marker>("visualization_marker", 10);
     ros::Publisher vis_pub = n.advertise<std_msgs::String>("visualization_marker", 10);
