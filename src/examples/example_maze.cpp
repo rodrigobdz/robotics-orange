@@ -1,21 +1,13 @@
 #include "ros/ros.h"
-#include <cstdlib>
-#include "create_fundamentals/ResetEncoders.h"
-#include "create_fundamentals/DiffDrive.h"
-#include "create_fundamentals/SensorPacket.h"
-#include "sensor_msgs/LaserScan.h"
 #include <maze.cpp>
+#include <cell.cpp>
 
-
-
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
   ros::init(argc, argv, "example_maze");
-  ros::NodeHandle n;
-  ros::Rate r(LOOP_RATE);
 
-  int32[] walls1_1 = [ 0, 1, 2, 3 ];
-  ROS_INFO("walls1_1[0] = %i", walls1_1[0];
+  // int32[] walls1_1 = [ 0, 1, 2, 3 ];
+  // ROS_INFO("walls1_1[0] = %i", walls1_1[0];
   // Cell[] cells1 = new Cell[1];
   // cells1[1] = walls1_1;
 
@@ -23,12 +15,14 @@ int main(int argc, char** argv)
 
 
 
-  // Maze maze;
+  Maze maze;
+
+  maze.parseMap();
+
+  Cell[][] map = maze.getMap();
+  ROS_INFO("Map[0][0] = true = %d", map[0][0].isRight());
 
   // maze.parseMap();
 
-
-  // maze.parseMap();
   return 0;
-
 }

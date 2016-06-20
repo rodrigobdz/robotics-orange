@@ -9,12 +9,7 @@
 #include "sensor_msgs/LaserScan.h"
 #include "create_fundamentals/ResetEncoders.h"
 #include <constants.cpp>
-<<<<<<< HEAD
-#include <ransac.cpp>
-#include <wall.cpp>
-=======
 #include <wall_recognition.cpp>
->>>>>>> master
 #include <math.h>
 
 class BasicMovements
