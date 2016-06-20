@@ -1,5 +1,5 @@
-#ifndef MAZELIB
-#define MAZELIB
+#ifndef MAZE_LIB
+#define MAZE_LIB
 
 // Needed includes for this library to work
 #include "ros/ros.h"
@@ -372,4 +372,4 @@ std::vector<int> scanCurrentCell_test()
     return std::vector<int>(w, w + 3);
 }
 
-#endif // MAZELIB
+#endif // MAZE_LIB
