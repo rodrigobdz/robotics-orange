@@ -33,7 +33,6 @@ class BasicMovements
     }
 
     void stop();
-    bool move(float desiredVelocity, float desiredTurningVelocity);
     bool drive(float distanceInMeters, float speed = DEFAULT_SPEED);
     bool rotate(float angleInDegrees, float speed = DEFAULT_SPEED);
 
@@ -68,6 +67,7 @@ class BasicMovements
     std::vector<float> ranges;
     float leftEncoder, rightEncoder;
 
+    bool move(float desiredVelocity, float desiredTurningVelocity);
     void encoderCallback(const create_fundamentals::SensorPacket::ConstPtr& msg);
     void laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg);
     void initialiseEncoder();
