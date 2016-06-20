@@ -184,15 +184,16 @@ bool BasicMovements::driveWall(float distanceInMeters, float speed)
             float wallAngle = nearestWall.getAngleInRadians();
             float wallDistance = nearestWall.getDistanceInMeters();
 
-            float distanceCorrectur;
-            float angleCorrectur;
+            float distanceCorrection;
+            float angleCorrection;
+            float slopeOfFunction = 0.625;
 
             if (nearestWall.isLeftWall()) {
-                distanceCorrectur = (0.625 * PI) * wallDistance - PI / 4;
-                angleCorrectur = -tan(2 * wallAngle) * PI / 4;
+                distanceCorrection = (slopeOfFunction * PI) * wallDistance - PI / 4;
+                angleCorrection = -tan(2 * wallAngle) * PI / 4;
             } else if (nearestWall.isRightWall()) {
-                distanceCorrectur = -(0.625 * PI) * wallDistance + PI / 4;
-                angleCorrectur = -tan(2 * wallAngle) * PI / 4;
+                distanceCorrection = -(slopeOfFunction * PI) * wallDistance + PI / 4;
+                angleCorrection = -tan(2 * wallAngle) * PI / 4;
             } else {
                 if (nearestWall.isFrontWall() && wallDistance < SAFETY_DISTANCE) {
                     // Robot recognized an obstacle, distance could not be completed
@@ -201,16 +202,16 @@ bool BasicMovements::driveWall(float distanceInMeters, float speed)
                 }
             }
             // Just angle
-            // float vLeft = 1 / RAD_RADIUS * (angleCorrectur * ROB_BASE / 2);
-            // float vRight = 1 / RAD_RADIUS * (-angleCorrectur * ROB_BASE / 2);
+            // float vLeft = 1 / RAD_RADIUS * (angleCorrection * ROB_BASE / 2);
+            // float vRight = 1 / RAD_RADIUS * (-angleCorrection * ROB_BASE / 2);
             // Just distance
-            // float vLeft = 1 / RAD_RADIUS * (-distanceCorrectur * ROB_BASE / 2);
-            // float vRight = 1 / RAD_RADIUS * (distanceCorrectur * ROB_BASE / 2);
+            // float vLeft = 1 / RAD_RADIUS * (-distanceCorrection * ROB_BASE / 2);
+            // float vRight = 1 / RAD_RADIUS * (distanceCorrection * ROB_BASE / 2);
 
-            float vLeft = 1 / RAD_RADIUS * (0.2 + (angleCorrectur - distanceCorrectur) * ROB_BASE / 2);
-            float vRight = 1 / RAD_RADIUS * (0.2 + (-angleCorrectur + distanceCorrectur) * ROB_BASE / 2);
+            float vLeft = 1 / RAD_RADIUS * (0.2 + (angleCorrection - distanceCorrection) * ROB_BASE / 2);
+            float vRight = 1 / RAD_RADIUS * (0.2 + (-angleCorrection + distanceCorrection) * ROB_BASE / 2);
 
-            // ROS_INFO("distanceCorrectur = %f, angleCorrectur = %f", distanceCorrectur, angleCorrectur);
+            // ROS_INFO("distanceCorrection = %f, angleCorrection = %f", distanceCorrection, angleCorrection);
             // ROS_INFO("vLeft = %f, vRight = %f", vLeft, vRight);
 
             diffDriveService.request.left  = vLeft;
