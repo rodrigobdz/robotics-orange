@@ -115,9 +115,8 @@ bool Env::alignToSingleWall(void)
             }
 
             basicMovements.rotate(wall->getAngleInDegrees());
-            r.sleep();
-
             basicMovements.drive(wall->getDistanceInMeters() - CELL_CENTER);
+            r.sleep();
         }
 
         r.sleep();
