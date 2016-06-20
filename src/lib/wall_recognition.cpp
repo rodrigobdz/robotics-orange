@@ -137,7 +137,7 @@ Wall* WallRecognition::getRightWall(std::vector<Wall*> walls)
     return NULL;
 }
 
-Wall* Ransac::getNearestWall(std::vector<Wall*> walls)
+Wall* WallRecognition::getNearestWall(std::vector<Wall*> walls)
 {
     Wall* nearestWall = NULL;
     float smallestDistance = 100;

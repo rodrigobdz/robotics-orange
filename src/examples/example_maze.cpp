@@ -1,6 +1,12 @@
 #include "ros/ros.h"
 #include <maze.cpp>
-#include <cell.cpp>
+// #include <cell.cpp>
+
+#include "orange_fundamentals/Grid.h"
+#include "orange_fundamentals/Cell.h"
+#include "orange_fundamentals/Row.h"
+
+using namespace orange_fundamentals;
 
 int main(int argc, char **argv)
 {
@@ -11,16 +17,12 @@ int main(int argc, char **argv)
   // Cell[] cells1 = new Cell[1];
   // cells1[1] = walls1_1;
 
-  // vector<Row> rows = new vector<Row>;
-
-
-
   Maze maze;
+  ROS_INFO("Test");
 
-  maze.parseMap();
-
-  Cell[][] map = maze.getMap();
-  ROS_INFO("Map[0][0] = true = %d", map[0][0].isRight());
+  std::vector<Row> rows = maze.getMap();
+  std::vector<orange_fundamentals::Cell> cells = rows[1].cells;
+  ROS_INFO("Map[0][0] = true = %lu", cells.size());
 
   // maze.parseMap();
 

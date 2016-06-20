@@ -4,30 +4,25 @@
 // Needed includes for this library to work
 #include "ros/ros.h"
 #include <cstdlib>
-#include "create_fundamentals/DiffDrive.h"
-#include "create_fundamentals/SensorPacket.h"
-#include "sensor_msgs/LaserScan.h"
-#include "create_fundamentals/ResetEncoders.h"
 #include <constants.cpp>
 #include <wall_recognition.cpp>
-#include <math.h>
 #include "basic_movements.cpp"
-#include <Cell.cpp>
+//#include <cell.cpp>
 
 #include "orange_fundamentals/Grid.h"
 #include "orange_fundamentals/Cell.h"
 #include "orange_fundamentals/Row.h"
 
-
-#define DEBUG true
+using namespace orange_fundamentals;
 
 class Maze
 {
   public:
-    Maze() {
+    Maze()
+    {
         // TODO This function needs to list to the map topic and retrieve it
         parseMap();
-        localize();
+        // localize();
     }
 
     // TODO Need better name to differ from real move to theoretically move
@@ -36,39 +31,43 @@ class Maze
     void moveOnMap();
     // TODO Better generic name for left
     // Boolean to differ between right and left turn
+    std::vector<Row> getMap();
     void turnOnMap(bool left);
 
     void localize();
-    //TODO Implement getPosition
-    //Position getPosition();
+    // TODO Implement getPosition
+    // Position getPosition();
 
   private:
     // TODO Implement position class, maybe connect with cell
     // Position robot;
+    std::vector<Row> rows;
 
     // get map from
     void parseMap();
 
     std::vector<int> scanCurrentCell();
 
+    ros::NodeHandle n;
+
     // wallpattern getWallPattern(std::vector<int> walls);
-    std::string     wallsToString(std::vector<int> v);
-    bool            filter90d(const Wall* w);
-    bool            contains(std::vector<int> v, int e);
+    std::string wallsToString(std::vector<int> v);
+    bool filter90d(const Wall* w);
+    bool contains(std::vector<int> v, int e);
     std::vector<int> scanCurrentCell_test();
     void mapCallback(const Grid::ConstPtr& msg);
 };
 
 // update the global @rows vector
-void Maze::mapCallback(const Grid::ConstPtr& msg) { rows = msg->rows; }
-
-
-
-void Maze::getMap()
+void Maze::mapCallback(const Grid::ConstPtr& msg)
 {
-
+    rows = msg->rows;
 }
 
+std::vector<Row> Maze::getMap()
+{
+    return rows;
+}
 
 /**
  *  TODO needs refactoring
@@ -77,11 +76,13 @@ void Maze::getMap()
 void Maze::parseMap()
 {
     // get map from service
-    ros::init(argc, argv, "initialize parse map");
-    ros::NodeHandle n;
-    
+
     ros::Subscriber map;
-    map = n.subscribe("map", 1, &mapCallback);
+    map = n.subscribe("map", 1, &Maze::mapCallback, this);
+    while(rows.size() == 0){
+        ros::spinOnce();
+    }
+    return;
 
     // if (rows.empty()) {
     //     if (DEBUG) { ROS_INFO("parseMap: Error - rows vector is empty"); }
@@ -94,28 +95,16 @@ void Maze::parseMap()
     // if (DEBUG) {
     //     ROS_INFO("parseMap: READ IN THE CURRENT MAP");
     // }
-        
+
     // // matrix[i][j]
     // for (int i = 0; i < rows.size(); i++) {
     //     cells = rows[i];
     //     for (int j = 0; j < cells.size(); j++) {
     //         walls = cells[j];
 
-
     //     }
-        
+
     // }
-
-
-    laserSubscriber     = n.subscribe("scan_filtered", 1, &BasicMovements::laserCallback, this);
-
-
-
-    return;
-
-
-
-
 
     // for (std::vector<Row>::iterator irow = rows.begin(); irow != rows.end(); ++irow) {
     //     x = (x + 1) % DIMENSION; // increment row index
@@ -139,50 +128,6 @@ void Maze::parseMap()
     //     }
     // }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // /**
 //  *  Returns the current position of the robot.
@@ -337,7 +282,8 @@ void Maze::parseMap()
 //                 std::sort(ipos_w.begin(), ipos_w.end());
 
 //                 if (DEBUG)
-//                     ROS_INFO("localize: -->r curr_w: %s|%c", wallsToString(ipos_w).c_str(), directions_lookup[ipos_o]);
+//                     ROS_INFO("localize: -->r curr_w: %s|%c", wallsToString(ipos_w).c_str(),
+//                     directions_lookup[ipos_o]);
 //             }
 //         } // end iterator over positions
 

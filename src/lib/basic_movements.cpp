@@ -170,7 +170,7 @@ bool BasicMovements::driveWall(float distanceInMeters, float speed)
             move(0.2, 0);
         } else {
             // Search for nearest wall
-            Wall* nearestWall = ransac.getNearestWall(walls);
+            Wall* nearestWall = wall_recognition.getNearestWall(walls);
 
             float wallAngle = nearestWall->getAngleInRadians();
             float wallDistance = nearestWall->getDistanceInMeters();
