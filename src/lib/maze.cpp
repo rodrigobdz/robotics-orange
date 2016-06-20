@@ -275,7 +275,7 @@ int* localize(void)
         std::for_each(pos.begin(), pos.end(), move);
 
 #if 1 // really move the robot
-        bm.driveWall(0.8);
+        bm.driveWall(CELL_LENGTH);
 #endif
 
         first_run = false;

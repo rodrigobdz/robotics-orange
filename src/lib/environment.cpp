@@ -13,7 +13,7 @@ class Env
     Env()
     {
         // Initialize ranges
-        ranges = *(new std::vector<float>(512));
+        ranges = *(new std::vector<float>(LASER_COUNT));
         // Subscribe to filtered laser scan
         laser = nh.subscribe("scan_filtered", 1, &Env::laserCallback, this);
     }
@@ -26,7 +26,6 @@ class Env
     std::vector<float> ranges;
     std::vector<Wall*> walls;
     bool DEBUG = true;
-    int ENVIRONMENT_SPEED = 5; 
 
     // External libraries
     BasicMovements basicMovements;
@@ -52,13 +51,13 @@ bool Env::align(void)
         }
 
         // Drive until wall in sight
-        basicMovements.drive(0.5, ENVIRONMENT_SPEED);
+        basicMovements.drive(0.5);
     }
 
     if (ransac.hasLeftWall()) {
-        basicMovements.rotate(90, ENVIRONMENT_SPEED);
+        basicMovements.rotateLeft();
     } else {
-        basicMovements.rotate(-90, ENVIRONMENT_SPEED);
+        basicMovements.rotateRight();
     }
     
     // align to second wall
@@ -67,7 +66,7 @@ bool Env::align(void)
             alignToSingleWall();
             break;
         }
-        basicMovements.driveWall(0.5, ENVIRONMENT_SPEED);
+        basicMovements.driveWall(0.5);
     }
 
     return true;
@@ -108,10 +107,10 @@ bool Env::alignToSingleWall(void)
                 break;
             }
 
-            basicMovements.rotate(wall->getAngleInDegrees(), ENVIRONMENT_SPEED);
+            basicMovements.rotate(wall->getAngleInDegrees());
             r.sleep();            
 
-            basicMovements.drive(wall->getDistanceInMeters() - CELL_CENTER, ENVIRONMENT_SPEED);
+            basicMovements.drive(wall->getDistanceInMeters() - CELL_CENTER);
         }
 
         r.sleep();

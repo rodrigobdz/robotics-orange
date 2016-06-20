@@ -35,16 +35,15 @@ class BasicMovements
     void stop();
     bool drive(float distanceInMeters, float speed = DEFAULT_SPEED);
     bool rotate(float angleInDegrees, float speed = DEFAULT_SPEED);
-    bool rotateLeft();
-    bool rotateRight();
-    bool rotateBackwards();
+    bool rotateLeft(float speed = DEFAULT_SPEED);
+    bool rotateRight(float speed = DEFAULT_SPEED);
+    bool rotateBackwards(float speed = DEFAULT_SPEED);
 
     bool driveWall(float distanceInMeters, float speed = DEFAULT_SPEED);
     bool turnLeft();
     bool turnRight();
 
   private:
-    static constexpr float DEFAULT_SPEED = 5;
     static const bool DETECT_OBSTACLES   = true;
     static const bool DEBUG              = false; // Defines if output should be printed
     static const bool CALLBACK_DEBUG     = false; // Decide to print output from callbacks
@@ -267,19 +266,19 @@ bool BasicMovements::rotate(float angleInDegrees, float speed)
     return false;
 }
 
-bool BasicMovements::rotateLeft()
+bool BasicMovements::rotateLeft(float speed = DEFAULT_SPEED)
 {
-    return rotate(90);
+    return rotate(90, speed);
 }
 
-bool BasicMovements::rotateRight()
+bool BasicMovements::rotateRight(float speed = DEFAULT_SPEED)
 {
-    return rotate(-90);
+    return rotate(-90, speed);
 }
 
-bool BasicMovements::rotateBackwards()
+bool BasicMovements::rotateBackwards(float speed = DEFAULT_SPEED)
 {
-    return rotate(180);
+    return rotate(180, speed);
 }
 
 /*
