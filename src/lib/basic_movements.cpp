@@ -9,8 +9,12 @@
 #include "sensor_msgs/LaserScan.h"
 #include "create_fundamentals/ResetEncoders.h"
 #include <constants.cpp>
+<<<<<<< HEAD
 #include <ransac.cpp>
 #include <wall.cpp>
+=======
+#include <wall_recognition.cpp>
+>>>>>>> master
 #include <math.h>
 
 class BasicMovements
@@ -64,8 +68,8 @@ class BasicMovements
     // Laser
     ros::Subscriber laserSubscriber;
 
-    // Ransac
-    Ransac ransac;
+    // WallRecognition
+    WallRecognition wall_recognition;
 
     std::vector<float> ranges;
     float leftEncoder, rightEncoder;
@@ -165,7 +169,7 @@ bool BasicMovements::driveWall(float distanceInMeters, float speed)
 
     while (fabs(wishRightEncoder - rightEncoder) > 1) {
         ros::spinOnce();
-        walls = ransac.getWalls();
+        walls = wall_recognition.getWalls();
 
         if (walls.size() == 0) { // Drive forward
             move(0.2, 0);
@@ -176,15 +180,16 @@ bool BasicMovements::driveWall(float distanceInMeters, float speed)
             float wallAngle = nearestWall->getAngleInRadians();
             float wallDistance = nearestWall->getDistanceInMeters();
 
-            float distanceCorrectur;
-            float angleCorrectur;
+            float distanceCorrection;
+            float angleCorrection;
+            float slopeOfFunction = 0.625;
 
             if (nearestWall->isLeftWall()) {
-                distanceCorrectur = (0.625 * PI) * wallDistance - PI / 4;
-                angleCorrectur = -tan(2 * wallAngle) * PI / 4;
+                distanceCorrection = (slopeOfFunction * PI) * wallDistance - PI / 4;
+                angleCorrection = -tan(2 * wallAngle) * PI / 4;
             } else if (nearestWall->isRightWall()) {
-                distanceCorrectur = -(0.625 * PI) * wallDistance + PI / 4;
-                angleCorrectur = -tan(2 * wallAngle) * PI / 4;
+                distanceCorrection = -(slopeOfFunction * PI) * wallDistance + PI / 4;
+                angleCorrection = -tan(2 * wallAngle) * PI / 4;
             } else {
                 if (nearestWall->isFrontWall() && wallDistance < SAFETY_DISTANCE) {
                     // Robot recognized an obstacle, distance could not be completed
@@ -193,8 +198,8 @@ bool BasicMovements::driveWall(float distanceInMeters, float speed)
                 }
             }
 
-            float vLeft = 1 / RAD_RADIUS * (0.2 + (angleCorrectur - distanceCorrectur) * ROB_BASE / 2);
-            float vRight = 1 / RAD_RADIUS * (0.2 + (-angleCorrectur + distanceCorrectur) * ROB_BASE / 2);
+            float vLeft = 1 / RAD_RADIUS * (0.2 + (angleCorrection - distanceCorrection) * ROB_BASE / 2);
+            float vRight = 1 / RAD_RADIUS * (0.2 + (-angleCorrection + distanceCorrection) * ROB_BASE / 2);
 
             diffDriveService.request.left  = vLeft;
             diffDriveService.request.right = vRight;

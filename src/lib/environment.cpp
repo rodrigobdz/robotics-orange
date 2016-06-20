@@ -4,7 +4,7 @@
 #include "ros/ros.h"
 #include "create_fundamentals/SensorPacket.h"
 #include <basic_movements.cpp>
-#include <ransac.cpp>
+#include <wall_recognition.cpp>
 #include <wall.cpp>
 
 class Env
@@ -29,7 +29,7 @@ class Env
 
     // External libraries
     BasicMovements basicMovements;
-    Ransac ransac;
+    WallRecognition wall_recognition;
 
     // Private functions
     bool alignToSingleWall(void);
@@ -42,7 +42,7 @@ bool Env::align(void)
     int countWalls = 0;
     // align to first wall
     while (ros::ok()) {
-        walls = ransac.getWalls();
+        walls = wall_recognition.getWalls();
         countWalls = walls.size();
 
         if (countWalls > 0) {
@@ -118,11 +118,11 @@ bool Env::alignToSingleWall(void)
     return true;
 }
 
-/* Call ransac.getWalls for a fresh set of collected walls.
+/* Call wall_recognition.getWalls for a fresh set of collected walls.
    Return the wall which most direct in front of the robot. */
 Wall* Env::getClosestWallInFront(void)
 {
-    walls = ransac.getWalls();
+    walls = wall_recognition.getWalls();
     int countWalls = walls.size();
     if (countWalls == 0) {
         return NULL;

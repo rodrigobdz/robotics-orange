@@ -1,5 +1,5 @@
-#ifndef RANSAC_LIB
-#define RANSAC_LIB
+#ifndef WALL_RECOGNITION_LIB
+#define WALL_RECOGNITION_LIB
 
 #include "ros/ros.h"
 #include "create_fundamentals/SensorPacket.h"
@@ -7,13 +7,13 @@
 #include <wall.cpp>
 #include <constants.cpp>
 
-class Ransac
+class WallRecognition
 {
   public:
-    Ransac()
+    WallRecognition()
     {
         // Set up laser callback
-        laserSubscriber = n.subscribe("scan_filtered", 1, &Ransac::laserCallback, this);
+        laserSubscriber = n.subscribe("scan_filtered", 1, &WallRecognition::laserCallback, this);
 
         ranges = *(new std::vector<float>(LASER_COUNT));
         srand(time(NULL));
@@ -48,11 +48,11 @@ class Ransac
     void initialiseLaser();
     void laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg);
 }; /* *
- * Recognize walls with ransac
+ * Recognize walls with wall_recognition
  *
  * Returns: two points that represent a wall {point1x, point1y, point2x, point2y}
  * */
-std::vector<Wall*> Ransac::getWalls()
+std::vector<Wall*> WallRecognition::getWalls()
 {
     std::vector<Wall*> walls;
 
@@ -107,7 +107,7 @@ std::vector<Wall*> Ransac::getWalls()
     return walls;
 }
 
-Wall* Ransac::getLeftWall(std::vector<Wall*> walls)
+Wall* WallRecognition::getLeftWall(std::vector<Wall*> walls)
 {
     for (int i = 0; i < walls.size(); ++i) {
         if (walls[i]->isLeftWall()) {
@@ -117,7 +117,7 @@ Wall* Ransac::getLeftWall(std::vector<Wall*> walls)
     return NULL;
 }
 
-Wall* Ransac::getFrontWall(std::vector<Wall*> walls)
+Wall* WallRecognition::getFrontWall(std::vector<Wall*> walls)
 {
     for (int i = 0; i < walls.size(); ++i) {
         if (walls[i]->isFrontWall()) {
@@ -127,7 +127,7 @@ Wall* Ransac::getFrontWall(std::vector<Wall*> walls)
     return NULL;
 }
 
-Wall* Ransac::getRightWall(std::vector<Wall*> walls)
+Wall* WallRecognition::getRightWall(std::vector<Wall*> walls)
 {
     for (int i = 0; i < walls.size(); ++i) {
         if (walls[i]->isRightWall()) {
@@ -159,7 +159,7 @@ Wall* Ransac::getNearestWall(std::vector<Wall*> walls)
  *
  * Returns: x coordinate in robot coordinate system
  **/
-float Ransac::calculateX(float angleInRadians, float distanceInMeters)
+float WallRecognition::calculateX(float angleInRadians, float distanceInMeters)
 {
     return distanceInMeters * cos(angleInRadians);
 }
@@ -170,7 +170,7 @@ float Ransac::calculateX(float angleInRadians, float distanceInMeters)
  *
  * Returns: y coordinate in robot coordinate system
  **/
-float Ransac::calculateY(float angleInRadians, float distanceInMeters)
+float WallRecognition::calculateY(float angleInRadians, float distanceInMeters)
 {
     return distanceInMeters * sin(angleInRadians);
 }
@@ -180,7 +180,7 @@ float Ransac::calculateY(float angleInRadians, float distanceInMeters)
  *
  * Return: Number of matches
  */
-std::vector<int> Ransac::getMatches(float wallX1, float wallY1, float wallX2, float wallY2)
+std::vector<int> WallRecognition::getMatches(float wallX1, float wallY1, float wallX2, float wallY2)
 {
     std::vector<int> matches;
     float angleInRadians;
@@ -219,7 +219,7 @@ std::vector<int> Ransac::getMatches(float wallX1, float wallY1, float wallX2, fl
 /*
  * Calculates coordinates from a random points from the ranges.
  */
-std::pair<float, float> Ransac::getRandomXYCoords()
+std::pair<float, float> WallRecognition::getRandomXYCoords()
 {
     int randomNumber = rand() % ranges.size() - 1;
 
@@ -239,9 +239,11 @@ std::pair<float, float> Ransac::getRandomXYCoords()
     return std::pair<float, float>(calculateX(angleInRadians, a), calculateY(angleInRadians, a));
 }
 
-void Ransac::laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg) { ranges = msg->ranges; }
+/********************** HELPERS *****************************/
 
-void Ransac::initialiseLaser()
+void WallRecognition::laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg) { ranges = msg->ranges; }
+
+void WallRecognition::initialiseLaser()
 {
     ranges[0] = -1;
     ros::spinOnce();
@@ -251,7 +253,7 @@ void Ransac::initialiseLaser()
     }
 }
 
-void Ransac::bubbleSort(std::vector<Wall*>& a)
+void WallRecognition::bubbleSort(std::vector<Wall*>& a)
 {
     bool swapp = true;
     Wall* tmp;

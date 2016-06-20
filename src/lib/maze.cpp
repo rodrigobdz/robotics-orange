@@ -9,7 +9,7 @@
 #include "sensor_msgs/LaserScan.h"
 #include "create_fundamentals/ResetEncoders.h"
 #include <constants.cpp>
-#include <ransac.cpp>
+#include <wall_recognition.cpp>
 #include <math.h>
 #include "basic_movements.cpp"
 #include <Cell.cpp>
@@ -118,7 +118,7 @@ void parseMap(std::vector<Row> rows)
 
 std::vector<int> scanCurrentCell(void)
 {
-    Ransac rs;
+    WallRecognition rs;
     BasicMovements bm;
     std::vector<int> walls;
     int orientation = (int)TOP;
