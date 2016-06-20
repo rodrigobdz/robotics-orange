@@ -242,7 +242,7 @@ bool BasicMovements::rotate(float angleInDegrees, float speed)
         }
 
         if (fabs((wishLeftEncoder - leftEncoder)) < 0.1) {
-            if(DEBUG) {
+            if (DEBUG) {
                 ROS_INFO("Perfect Angle");
             }
             stop();

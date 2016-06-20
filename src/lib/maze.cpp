@@ -1,5 +1,5 @@
-#ifndef MAZELIB
-#define MAZELIB
+#ifndef MAZE_LIB
+#define MAZE_LIB
 
 // Needed includes for this library to work
 #include "ros/ros.h"
@@ -27,7 +27,6 @@ class Maze
     Maze() {
         // TODO This function needs to list to the map topic and retrieve it
         parseMap();
-        deepCopyMap();
         localize();
     }
 
@@ -40,22 +39,17 @@ class Maze
     void turnOnMap(bool left);
 
     void localize();
-
     //TODO Implement getPosition
     //Position getPosition();
 
   private:
-    Cell[][] originalMap;
-
-
-    Cell[][][] copiedMap; // TODO Implement deepCopyMap to copy given map
+    Cell[][] Map;
 
     // TODO Implement position class, maybe connect with cell
     Position robot;
 
     // get map from
     void parseMap();
-
 
     std::vector<int> scanCurrentCell();
 
@@ -66,39 +60,13 @@ class Maze
     std::vector<int> scanCurrentCell_test();
 };
 
-void deepCopyMap()
-{
-
-}
-
-
-
-
-
-/**
- *  Returns the current position of the robot.
- * */
-Position getPosition(){
-    return;
-}
-
-void turnOnMap(bool left){
-    return;
-
-}
-
-// global pointer to the current map
-std::vector<Row> rows;
-
-// update the global @rows vector
-void mapCallback(const Grid::ConstPtr& msg) { rows = msg->rows; }
-
 /**
  *  TODO needs refactoring
  *  Builds up the local representation of the maze
  * */
 void parseMap(std::vector<Row> rows)
 {
+    // get map from service
     ros::init(argc, argv, "initialize parse map");
     ros::NodeHandle n;
     
@@ -106,17 +74,31 @@ void parseMap(std::vector<Row> rows)
     map = nh.subscribe("map", 1, &mapCallback);
 
     if (rows.empty()) {
-        if (DEBUG)
-            ROS_INFO("parseMap: Error - rows vector is empty");
+        if (DEBUG) { ROS_INFO("parseMap: Error - rows vector is empty"); }
         return;
     }
 
-    int x = -1, y = -1;
-    std::vector<Cell> cells;
+    std::vector<Cell> column;
     std::vector<int> walls;
 
-    if (DEBUG)
+    if (DEBUG) {
         ROS_INFO("parseMap: READ IN THE CURRENT MAP");
+    }
+        
+    // matrix[i][j]
+    for (int i = 0; i < rows.size(); i++) {
+        column = rows[i];
+        for (int j = 0; j < column.size(); j++) {
+            walls = column[j];
+
+
+        }
+        
+    }
+
+
+
+
 
     for (std::vector<Row>::iterator irow = rows.begin(); irow != rows.end(); ++irow) {
         x = (x + 1) % DIMENSION; // increment row index
@@ -140,6 +122,68 @@ void parseMap(std::vector<Row> rows)
         }
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/**
+ *  Returns the current position of the robot.
+ * */
+Position getPosition(){
+    return position;
+}
+
+void turnOnMap(bool left){
+    return;
+
+}
+
+// global pointer to the current map
+std::vector<Row> rows;
+
+// update the global @rows vector
+void mapCallback(const Grid::ConstPtr& msg) { rows = msg->rows; }
 
 std::vector<int> scanCurrentCell(void)
 {
