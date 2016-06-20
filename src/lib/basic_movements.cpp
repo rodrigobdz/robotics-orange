@@ -267,17 +267,17 @@ bool BasicMovements::rotate(float angleInDegrees, float speed)
     return false;
 }
 
-bool BasicMovements::rotateLeft(float speed = DEFAULT_SPEED) 
+bool BasicMovements::rotateLeft(float speed) 
 {
     return rotate(90, speed);
 }
 
-bool BasicMovements::rotateRight(float speed = DEFAULT_SPEED) 
+bool BasicMovements::rotateRight(float speed) 
 {
     return rotate(-90, speed);
 }
 
-bool BasicMovements::rotateBackwards(float speed = DEFAULT_SPEED) 
+bool BasicMovements::rotateBackwards(float speed) 
 {
     return rotate(180, speed);
 }
