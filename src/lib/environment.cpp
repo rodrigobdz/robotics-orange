@@ -28,7 +28,7 @@ class Env
     bool DEBUG = true;
 
     // External libraries
-    BasicMovements basicMovements;
+    BasicMovements basic_movements;
     WallRecognition wall_recognition;
 
     // Private functions
@@ -51,13 +51,13 @@ bool Env::align(void)
         }
 
         // Drive until wall in sight
-        basicMovements.drive(0.5);
+        basic_movements.drive(0.5);
     }
 
     if (wall_recognition.hasLeftWall()) {
-        basicMovements.rotateLeft();
+        basic_movements.rotateLeft();
     } else {
-        basicMovements.rotateRight();
+        basic_movements.rotateRight();
     }
     
     // align to second wall
@@ -66,7 +66,7 @@ bool Env::align(void)
             alignToSingleWall();
             break;
         }
-        basicMovements.driveWall(0.5);
+        basic_movements.driveWall(0.5);
     }
 
     return true;
@@ -107,10 +107,10 @@ bool Env::alignToSingleWall(void)
                 break;
             }
 
-            basicMovements.rotate(wall->getAngleInDegrees());
+            basic_movements.rotate(wall->getAngleInDegrees());
             r.sleep();            
 
-            basicMovements.drive(wall->getDistanceInMeters() - CELL_CENTER);
+            basic_movements.drive(wall->getDistanceInMeters() - CELL_CENTER);
         }
 
         r.sleep();
