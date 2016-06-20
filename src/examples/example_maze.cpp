@@ -12,7 +12,7 @@ int main(int argc, char** argv)
 {
   ros::init(argc, argv, "example_maze");
   ros::NodeHandle n;
-  ros::Rate r(5);
+  ros::Rate r(LOOP_RATE);
 
   int32[] walls1_1 = [ 0, 1, 2, 3 ];
   ROS_INFO("walls1_1[0] = %i", walls1_1[0];

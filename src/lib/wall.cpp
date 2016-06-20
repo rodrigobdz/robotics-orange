@@ -9,12 +9,12 @@ class Wall
   public:
     Wall(float x1, float y1, float x2, float y2)
     {
-        distance = calcDistanceInMeters(x1, y1, x2, y2);
+        distanceInMeters = calcDistanceInMeters(x1, y1, x2, y2);
         angleInRadians = calcAngleInRadians(x1, y1, x2, y2);
     }
-    Wall(float distance, float angleInRadians) : distance(distance), angleInRadians(angleInRadians) {}
+    Wall(float distanceInMeters, float angleInRadians) : distanceInMeters(distanceInMeters), angleInRadians(angleInRadians) {}
 
-    float getDistanceInMeters() const { return distance; }
+    float getDistanceInMeters() const { return distanceInMeters; }
     float getAngleInRadians() const { return angleInRadians; }
     float getAngleInDegrees() const { return angleInRadians*180/PI; }
 
@@ -23,7 +23,7 @@ class Wall
     bool isFrontWall();
 
   private:
-    float distance;
+    float distanceInMeters;
     float angleInRadians;
 
     float calcDistanceInMeters(float x1, float y1, float x2, float y2);
@@ -39,7 +39,7 @@ class Wall
  * x2, y2: Second point
  * px, py: Point
  *
- * Returns: Calculated distance to point in
+ * Returns: Calculated distance in meters to point in
  *          cartesian coordinate system
  */
 float Wall::calcDistanceInMeters(float x1, float y1, float x2, float y2)

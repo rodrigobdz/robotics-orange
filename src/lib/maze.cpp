@@ -9,7 +9,7 @@
 #include "sensor_msgs/LaserScan.h"
 #include "create_fundamentals/ResetEncoders.h"
 #include <constants.cpp>
-#include <ransac.cpp>
+#include <wall_recognition.cpp>
 #include <math.h>
 #include "basic_movements.cpp"
 #include <Cell.cpp>
@@ -187,7 +187,7 @@ void mapCallback(const Grid::ConstPtr& msg) { rows = msg->rows; }
 
 std::vector<int> scanCurrentCell(void)
 {
-    Ransac rs;
+    WallRecognition rs;
     BasicMovements bm;
     std::vector<int> walls;
     int orientation = (int)TOP;
@@ -204,7 +204,7 @@ std::vector<int> scanCurrentCell(void)
         if (w.size() > 0)
             walls.push_back(TOP);
 
-        bm.rotate(-90);
+        bm.rotateRight();
         ROTATEALL(walls);
     }
 
@@ -217,7 +217,7 @@ std::vector<int> scanCurrentCell(void)
         if (getWallPattern(walls) == end) {
             bool blocked = true;
             while (blocked) {
-                bm.rotate(90);
+                bm.rotateLeft();
                 ROTATEALL(walls);
                 orientation++;
                 if (!(walls.at(TOP) == TOP))
@@ -228,13 +228,13 @@ std::vector<int> scanCurrentCell(void)
         if (getWallPattern(walls) == corner) {
             ROS_INFO("is corner.");
             if (contains(walls, RIGHT)) {
-                bm.rotate(90);
+                bm.rotateLeft();
                 ROTATEALL(walls);
                 ROTATEALL(walls);
                 ROTATEALL(walls);
                 orientation++;
             } else {
-                bm.rotate(-90);
+                bm.rotateRight();
                 ROTATEALL(walls);
                 orientation--;
             }
@@ -242,7 +242,7 @@ std::vector<int> scanCurrentCell(void)
 
         if (getWallPattern(walls) == wall or getWallPattern(walls) == path) {
             ROS_INFO("is wall or path.");
-            bm.rotate(90);
+            bm.rotateLeft();
             ROTATEALL(walls);
             orientation++;
         }
@@ -344,7 +344,7 @@ int* localize(void)
         std::for_each(pos.begin(), pos.end(), move);
 
 #if 1 // really move the robot
-        bm.driveWall(0.8);
+        bm.driveWall(CELL_LENGTH);
 #endif
 
         first_run = false;

@@ -1,7 +1,7 @@
 #include <basic_movements.cpp>
 #include <signal.h>
 #include <constants.cpp>
-#include <ransac.cpp>
+#include <wall_recognition.cpp>
 #include <wall.cpp>
 
 
@@ -16,7 +16,7 @@ int main(int argc, char **argv)
 	ros::init(argc, argv, "example_driveWall");
 
     BasicMovements basicMovements;
-    Ransac ransac;
+    WallRecognition wall_recognition;
 
 	signal(SIGINT, mySigintHandler);
 

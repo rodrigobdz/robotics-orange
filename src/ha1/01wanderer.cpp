@@ -7,11 +7,11 @@
 #define SPEED 10 // target speed of robot (straigt)
 #define RANGE_SIZE 512 // size of laser_msg array
 #define RANGE_MAX 5.6 // maximum measurable range of laserscanner 
-#define SAFETY_DIS 0.15 // distance robot breaks before objects
+#define SAFETY_DISTANCE 0.15 // distance robot breaks before objects
 #define SIDE_OFF 0.00  // on the sides, this constant is substracted
 
 /*Note: Withe these settings, the robot will get stuck in narrow coloirs. 
-If you want to get through tight spaces and risk bumping the wall, we found SIDE_OFF = 0.08 and SAFETY_DIS = 0.13
+If you want to get through tight spaces and risk bumping the wall, we found SIDE_OFF = 0.08 and SAFETY_DISTANCE = 0.13
 to be good values.*/
 
 create_fundamentals::DiffDrive srv;
@@ -89,7 +89,7 @@ int main(int argc, char **argv)
         ros::spinOnce();
         // if robot to close to obstacle, stopp if not stopped, 
         // then (continue) to change direction
-        if (min < SAFETY_DIS)
+        if (min < SAFETY_DISTANCE)
         {
           stop();
           change_direction();
