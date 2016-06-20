@@ -28,15 +28,16 @@ class BasicMovements
         resetEncodersClient = n.serviceClient<create_fundamentals::ResetEncoders>("reset_encoders");
 
         // Initialize minimum range to a default value to be able to stop when obstacle is found
-        laserInitialized = false;
-        encoderInitialized = false;
+        laserInitialized    = false;
+        encoderInitialized  = false;
     }
 
     void stop();
-    bool move(float desiredVelocity, float desiredTurningVelocity);
     bool drive(float distanceInMeters, float speed = DEFAULT_SPEED);
     bool rotate(float angleInDegrees, float speed = DEFAULT_SPEED);
-    bool rotateAbs(float angleInDegrees, float speed = DEFAULT_SPEED);
+    bool rotateLeft();
+    bool rotateRight();
+    bool rotateBackwards();
 
     bool driveWall(float distanceInMeters, float speed = DEFAULT_SPEED);
     bool turnLeft();
@@ -44,10 +45,10 @@ class BasicMovements
 
   private:
     static constexpr float DEFAULT_SPEED = 5;
-    static const bool DETECT_OBSTACLES = true;
-    static const bool DEBUG = false;           // Defines if output should be printed
-    static const bool CALLBACK_DEBUG = false; // Decide to print output from callbacks
-    float minimumRange;                       // Global variable to store minimum distance to object if found
+    static const bool DETECT_OBSTACLES   = true;
+    static const bool DEBUG              = false; // Defines if output should be printed
+    static const bool CALLBACK_DEBUG     = false; // Decide to print output from callbacks
+    float minimumRange;                           // Global variable to store minimum distance to object if found
     bool laserInitialized;
     bool encoderInitialized;
 
@@ -69,6 +70,7 @@ class BasicMovements
     std::vector<float> ranges;
     float leftEncoder, rightEncoder;
 
+    bool move(float desiredVelocity, float desiredTurningVelocity);
     void encoderCallback(const create_fundamentals::SensorPacket::ConstPtr& msg);
     void laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg);
     void initialiseEncoder();
@@ -110,9 +112,9 @@ bool BasicMovements::drive(float distanceInMeters, float speed)
     }
 
     speed = fabs(speed);
-    float sign = distanceInMeters < 0 ? -1 : 1; // Check if speed positive or negative
+    float sign              = distanceInMeters < 0 ? -1 : 1; // Check if speed positive or negative
     float distanceInRadians = distanceInMeters * ONE_METER_IN_RAD;
-    float threshold = fabs(distanceInRadians) - (fabs(distanceInRadians) * 0.025);
+    float threshold         = fabs(distanceInRadians) - (fabs(distanceInRadians) * 0.025);
 
     resetEncoders();
 
@@ -124,7 +126,7 @@ bool BasicMovements::drive(float distanceInMeters, float speed)
             }
 
             // Check if robot is about to crash into something
-            if (minimumRange < SAFETY_DIS) {
+            if (minimumRange < SAFETY_DISTANCE) {
                 // Robot recognized an obstacle, distance could not be completed
                 stop();
                 return false;
@@ -136,7 +138,7 @@ bool BasicMovements::drive(float distanceInMeters, float speed)
             return true;
         }
 
-        diffDriveService.request.left = sign * speed;
+        diffDriveService.request.left  = sign * speed;
         diffDriveService.request.right = sign * speed;
         diffDriveClient.call(diffDriveService);
 
@@ -146,12 +148,17 @@ bool BasicMovements::drive(float distanceInMeters, float speed)
     return false;
 }
 
-
+/*
+ * Drives straight forward keeping distance to the wall and at the
+ * same time aligning to it.
+ *
+ * Returns: false if obstacle was found otherwise true
+**/
 bool BasicMovements::driveWall(float distanceInMeters, float speed)
 {
     initialiseEncoder();
 
-    float wishLeftEncoder = leftEncoder + distanceInMeters / RAD_RADIUS;
+    float wishLeftEncoder  = leftEncoder + distanceInMeters / RAD_RADIUS;
     float wishRightEncoder = rightEncoder + distanceInMeters / RAD_RADIUS;
 
     std::vector<Wall*> walls;
@@ -169,14 +176,14 @@ bool BasicMovements::driveWall(float distanceInMeters, float speed)
             Wall nearestWall(0,0);
 
             for (int i = 0; i < walls.size(); i++) {
-                if (smallestDistance > walls[i]->getDistance()) {
+                if (smallestDistance > walls[i]->getDistanceInMeters()) {
                     nearestWall = *walls[i];
-                    smallestDistance = walls[i]->getDistance();
+                    smallestDistance = walls[i]->getDistanceInMeters();
                 }
             }
 
-            float wallAngle = nearestWall.getAngle();
-            float wallDistance = nearestWall.getDistance();
+            float wallAngle = nearestWall.getAngleInRadians();
+            float wallDistance = nearestWall.getDistanceInMeters();
 
             float distanceCorrectur;
             float angleCorrectur;
@@ -188,7 +195,7 @@ bool BasicMovements::driveWall(float distanceInMeters, float speed)
                 distanceCorrectur = -(0.625 * PI) * wallDistance + PI / 4;
                 angleCorrectur = -tan(2 * wallAngle) * PI / 4;
             } else {
-                if (nearestWall.isFrontWall() && wallDistance < 0.2) {
+                if (nearestWall.isFrontWall() && wallDistance < SAFETY_DISTANCE) {
                     // Robot recognized an obstacle, distance could not be completed
                     stop();
                     return false;
@@ -207,7 +214,7 @@ bool BasicMovements::driveWall(float distanceInMeters, float speed)
             // ROS_INFO("distanceCorrectur = %f, angleCorrectur = %f", distanceCorrectur, angleCorrectur);
             // ROS_INFO("vLeft = %f, vRight = %f", vLeft, vRight);
 
-            diffDriveService.request.left = vLeft;
+            diffDriveService.request.left  = vLeft;
             diffDriveService.request.right = vRight;
 
             diffDriveClient.call(diffDriveService);
@@ -216,25 +223,6 @@ bool BasicMovements::driveWall(float distanceInMeters, float speed)
     move(0, 0);
 
     return true;
-}
-
-/*
- * Rotate the robot corresponding to its local coordinate system.
- * That means the robots face lays is exactly 90 degrees and its
- * righthandside is 0 degrees. So if you 30 degrees to this
- * function, the robot will rotate 60 degrees to the right.
- * */
-bool BasicMovements::rotateAbs(float angleInDegrees, float speed)
-{
-    if (angleInDegrees > 180) {
-        angleInDegrees = 180;
-    }
-
-    if (angleInDegrees < 0) {
-        angleInDegrees = 0;
-    }
-
-    return rotate(angleInDegrees - 90, speed);
 }
 
 /*
@@ -256,10 +244,15 @@ bool BasicMovements::rotate(float angleInDegrees, float speed)
 
     while (ros::ok()) {
         ros::spinOnce();
-        ROS_INFO("leftEncoder %f, wishLeftEncoder %f", leftEncoder, wishLeftEncoder);
+        if(DEBUG) {
+            // ROS_INFO("leftEncoder %f, wishLeftEncoder %f", leftEncoder, wishLeftEncoder);
+            ROS_INFO("fabs((wishLeftEncoder - leftEncoder)) = %f", fabs((wishLeftEncoder - leftEncoder)));
+        }
 
         if (fabs((wishLeftEncoder - leftEncoder)) < 0.1) {
-            ROS_INFO("Perfect Angle");
+            if(DEBUG) {
+                ROS_INFO("Perfect Angle");
+            }
             stop();
             return true;
         }
@@ -298,8 +291,8 @@ bool BasicMovements::turnLeft()
 {
     initialiseEncoder();
 
-    float wishLeftEncoder = leftEncoder + (1 / (RAD_RADIUS * 2)) * (0.8 - ROB_BASE / 2 + ROB_BASE / 2 * PI / 2);
-    float wishRightEncoder = rightEncoder + (1 / (RAD_RADIUS * 2)) * (0.8 - ROB_BASE / 2 - ROB_BASE / 2 * PI / 2);
+    float wishLeftEncoder  = leftEncoder + (1 / (RAD_RADIUS * 2)) * (CELL_LENGTH - ROB_BASE / 2 + ROB_BASE / 2 * PI / 2);
+    float wishRightEncoder = rightEncoder + (1 / (RAD_RADIUS * 2)) * (CELL_LENGTH - ROB_BASE / 2 - ROB_BASE / 2 * PI / 2);
 
     while (ros::ok()) {
         ros::spinOnce();
@@ -309,18 +302,23 @@ bool BasicMovements::turnLeft()
             return true;
         }
 
-        move((0.8 - ROB_BASE / 2) / 3, -PI / 2 / 3);
+        move((CELL_LENGTH - ROB_BASE / 2) / 3, -PI / 2 / 3);
     }
 
     return false;
 }
 
+/*
+ * Turns right around a corner. This is not the same as rotate right.
+ *
+ * Returns: false if obstacle was found otherwise true
+**/
 bool BasicMovements::turnRight()
 {
     initialiseEncoder();
 
-    float wishLeftEncoder = leftEncoder + (1 / (RAD_RADIUS * 2)) * (0.8 - ROB_BASE / 2 + ROB_BASE / 2 * -PI / 2);
-    float wishRightEncoder = rightEncoder + (1 / (RAD_RADIUS * 2)) * (0.8 - ROB_BASE / 2 - ROB_BASE / 2 * -PI / 2);
+    float wishLeftEncoder  = leftEncoder + (1 / (RAD_RADIUS * 2)) * (CELL_LENGTH - ROB_BASE / 2 + ROB_BASE / 2 * -PI / 2);
+    float wishRightEncoder = rightEncoder + (1 / (RAD_RADIUS * 2)) * (CELL_LENGTH - ROB_BASE / 2 - ROB_BASE / 2 * -PI / 2);
 
     while (ros::ok()) {
         ros::spinOnce();
@@ -331,7 +329,7 @@ bool BasicMovements::turnRight()
             return true;
         }
 
-        move((0.8 - ROB_BASE / 2) / 3, PI / 2 / 3);
+        move((CELL_LENGTH - ROB_BASE / 2) / 3, PI / 2 / 3);
     }
 
     return false;
@@ -346,7 +344,7 @@ void BasicMovements::encoderCallback(const create_fundamentals::SensorPacket::Co
     }
 
     encoderInitialized = true;
-    leftEncoder = msg->encoderLeft;
+    leftEncoder  = msg->encoderLeft;
     rightEncoder = msg->encoderRight;
 }
 

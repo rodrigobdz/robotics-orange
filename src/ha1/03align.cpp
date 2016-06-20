@@ -73,8 +73,8 @@ int main(int argc, char** argv)
             basicMovements.drive(0.05);
         } else {
             // Wall was found!
-            ROS_INFO("Angle = %f", walls[0]->getAngle());
-            basicMovements.rotate(walls[0]->getAngle());
+            ROS_INFO("Angle = %f", walls[0]->getAngleInRadians());
+            basicMovements.rotate(walls[0]->getAngleInRadians());
         }
 
         r.sleep();

@@ -9,28 +9,25 @@ class Wall
   public:
     Wall(float x1, float y1, float x2, float y2)
     {
-        distance = calcDistance(x1, y1, x2, y2);
-        angle = calcAngle(x1, y1, x2, y2);
+        distanceInMeters = calcDistanceInMeters(x1, y1, x2, y2);
+        angleInRadians = calcAngleInRadians(x1, y1, x2, y2);
     }
-    Wall(float distanceInMeters, float angleInRadians)
-        : distanceInMeters(distanceInMeters), angleInRadians(angleInRadians)
-    {
-    }
+    Wall(float distanceInMeters, float angleInRadians) : distanceInMeters(distanceInMeters), angleInRadians(angleInRadians) {}
 
     float getDistanceInMeters() const { return distanceInMeters; }
     float getAngleInRadians() const { return angleInRadians; }
-    float getAngleInDegrees() const { return angleInRadians * 180 / PI; }
+    float getAngleInDegrees() const { return angleInRadians*180/PI; }
 
     bool isLeftWall();
     bool isRightWall();
     bool isFrontWall();
 
   private:
-    float distance;
-    float angle;
+    float distanceInMeters;
+    float angleInRadians;
 
-    float calcDistance(float x1, float y1, float x2, float y2);
-    float calcAngle(float x1, float y1, float x2, float y2);
+    float calcDistanceInMeters(float x1, float y1, float x2, float y2);
+    float calcAngleInRadians(float x1, float y1, float x2, float y2);
 };
 
 /*
@@ -38,10 +35,10 @@ class Wall
  * x2, y2: Second point
  * px, py: Point
  *
- * Returns: Calculated distance to point in
+ * Returns: Calculated distance in meters to point in
  *          cartesian coordinate system
  */
-float Wall::calcDistance(float x1, float y1, float x2, float y2)
+float Wall::calcDistanceInMeters(float x1, float y1, float x2, float y2)
 {
     // Variables for Hesse normal form computation
     // from two-point form
@@ -62,7 +59,7 @@ float Wall::calcDistance(float x1, float y1, float x2, float y2)
  *
  * Returns: Angle to wall in radians
  * */
-float Wall::calcAngle(float x1, float y1, float x2, float y2)
+float Wall::calcAngleInRadians(float x1, float y1, float x2, float y2)
 {
     // Line 1
     float m1 = (y2 - y1) / (x2 - x1);
@@ -86,37 +83,24 @@ float Wall::calcAngle(float x1, float y1, float x2, float y2)
     float x = (n2 - n1) / (m1 - m2);
     float y = m1 * x + n1;
 
-    float oldAngle = atan2(y, x);
+    float oldAngleInRadians = atan2(y, x);
 
-    // ROS_INFO("x = %f, y = %f, angle = %f", x, y, newAngle);
+    // ROS_INFO("x = %f, y = %f, angle = %f", x, y, newAngleInRadians);
 
-    float newAngle;
-    if (oldAngle > -PI / 2) {
-        newAngle = oldAngle - PI / 2;
+    float newAngleInRadians;
+    if (oldAngleInRadians > -PI / 2) {
+        newAngleInRadians = oldAngleInRadians - PI / 2;
     } else {
-        newAngle = oldAngle + PI * 3 / 2;
+        newAngleInRadians = oldAngleInRadians + PI * 3 / 2;
     }
 
-    return newAngle;
+    return newAngleInRadians;
 }
 
-bool Wall::isLeftWall()
-{
-    return (angleInRadians > PI / 4 && angleInRadians < 3 * PI / 4);
-} // angle between 45 and 135 degrees
+bool Wall::isLeftWall() { return (angleInRadians > PI / 4 && angleInRadians < 3 * PI / 4); }// angle between 45 and 135 degrees
 
-bool Wall::isRightWall()
-{
-    return (angleInRadians > -3 * PI / 4 && angleInRadians < -PI / 4);
-} // angle between -45 and -135 degrees
+bool Wall::isRightWall() { return (angleInRadians > -3 * PI / 4 && angleInRadians < -PI / 4); } // angle between -45 and -135 degrees
 
-bool Wall::isFrontWall()
-{
-    return (angleInRadians < PI / 4 && angleInRadians > -PI / 4);
-} // angle between -45 and 45 degrees
-
-/////////////////////////////////////////////////////
-////////////////////// Helpers //////////////////////
-/////////////////////////////////////////////////////
+bool Wall::isFrontWall() { return (angleInRadians < PI / 4 && angleInRadians > -PI / 4); } // angle between -45 and 45 degrees
 
 #endif

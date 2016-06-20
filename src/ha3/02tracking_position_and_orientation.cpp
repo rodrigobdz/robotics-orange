@@ -147,7 +147,7 @@ bool executePlanCallback(orange_fundamentals::ExecutePlan::Request& req,
         if(res.success == false) {
             playSongLib.starWars();
             Env env;
-            env.alignToGrid();
+            env.align();
             localize();
             // Prepare for next plan execution with UP orientation
             rotateUP();

@@ -283,7 +283,7 @@ std::vector<int> scanCurrentCell(void)
         // Align the robot to the center of a cell
         // TODO: fix the align function
         // Env env;
-        // env.alignToGrid();
+        // env.align();
 
         ros::Subscriber map;
         map = nh.subscribe("map", 1, &mapCallback);
@@ -318,26 +318,26 @@ std::vector<int> scanCurrentCell(void)
         Ransac rs;
         std::vector<Wall*> w = rs.getWalls();
         for (int i = 0; i < rs.size(); i++) {
-            if (rs[i]->getAngle < 0.1 && rs[i]->getAngle > -0.1) {
+            if (rs[i]->getAngleInRadians < 0.1 && rs[i]->getAngleInRadians > -0.1) {
                 return true;
             }
         }
         return false;
         if (DEBUG)
-            ROS_INFO("filterWall: w.getAngle() = %f", rs->getAngle());
+            ROS_INFO("filterWall: w.getAngleInRadians() = %f", rs->getAngleInRadians());
     }
 
     bool filter90d(const Wall* w)
     {
         if (DEBUG)
-            ROS_INFO("filterWall: w.getAngle() = %f", w->getAngle());
+            ROS_INFO("filterWall: w.getAngleInRadians() = %f", w->getAngleInRadians());
         //  OLD APPROCH, FIXME: delete if the new code is tested
-        // if(w->getAngle() < 0.1 && w->getAngle() > -0.1)
+        // if(w->getAngleInRadians() < 0.1 && w->getAngleInRadians() > -0.1)
         //     return true;
         // else
         //     return false;
 
-        return (w->getAngle() < 0.1 && w->getAngle() > -0.1);
+        return (w->getAngleInRadians() < 0.1 && w->getAngleInRadians() > -0.1);
     }
 
     std::string WallsToString(std::vector<int> v)

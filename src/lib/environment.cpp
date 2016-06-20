@@ -12,91 +12,136 @@ class Env
   public:
     Env()
     {
-        _ranges = *(new std::vector<float>(512));
-        _laser = _nh.subscribe("scan_filtered", 1, &Env::laserCallback, this);
+        // Initialize ranges
+        ranges = *(new std::vector<float>(512));
+        // Subscribe to filtered laser scan
+        laser = nh.subscribe("scan_filtered", 1, &Env::laserCallback, this);
     }
 
-    bool alignToGrid(void);
-    int alignToWall(void);
-    Wall* getWallClosestTo90(void);
-
-    std::vector<Wall*> getWalls(void) { return _ransac.getWalls(); };
+    bool align(void);
 
   private:
-    ros::NodeHandle _nh;
-    ros::Subscriber _laser;
-    std::vector<float> _ranges;
-    std::vector<Wall*> _walls;
+    ros::NodeHandle nh;
+    ros::Subscriber laser;
+    std::vector<float> ranges;
+    std::vector<Wall*> walls;
+    bool DEBUG = true;
+    int ENVIRONMENT_SPEED = 5; 
 
-    BasicMovements _basicMovements;
-    Ransac _ransac;
+    // External libraries
+    BasicMovements basicMovements;
+    Ransac ransac;
 
+    // Private functions
+    bool alignToSingleWall(void);
+    Wall* getClosestWallInFront(void);
     void laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg);
 };
 
-/* Call ransac.getWalls for a fresh set of collected walls.
-   Return the wall which angle is closest to ninety degrees. */
-Wall* Env::getWallClosestTo90(void)
+bool Env::align(void)
 {
-    _walls = getWalls();
-    if (_walls.size() == 0)
-        return NULL;
-
-    Wall* w = _walls[0];
-    for (std::vector<Wall*>::iterator it = _walls.begin(); it != _walls.end(); ++it) {
-        if (fabs((*it)->getAngle() - 90) < fabs(w->getAngle() - 90))
-            w = *it;
-    }
-    return w;
-}
-
-bool Env::alignToGrid(void)
-{
-    ros::Rate r(LOOP_RATE);
-    int aligned = 0;
-
+    int countWalls = 0;
+    // align to first wall
     while (ros::ok()) {
-        _walls = getWalls();
-        if (_walls.size() >= 2) {
-            ROS_INFO("alignToGrid call alignToWall 1.");
-            alignToWall();
-            ROS_INFO("alignToGrid rotate right.");
-            _basicMovements.rotateAbs(0, 2);
-            ROS_INFO("alignToGrid call alignToWall 2.");
-            alignToWall();
-            aligned = 2;
+        walls = ransac.getWalls();
+        countWalls = walls.size();
+
+        if (countWalls > 0) {
+            alignToSingleWall();
+            break;
         }
 
-        if (aligned == 2)
-            break;
-        else
-            r.sleep();
+        // Drive until wall in sight
+        basicMovements.drive(0.5, ENVIRONMENT_SPEED);
     }
+
+    if (ransac.hasLeftWall()) {
+        basicMovements.rotate(90, ENVIRONMENT_SPEED);
+    } else {
+        basicMovements.rotate(-90, ENVIRONMENT_SPEED);
+    }
+    
+    // align to second wall
+    while (ros::ok()) {
+        if (ransac.hasFrontWall()) {
+            alignToSingleWall();
+            break;
+        }
+        basicMovements.driveWall(0.5, ENVIRONMENT_SPEED);
+    }
+
     return true;
 }
 
-int Env::alignToWall(void)
+
+/************************************************************/
+/*                         Helpers                          */
+/************************************************************/
+
+// get robot in correct angle and distance to one wall
+bool Env::alignToSingleWall(void)
 {
     ros::Rate r(LOOP_RATE);
+    Wall* wall;
+    float angleErrorMarginInRadians = 0.2;
     while (ros::ok()) {
-        Wall* wall = getWallClosestTo90();
-        if (wall) {
-            _basicMovements.rotateAbs(wall->getAngle(), 1);
-            r.sleep();
-            _basicMovements.drive(wall->getDistance() - CELL_CENTER, 1);
+        // Check the angle again and leave if its ok
+        // otherwise enter another loop
+        wall = getClosestWallInFront();
 
-            // check the angel again and leave if its ok
-            // otherwise enter another loop
-            wall = getWallClosestTo90();
-            if (fabs(wall->getAngle() - PI/2) < 5)
+        if (wall) {
+            if(DEBUG) {
+                ROS_INFO("Wall angle %f ", wall->getAngleInDegrees());
+            }
+
+            // If angle of wall in front and distance under margin error 
+            // then error acceptable.
+            bool angleIsAcceptable = fabs(wall->getAngleInRadians()) < angleErrorMarginInRadians;
+            bool distanceIsAcceptable = wall->getDistanceInMeters() - CELL_CENTER < 0.1;
+
+            if(DEBUG) {
+                ROS_INFO("Wall distance = %f ",wall->getDistanceInMeters());
+                ROS_INFO("Drive distance %f",wall->getDistanceInMeters() - CELL_CENTER);
+            }
+
+            if (angleIsAcceptable && distanceIsAcceptable) {
                 break;
+            }
+
+            basicMovements.rotate(wall->getAngleInDegrees(), ENVIRONMENT_SPEED);
+            r.sleep();            
+
+            basicMovements.drive(wall->getDistanceInMeters() - CELL_CENTER, ENVIRONMENT_SPEED);
         }
 
         r.sleep();
     }
-    return 0;
+    return true;
 }
 
-void Env::laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg) { _ranges = msg->ranges; }
+/* Call ransac.getWalls for a fresh set of collected walls.
+   Return the wall which most direct in front of the robot. */
+Wall* Env::getClosestWallInFront(void)
+{
+    walls = ransac.getWalls();
+    int countWalls = walls.size();
+    if (countWalls == 0) {
+        return NULL;
+    }
+
+    Wall* wallInFront = walls[0];
+    for (int i = 0; i < countWalls; i++) {
+        if (fabs(walls[i]->getAngleInRadians()) < fabs(wallInFront->getAngleInRadians())) {
+            wallInFront = walls[i];
+        }
+    }
+
+    return wallInFront;
+}
+
+void Env::laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg) 
+{ 
+    ranges = msg->ranges; 
+}
 
 #endif

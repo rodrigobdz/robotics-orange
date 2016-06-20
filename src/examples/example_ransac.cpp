@@ -14,9 +14,9 @@ int main(int argc, char** argv)
         walls = ransac.getWalls();
         ROS_INFO("Found %lu walls", (long unsigned int)walls.size());
         for (int wall = 0; wall < walls.size(); wall++) {
-            ROS_INFO("Distance = %f", walls[wall]->getDistance());
-            ROS_INFO("Angle = %f", walls[wall]->getAngle());
-            //ROS_INFO("wall[i].angle = %f", walls[wall]->getAngle());
+            ROS_INFO("Distance = %f", walls[wall]->getDistanceInMeters());
+            ROS_INFO("Angle = %f", walls[wall]->getAngleInRadians());
+            //ROS_INFO("wall[i].angle = %f", walls[wall]->getAngleInRadians());
         }
         r.sleep();
     }

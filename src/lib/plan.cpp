@@ -1,36 +1,38 @@
-#include "ros/ros.h"
-#include "orange_fundamentals/ExecutePlan.h"
+#ifndef PLAN_LIB
+#define PLAN_LIB
+
+#include <constants.cpp>
 #include <basic_movements.cpp>
-#include <environment.cpp>
 
-enum directions { RIGHT = 0, UP, LEFT, DOWN };
+class Plan
+{
+    public:
+        Plan()
+        {
+        }
+    
+        bool execute(std::vector<int> plan);        
+};
 
-
-bool executePlanCallback(orange_fundamentals::ExecutePlan::Request& req,
-                           orange_fundamentals::ExecutePlan::Response& res)
+bool Plan::execute(std::vector<int> plan) 
 {
     BasicMovements basicMovements;
-    std::vector<int> plan = req.plan;
-    res.success       = true;
     int lastDirection = UP;
 
-
     for (std::vector<int>::iterator it = plan.begin(); it != plan.end(); ++it) {
-
-        ROS_INFO("execute_plan_callback: %d", *it);
         ROS_INFO("Drive in %i, lastDirection = %i", *it, lastDirection);
 
         switch (lastDirection) {
         case RIGHT:
             switch (*it) {
             case UP:
-                basicMovements.rotate(90);
+                basicMovements.rotateLeft();
                 break;
             case LEFT:
-                basicMovements.rotate(180);
+                basicMovements.rotateBackwards();
                 break;
             case DOWN:
-                basicMovements.rotate(-90);
+                basicMovements.rotateRight();
                 break;
             default:
                 break;
@@ -39,13 +41,13 @@ bool executePlanCallback(orange_fundamentals::ExecutePlan::Request& req,
         case UP:
             switch (*it) {
             case RIGHT:
-                basicMovements.rotate(-90);
+                basicMovements.rotateRight();
                 break;
             case LEFT:
-                basicMovements.rotate(90);
+                basicMovements.rotateLeft();
                 break;
             case DOWN:
-                basicMovements.rotate(180);
+                basicMovements.rotateBackwards();
                 break;
             default:
                 break;
@@ -54,13 +56,13 @@ bool executePlanCallback(orange_fundamentals::ExecutePlan::Request& req,
         case LEFT:
             switch (*it) {
             case RIGHT:
-                basicMovements.rotate(180);
+                basicMovements.rotateBackwards();
                 break;
             case UP:
-                basicMovements.rotate(-90);
+                basicMovements.rotateRight();
                 break;
             case DOWN:
-                basicMovements.rotate(90);
+                basicMovements.rotateLeft();
                 break;
             default:
                 break;
@@ -69,13 +71,13 @@ bool executePlanCallback(orange_fundamentals::ExecutePlan::Request& req,
         case DOWN:
             switch (*it) {
             case RIGHT:
-                basicMovements.rotate(90);
+                basicMovements.rotateLeft();
                 break;
             case UP:
-                basicMovements.rotate(180);
+                basicMovements.rotateBackwards();
                 break;
             case LEFT:
-                basicMovements.rotate(-90);
+                basicMovements.rotateRight();
                 break;
             default:
                 break;
@@ -84,26 +86,11 @@ bool executePlanCallback(orange_fundamentals::ExecutePlan::Request& req,
         default:
             break;
         }
-        basicMovements.driveWall(0.80);
+        basicMovements.driveWall(CELL_LENGTH);
         lastDirection = *it;
     }
 
     return true;
 }
 
-int main(int argc, char** argv)
-{
-    ros::init(argc, argv, "execute_plan_server");
-    ros::NodeHandle nh;
-
-
-    // TODO: align to a cell
-    Env env;
-    env.align();
-
-    ros::ServiceServer service = nh.advertiseService("execute_plan", executePlanCallback);
-    ROS_INFO("ExecutePlan Service is ready.");
-
-    ros::spin();
-    return 0;
-}
+#endif // PLAN_LIB
