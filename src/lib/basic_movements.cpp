@@ -9,7 +9,7 @@
 #include "sensor_msgs/LaserScan.h"
 #include "create_fundamentals/ResetEncoders.h"
 #include <constants.cpp>
-#include <ransac.cpp>
+#include <wall_recognition.cpp>
 #include <math.h>
 
 class BasicMovements
@@ -63,8 +63,8 @@ class BasicMovements
     // Laser
     ros::Subscriber laserSubscriber;
 
-    // Ransac
-    Ransac ransac;
+    // WallRecognition
+    WallRecognition wall_recognition;
 
     std::vector<float> ranges;
     float leftEncoder, rightEncoder;
@@ -164,7 +164,7 @@ bool BasicMovements::driveWall(float distanceInMeters, float speed)
 
     while (fabs(wishRightEncoder - rightEncoder) > 1) {
         ros::spinOnce();
-        walls = ransac.getWalls();
+        walls = wall_recognition.getWalls();
 
         if (walls.size() == 0) { // Drive forward
             move(0.2, 0);

@@ -1,5 +1,5 @@
 #include "ros/ros.h"
-#include <ransac.cpp>
+#include <wall_recognition.cpp>
 #include <visualization_msgs/Marker.h>
 #include <std_msgs/String.h>
 
@@ -8,7 +8,7 @@ int main(int argc, char** argv)
     ros::init(argc, argv, "example_marker");
     ros::NodeHandle n;
 
-    Ransac ransac;
+    WallRecognition wall_recognition;
     std::vector<Wall*> walls;
     ros::Rate r(10);
 
@@ -18,7 +18,7 @@ int main(int argc, char** argv)
     ROS_INFO("Start marker");
 
     //    while (n.ok()) {
-    walls = ransac.getWalls();
+    walls = wall_recognition.getWalls();
     ROS_INFO("Test");
 
     // visualization_msgs::Marker marker;
