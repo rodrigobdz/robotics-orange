@@ -45,6 +45,13 @@ bool Env::align(void)
         walls = wall_recognition.getWalls();
         countWalls = walls.size();
 
+        if (DEBUG) {
+            for (int i = 0; i < countWalls; i++) {
+                float a = walls[i]->getAngleInDegrees();
+                ROS_INFO("Angle %i %f",i , a);
+            }
+        }
+
         if (countWalls > 0) {
             alignToSingleWall();
             break;
@@ -98,7 +105,7 @@ bool Env::alignToSingleWall(void)
             bool angleIsAcceptable = fabs(wall->getAngleInRadians()) < angleErrorMarginInRadians;
             bool distanceIsAcceptable = wall->getDistanceInMeters() - CELL_CENTER < 0.1;
 
-            if(DEBUG) {
+            if (DEBUG) {
                 ROS_INFO("Wall distance = %f ",wall->getDistanceInMeters());
                 ROS_INFO("Drive distance %f",wall->getDistanceInMeters() - CELL_CENTER);
             }

@@ -28,12 +28,9 @@
                      d = (directions) di;          \
   } while (0)
 
-#define ROTATEALL(V) do {                                        \
-                      std::for_each((V).begin(),                 \
-                                    (V).end(),                   \
-                                    [](int &n) { ROTATE_L(n); });\
-                      std::sort((V).begin(), (V).end());         \
-  } while (0)
+#define ROTATEALL(V) (                    \
+    std::for_each((V).begin(), (V).end(), \
+                  [](int &n) { ROTATE_L(n); }))
 
 enum directions { RIGHT = 0, TOP, LEFT, BOTTOM };
 char directions_lookup[] = { 'R', 'T', 'L', 'B' };
