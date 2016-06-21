@@ -54,17 +54,21 @@ include_directories(include ${catkin_INCLUDE_DIRS} src/lib)
                     #            EXAMPLES           #
                     #################################
 
-# add_executable(example_align src/examples/example_align.cpp)
-# target_link_libraries(example_align ${catkin_LIBRARIES})
-# add_dependencies(example_align create_fundamentals_generate_messages_cpp)
+add_executable(example_align src/examples/example_align.cpp)
+target_link_libraries(example_align ${catkin_LIBRARIES})
+add_dependencies(example_align create_fundamentals_generate_messages_cpp)
+
+add_executable(example_drive src/examples/example_drive.cpp)
+target_link_libraries(example_drive ${catkin_LIBRARIES})
+add_dependencies(example_drive create_fundamentals_generate_messages_cpp)
 
 #add_executable(example_plan src/examples/example_plan.cpp)
 #target_link_libraries(example_plan ${catkin_LIBRARIES})
 #add_dependencies(example_plan create_fundamentals_generate_messages_cpp)
 
-add_executable(example_maze src/examples/example_maze.cpp)
-target_link_libraries(example_maze ${catkin_LIBRARIES})
-add_dependencies(example_maze create_fundamentals_generate_messages_cpp)
+# add_executable(example_maze src/examples/example_maze.cpp)
+# target_link_libraries(example_maze ${catkin_LIBRARIES})
+# add_dependencies(example_maze create_fundamentals_generate_messages_cpp)
                     #################################
                     #           HOMEWORKS           #
                     #################################

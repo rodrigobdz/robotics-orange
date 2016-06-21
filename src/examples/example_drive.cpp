@@ -5,5 +5,5 @@ int main(int argc, char** argv)
     ros::init(argc, argv, "example_drive");
 
     BasicMovements basicMovements;
-    basicMovements.drive(2, 10);
+    basicMovements.drive(-0.2, 5);
 }

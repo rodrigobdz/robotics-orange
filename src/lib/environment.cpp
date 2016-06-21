@@ -61,7 +61,7 @@ bool Env::align(void)
         basicMovements.drive(0.5);
     }
 
-    if (ransac.getLeftWall(walls) != NULL) {
+    if (wall_recognition.getLeftWall(walls) != NULL) {
         basicMovements.rotateLeft();
     } else {
         basicMovements.rotateRight();
@@ -69,7 +69,7 @@ bool Env::align(void)
 
     // align to second wall
     while (ros::ok()) {
-        if (ransac.getFrontWall(walls) != NULL) {
+        if (wall_recognition.getFrontWall(walls) != NULL) {
             alignToSingleWall();
             break;
         }
@@ -116,10 +116,7 @@ bool Env::alignToSingleWall(void)
 
             basicMovements.rotate(wall->getAngleInDegrees());
             basicMovements.drive(wall->getDistanceInMeters() - CELL_CENTER);
-            r.sleep();
         }
-
-        r.sleep();
     }
     return true;
 }

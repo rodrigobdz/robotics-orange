@@ -125,11 +125,11 @@ bool BasicMovements::drive(float distanceInMeters, float speed)
             }
 
             // Check if robot is about to crash into something
-            if (minimumRange < SAFETY_DISTANCE) {
-                // Robot recognized an obstacle, distance could not be completed
-                stop();
-                return false;
-            }
+            // if (minimumRange < SAFETY_DISTANCE) {
+            //     // Robot recognized an obstacle, distance could not be completed
+            //     stop();
+            //     return false;
+            // }
         }
 
         if ((sign * leftEncoder) >= threshold || (sign * rightEncoder) >= threshold) {
