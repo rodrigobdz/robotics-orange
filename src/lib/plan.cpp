@@ -7,9 +7,7 @@
 class Plan
 {
     public:
-        Plan()
-        {
-        }
+        Plan(){}
     
         bool execute(std::vector<int> plan);  
 

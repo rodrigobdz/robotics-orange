@@ -16,6 +16,8 @@ class PlaySongLib
         }
 
     void starWars();
+    void failure();
+    void beep();
 
     private:
         ros::NodeHandle n;
@@ -87,6 +89,36 @@ class PlaySongLib
 
         float MEASURE_TIME = (float)(MEASURE)/64;
 };
+
+void PlaySongLib::beep()
+{
+    storeSongService.request.number = 3;
+    storeSongService.request.song = {bes4};
+    storeSong.call(storeSongService);
+
+    playSongService.request.number = 3;
+    playSong.call(playSongService);
+    ros::Duration(MEASURE_TIME*1).sleep();
+}
+
+void PlaySongLib::failure()
+{
+    storeSongService.request.number = 1;
+    storeSongService.request.song = {a4,Q, a4,Q, a4,Q, f4,Ed, c5,S, a4,Q, f4,Ed, c5,S, a4,HALF};
+    storeSong.call(storeSongService);
+
+    storeSongService.request.number = 2;
+    storeSongService.request.song = {e5,Q, e5,Q, e5,Q, f5,Ed, c5,S,aes4,Q, f4,Ed, c5,S, a4,HALF};
+    storeSong.call(storeSongService);
+
+    playSongService.request.number = 1;
+    playSong.call(playSongService);
+    ros::Duration(MEASURE_TIME*2.01).sleep();
+
+    playSongService.request.number = 2;
+    playSong.call(playSongService);
+    ros::Duration(MEASURE_TIME*2.01).sleep();
+}
 
 void PlaySongLib::starWars() 
 {

@@ -9,7 +9,6 @@
 #include <basic_movements.cpp>
 #include <position.cpp>
 #include <environment.cpp>
-#include <play_song.cpp>
 
 #include "orange_fundamentals/Grid.h"
 #include "orange_fundamentals/Cell.h"
@@ -23,7 +22,6 @@ class Maze
     Maze()
     {
         env.align();
-        play_song.testSong();
         parseMap();
         // localize();
     }
@@ -49,7 +47,6 @@ class Maze
     BasicMovements basic_movements;
     WallRecognition wall_recognition;
     Env env;
-    PlaySongLib play_song;
     Position position{0,0,0}; // Position of robot
 
     // keeps map

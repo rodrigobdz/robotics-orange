@@ -54,9 +54,9 @@ include_directories(include ${catkin_INCLUDE_DIRS} src/lib)
                     #            EXAMPLES           #
                     #################################
 
-# add_executable(example_align src/examples/example_align.cpp)
-# target_link_libraries(example_align ${catkin_LIBRARIES})
-# add_dependencies(example_align create_fundamentals_generate_messages_cpp)
+add_executable(example_align src/examples/example_align.cpp)
+target_link_libraries(example_align ${catkin_LIBRARIES})
+add_dependencies(example_align create_fundamentals_generate_messages_cpp)
 
 # add_executable(example_drive src/examples/example_drive.cpp)
 # target_link_libraries(example_drive ${catkin_LIBRARIES})
