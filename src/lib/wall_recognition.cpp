@@ -32,7 +32,7 @@ class WallRecognition
 
   private:
     // Variables
-    const float TRESHOLD = 100;    // Matches that makes  line to wall
+    const float TRESHOLD = 60;    // Matches that makes  line to wall
     const float ITERATIONS = 1000; // Number of iterations from ransac algo.
     const float ERROR = 0.02;      // Difference between line and points
 
