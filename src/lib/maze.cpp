@@ -39,11 +39,9 @@ class Maze
     // void moveOnMap();
 
     std::vector<int> scanCurrentCell();
+    std::vector<int> scanCurrentCellInitial();
 
   private:
-
-    // direction of robot
-    int direction = true;
 
     // Position of robot
     Position *position = new Position(0,0,0);
@@ -61,8 +59,10 @@ class Maze
     ros::NodeHandle n;
     void mapCallback(const Grid::ConstPtr& msg);
 
+    std::vector<Position> initializePositions();
     std::vector<Position> findPossibleCellsInitial();
     std::vector<Position> findPossibleCells();
+
     bool compareWallsInitial(std::vector<int> wallsMaze);
     bool compareWalls(std::vector<int> wallsMaze);
 
@@ -82,12 +82,17 @@ std::vector<Row> Maze::getMap()
 
 void Maze::localize()
 {
-    std::vector<Position> possiblePositions;
+    std::vector<Position> possiblePositions = initializePositions();
+
+    std::vector<int> wallsRobotView = scanCurrentCellInitial();
+
+    possiblePositions = findPossiblePositions(possiblePositions, wallsRobotView);
+
+    // loop solange bis wird nur noch eine possiblePosition haben
+    // vergleiche sicht des roboters mit possiblePosition
+    // possiblePosition wird dezimiert
     
     scanCurrentCell();
-
-    possiblePositions = findPossibleCells();
-
 
 }
 
@@ -115,9 +120,41 @@ void Maze::mapCallback(const Grid::ConstPtr& msg)
     rows = msg->rows;
 }
 
+std::vector<Position> Maze::findPossiblePositions(std::vector<Position> positionsVector, std::vector<int> wallsRobotView) 
+{
+    std::vector<Position> positionsLeft; 
+    return;
+}
+
+std::vector<int> Maze::rotateCellWallsClockwiuse(std::vector<int> wallsRobotView)
+{
+    std::vector<int> newWallView;
+    switch (wallsRobotView.front())
+    {
+        case RIGHT:
+            newWallView.push_back(BOTTOM);
+            break;
+        case UP:
+            newWallView.push_back(RIGHT);
+            break;
+        case LEFT:
+            newWallView.push_back(UP);
+            break;
+        case BOTTOM:
+            newWallView.push_back(LEFT);
+            break;
+         default:
+            break;
+      }
+}
+
 std::vector<Position> Maze::findPossibleCellsInitial()
 {
-    std::vector<Position> possiblePositions;
+    std::vector<Position> possiblePositions = initializePositions();
+    std::vector<int> wallsRobotView = scanCurrentCellInitial();
+
+    compareWalls(possiblePositions, wallsRobotView);
+
     for (int i = 0; i < rows.size(); i++) {
         for (int j = 0; j < rows[i].cells.size(); j++) {
             compareWallsInitial(rows[i].cells[i].walls);
@@ -126,12 +163,27 @@ std::vector<Position> Maze::findPossibleCellsInitial()
     return {*position};
 }
 
+std::vector<Position> Maze::initializePositions()
+{
+    std::vector<Position> positions = new std::vector<Position>();
+    Position position;
+    for(int y = 0; y < rows.size(); y++) {
+        for(int x = 0; x < rows[y].size(); x++) {
+            for(int direction = 0; direction < rows.size(); direction++) {
+                position = new Position(x,y,direction);
+                positions.push_back(position);
+            }
+        }
+    }
+    return positions;
+}
+
 std::vector<Position> Maze::findPossibleCells()
 {
     return {*position};
 }
 
-bool Maze::compareWallsInitial(std::vector<int> wallsMaze) 
+std::vector<int> Maze::scanCurrentCellInitial(std::vector<int> wallsMaze) 
 {
     // walls robot can see
     // std::vector<Wall*> wallsRobotView;
@@ -141,11 +193,13 @@ bool Maze::compareWallsInitial(std::vector<int> wallsMaze)
         wallsRobotView.push_back(BOTTOM);
     }
     basic_movements.rotateBackwards();
-    scanCurrentCell();
-    return false;
+    std::vector<int> currentCell = scanCurrentCell();
+    wallsRobotView.insert(wallsRobotView.end(), currentCell.begin(), currentCell.end());
+    return wallsRobotView;
 }
 
-std::vector<int> Maze::scanCurrentCell() {
+std::vector<int> Maze::scanCurrentCell() 
+{
     std::vector<Wall*> walls = wall_recognition.getWalls();
     std::vector<int> wallsRobotView;
     if (wall_recognition.hasLeftWall(walls)) {
@@ -160,5 +214,10 @@ std::vector<int> Maze::scanCurrentCell() {
     return wallsRobotView;
 
 }
+
+
+
+
+
 
 #endif // MAZE_LIB
