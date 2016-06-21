@@ -22,7 +22,8 @@ int main(int argc, char **argv)
 
   std::vector<Row> rows = maze.getMap();
   std::vector<orange_fundamentals::Cell> cells = rows[1].cells;
-  ROS_INFO("Map[0][0] = true = %lu", cells.size());
+  std::vector<int> walls = cells[0].walls;
+  ROS_INFO("Map[0][0] = true = %lu", walls.size());
 
   // maze.parseMap();
 

@@ -20,9 +20,9 @@ class Position
     int getDirection() { return direction; }
 
   private:
-    bool x = true;
-    bool y = true;
-    bool direction = true;
+    int x = true;
+    int y = true;
+    int direction = true;
 };
 
 #endif
