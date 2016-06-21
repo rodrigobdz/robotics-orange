@@ -6,6 +6,7 @@
 #include <basic_movements.cpp>
 #include <wall_recognition.cpp>
 #include <wall.cpp>
+#include <play_song.cpp>
 
 class Env
 {
@@ -25,11 +26,12 @@ class Env
     ros::Subscriber laser;
     std::vector<float> ranges;
     std::vector<Wall*> walls;
-    bool DEBUG = false;
+    bool DEBUG = true;
 
     // External libraries
     BasicMovements basic_movements;
     WallRecognition wall_recognition;
+    PlaySongLib play_song;
 
     // Private functions
     bool alignToSingleWall(void);
@@ -40,6 +42,7 @@ class Env
 bool Env::align(void)
 {
     int countWalls = 0;
+    bool success = true;
     // align to first wall
     while (ros::ok()) {
         walls = wall_recognition.getWalls();
@@ -58,25 +61,26 @@ bool Env::align(void)
         }
 
         // Drive until wall in sight
-        basic_movements.drive(0.5);
+        success = success && basic_movements.drive(0.5);
     }
 
     if (wall_recognition.hasLeftWall(walls)) {
-        basic_movements.rotateLeft();
+        success = success && basic_movements.rotateLeft();
     } else {
-        basic_movements.rotateRight();
+        success = success && basic_movements.rotateRight();
     }
 
     // align to second wall
     while (ros::ok()) {
         if (wall_recognition.getFrontWall(walls) != NULL) {
-            alignToSingleWall();
+            success = success && alignToSingleWall();
             break;
         }
-        basic_movements.driveWall(0.5);
+        success = success && basic_movements.driveWall(0.5);
     }
 
-    return true;
+    success ? play_song.beep() : play_song.failure();
+    return success;
 }
 
 
@@ -91,6 +95,8 @@ bool Env::alignToSingleWall(void)
     Wall* wall;
     float angleErrorMarginInRadians   = 0.2;
     float distanceErrorMarginInMeters = 0.05;
+    bool success = true;
+
     while (ros::ok()) {
         // Check the angle again and leave if its ok
         // otherwise enter another loop
@@ -118,11 +124,12 @@ bool Env::alignToSingleWall(void)
                 break;
             }
 
-            basic_movements.rotate(wall->getAngleInDegrees());
-            basic_movements.drive(wall->getDistanceInMeters() - CELL_CENTER);
+            success = success && basic_movements.rotate(wall->getAngleInDegrees());
+            success = success && basic_movements.drive(wall->getDistanceInMeters() - CELL_CENTER);
         }
     }
-    return true;
+
+    return success;
 }
 
 /* Call wall_recognition.getWalls for a fresh set of collected walls.
