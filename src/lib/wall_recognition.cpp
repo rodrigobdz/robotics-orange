@@ -15,30 +15,32 @@ class WallRecognition
         // Set up laser callback
         laserSubscriber = n.subscribe("scan_filtered", 1, &WallRecognition::laserCallback, this);
 
-        ranges          = *(new std::vector<float>(LASER_COUNT));
+        ranges = *(new std::vector<float>(LASER_COUNT));
         srand(time(NULL));
     }
 
     std::vector<Wall*> getWalls();
-    bool hasLeftWall();
-    bool hasFrontWall();
-    bool hasRightWall();
+
+    Wall* getLeftWall(std::vector<Wall*> walls);
+    Wall* getFrontWall(std::vector<Wall*> walls);
+    Wall* getRightWall(std::vector<Wall*> walls);
+    bool hasLeftWall(std::vector<Wall*> walls);
+    bool hasFrontWall(std::vector<Wall*> walls);
+    bool hasRightWall(std::vector<Wall*> walls);
+
+    Wall* getNearestWall(std::vector<Wall*> walls);
 
   private:
-    ///////////////////
-    //   Variables   //
-    ///////////////////
-    const float TRESHOLD   = 100;  // Matches that makes  line to wall
-    const float ITERATIONS = 1000; // Number of iterations from wall_recognition algo.
-    const float ERROR      = 0.02; // Difference between line and points
+    // Variables
+    const float TRESHOLD = 60;    // Matches that makes  line to wall
+    const float ITERATIONS = 1000; // Number of iterations from ransac algo.
+    const float ERROR = 0.02;      // Difference between line and points
 
     ros::NodeHandle n;
     ros::Subscriber laserSubscriber;
     std::vector<float> ranges;
 
-    ///////////////////
-    //   Functions   //
-    ///////////////////
+    // Helper
     float calculateX(float angleInRadians, float distanceInMeters);
     float calculateY(float angleInRadians, float distanceInMeters);
     std::vector<int> getMatches(float wallX1, float wallY1, float wallX2, float wallY2);
@@ -61,11 +63,10 @@ std::vector<Wall*> WallRecognition::getWalls()
     initialiseLaser();
 
     // We can maximal acknowledge 3 walls
-    for(int j = 0; j <= 2; j++){
-
+    for (int j = 0; j <= 2; j++) {
         // Variables
         std::vector<int> bestMatches;
-        Wall *bestWall;
+        Wall* bestWall;
 
         for (int i = 0; i < ITERATIONS; ++i) {
             // Get coordiantes of two random selected points
@@ -80,7 +81,7 @@ std::vector<Wall*> WallRecognition::getWalls()
 
             std::vector<int> currentMatches = getMatches(pointA.first, pointA.second, pointB.first, pointB.second);
 
-            if(currentMatches.size() > bestMatches.size()){
+            if (currentMatches.size() > bestMatches.size()) {
                 bestMatches = currentMatches;
                 bestWall = currentWall;
             }
@@ -109,55 +110,82 @@ std::vector<Wall*> WallRecognition::getWalls()
     return walls;
 }
 
-bool WallRecognition::hasLeftWall() 
+Wall* WallRecognition::getLeftWall(std::vector<Wall*> walls)
 {
-    std::vector<Wall*> walls;
-    walls = getWalls();
-    for (int i = 0; i < walls.size(); ++i)
-    {
-        if (walls[i]->isLeftWall()) { return true; }
-    }
-    return false;
-}
-
-bool WallRecognition::hasFrontWall() 
-{
-    std::vector<Wall*> walls;
-    walls = getWalls();
-    for (int i = 0; i < walls.size(); ++i)
-    {
-        if (walls[i]->isFrontWall()) { return true; }
-    }
-    return false;
-}
-
-bool WallRecognition::hasRightWall() 
-{
-    std::vector<Wall*> walls;
-    walls = getWalls();
-    for (int i = 0; i < walls.size(); ++i)
-    {
-        if (walls[i]->isRightWall()) { return true; }
-    }
-    return false;
-}
-
-void WallRecognition::bubbleSort(std::vector<Wall*>& a)
-{
-    bool swapp = true;
-    Wall* tmp;
-    while (swapp) {
-        swapp = false;
-        for (int i = 0; i < a.size() - 1; i++) {
-            if (a[i]->getAngleInRadians() > a[i + 1]->getAngleInRadians()) {
-                tmp = a[i];
-                a[i] = a[i + 1];
-                a[i + 1] = tmp;
-                swapp = true;
-            }
+    for (int i = 0; i < walls.size(); ++i) {
+        if (walls[i]->isLeftWall()) {
+            return walls[i];
         }
     }
+    return NULL;
 }
+
+Wall* WallRecognition::getFrontWall(std::vector<Wall*> walls)
+{
+    for (int i = 0; i < walls.size(); ++i) {
+        if (walls[i]->isFrontWall()) {
+            return walls[i];
+        }
+    }
+    return NULL;
+}
+
+Wall* WallRecognition::getRightWall(std::vector<Wall*> walls)
+{
+    for (int i = 0; i < walls.size(); ++i) {
+        if (walls[i]->isRightWall()) {
+            return walls[i];
+        }
+    }
+    return NULL;
+}
+
+Wall* WallRecognition::getNearestWall(std::vector<Wall*> walls)
+{
+    Wall* nearestWall = NULL;
+    float smallestDistance = 100;
+
+    for (int i = 0; i < walls.size(); i++) {
+        if (smallestDistance > walls[i]->getDistanceInMeters()) {
+            nearestWall = walls[i];
+            smallestDistance = walls[i]->getDistanceInMeters();
+        }
+    }
+    return nearestWall;
+}
+
+bool WallRecognition::hasLeftWall(std::vector<Wall*> walls)
+{
+    for (int i = 0; i < walls.size(); ++i) {
+        if (walls[i]->isLeftWall()) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool WallRecognition::hasFrontWall(std::vector<Wall*> walls)
+{
+    for (int i = 0; i < walls.size(); ++i) {
+        if (walls[i]->isFrontWall()) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool WallRecognition::hasRightWall(std::vector<Wall*> walls)
+{
+    for (int i = 0; i < walls.size(); ++i) {
+        if (walls[i]->isRightWall()) {
+            return true;
+        }
+    }
+    return false;
+}
+
+
+/********************** HELPERS *****************************/
 
 /*
  * angleInRadians: from laser scanner first point to some point
@@ -165,7 +193,10 @@ void WallRecognition::bubbleSort(std::vector<Wall*>& a)
  *
  * Returns: x coordinate in robot coordinate system
  **/
-float WallRecognition::calculateX(float angleInRadians, float distanceInMeters) { return distanceInMeters * cos(angleInRadians); }
+float WallRecognition::calculateX(float angleInRadians, float distanceInMeters)
+{
+    return distanceInMeters * cos(angleInRadians);
+}
 
 /*
  * angleInRadians: from laser scanner first point to some point
@@ -173,7 +204,10 @@ float WallRecognition::calculateX(float angleInRadians, float distanceInMeters) 
  *
  * Returns: y coordinate in robot coordinate system
  **/
-float WallRecognition::calculateY(float angleInRadians, float distanceInMeters) { return distanceInMeters * sin(angleInRadians); }
+float WallRecognition::calculateY(float angleInRadians, float distanceInMeters)
+{
+    return distanceInMeters * sin(angleInRadians);
+}
 
 /*
  * Calculates the matches from given line to points from ranges.
@@ -194,7 +228,6 @@ std::vector<int> WallRecognition::getMatches(float wallX1, float wallY1, float w
     // Iterate point cloud looking for points
     // close enough to current wall
     for (int j = 0; j < LASER_COUNT; j++) {
-
         // Calculate angle to point
         angleInRadians = j * (PI / LASER_COUNT);
         distanceFromRobotToPoint = ranges[j];
@@ -254,4 +287,20 @@ void WallRecognition::initialiseLaser()
     }
 }
 
+void WallRecognition::bubbleSort(std::vector<Wall*>& a)
+{
+    bool swapp = true;
+    Wall* tmp;
+    while (swapp) {
+        swapp = false;
+        for (int i = 0; i < a.size() - 1; i++) {
+            if (a[i]->getAngleInRadians() > a[i + 1]->getAngleInRadians()) {
+                tmp = a[i];
+                a[i] = a[i + 1];
+                a[i + 1] = tmp;
+                swapp = true;
+            }
+        }
+    }
+}
 #endif

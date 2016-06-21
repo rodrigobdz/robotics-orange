@@ -45,6 +45,13 @@ bool Env::align(void)
         walls = wall_recognition.getWalls();
         countWalls = walls.size();
 
+        if (DEBUG) {
+            for (int i = 0; i < countWalls; i++) {
+                float a = walls[i]->getAngleInDegrees();
+                ROS_INFO("Angle %i %f",i , a);
+            }
+        }
+
         if (countWalls > 0) {
             alignToSingleWall();
             break;
@@ -59,10 +66,10 @@ bool Env::align(void)
     } else {
         basic_movements.rotateRight();
     }
-    
+
     // align to second wall
     while (ros::ok()) {
-        if (wall_recognition.hasFrontWall()) {
+        if (wall_recognition.getFrontWall(walls) != NULL) {
             alignToSingleWall();
             break;
         }
@@ -94,7 +101,7 @@ bool Env::alignToSingleWall(void)
                 ROS_INFO("Wall angle %f ", wall->getAngleInDegrees());
             }
 
-            // If angle of wall in front and distance under margin error 
+            // If angle of wall in front and distance under margin error
             // then error acceptable.
             bool angleIsAcceptable = fabs(wall->getAngleInRadians()) < angleErrorMarginInRadians;
             bool distanceIsAcceptable = wall->getDistanceInMeters() - CELL_CENTER < distanceErrorMarginInMeters;
@@ -112,8 +119,6 @@ bool Env::alignToSingleWall(void)
             basic_movements.rotate(wall->getAngleInDegrees());
             basic_movements.drive(wall->getDistanceInMeters() - CELL_CENTER);
         }
-
-        r.sleep();
     }
     return true;
 }
@@ -138,9 +143,9 @@ Wall* Env::getClosestWallInFront(void)
     return wallInFront;
 }
 
-void Env::laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg) 
-{ 
-    ranges = msg->ranges; 
+void Env::laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg)
+{
+    ranges = msg->ranges;
 }
 
 #endif

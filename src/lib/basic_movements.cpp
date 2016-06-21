@@ -20,13 +20,13 @@ class BasicMovements
         // Set up encoders callback
         encoderSubscriber   = n.subscribe("sensor_packet", 1, &BasicMovements::encoderCallback, this);
         diffDriveClient     = n.serviceClient<create_fundamentals::DiffDrive>("diff_drive");
-        
+
         // Set up laser callback
         laserSubscriber     = n.subscribe("scan_filtered", 1, &BasicMovements::laserCallback, this);
-        
+
         // Set up reset encoders client
         resetEncodersClient = n.serviceClient<create_fundamentals::ResetEncoders>("reset_encoders");
-        
+
         // Initialize minimum range to a default value to be able to stop when obstacle is found
         laserInitialized    = false;
         encoderInitialized  = false;
@@ -126,11 +126,11 @@ bool BasicMovements::drive(float distanceInMeters, float speed)
             }
 
             // Check if robot is about to crash into something
-            if (minimumRange < SAFETY_DISTANCE) {
-                // Robot recognized an obstacle, distance could not be completed
-                stop();
-                return false;
-            }
+            // if (minimumRange < SAFETY_DISTANCE) {
+            //     // Robot recognized an obstacle, distance could not be completed
+            //     stop();
+            //     return false;
+            // }
         }
 
         if ((sign * leftEncoder) >= threshold || (sign * rightEncoder) >= threshold) {
@@ -170,50 +170,32 @@ bool BasicMovements::driveWall(float distanceInMeters, float speed)
         if (walls.size() == 0) { // Drive forward
             move(0.2, 0);
         } else {
-
             // Search for nearest wall
-            float smallestDistance = 100;
-            Wall nearestWall(0,0);
+            Wall* nearestWall = wall_recognition.getNearestWall(walls);
 
-            for (int i = 0; i < walls.size(); i++) {
-                if (smallestDistance > walls[i]->getDistanceInMeters()) {
-                    nearestWall = *walls[i];
-                    smallestDistance = walls[i]->getDistanceInMeters();
-                }
-            }
-
-            float wallAngle = nearestWall.getAngleInRadians();
-            float wallDistance = nearestWall.getDistanceInMeters();
+            float wallAngle = nearestWall->getAngleInRadians();
+            float wallDistance = nearestWall->getDistanceInMeters();
 
             float distanceCorrection;
             float angleCorrection;
             float slopeOfFunction = 0.625;
 
-            if (nearestWall.isLeftWall()) {
+            if (nearestWall->isLeftWall()) {
                 distanceCorrection = (slopeOfFunction * PI) * wallDistance - PI / 4;
                 angleCorrection = -tan(2 * wallAngle) * PI / 4;
-            } else if (nearestWall.isRightWall()) {
+            } else if (nearestWall->isRightWall()) {
                 distanceCorrection = -(slopeOfFunction * PI) * wallDistance + PI / 4;
                 angleCorrection = -tan(2 * wallAngle) * PI / 4;
             } else {
-                if (nearestWall.isFrontWall() && wallDistance < SAFETY_DISTANCE) {
+                if (nearestWall->isFrontWall() && wallDistance < SAFETY_DISTANCE) {
                     // Robot recognized an obstacle, distance could not be completed
                     stop();
                     return false;
                 }
             }
-            // Just angle
-            // float vLeft = 1 / RAD_RADIUS * (angleCorrection * ROB_BASE / 2);
-            // float vRight = 1 / RAD_RADIUS * (-angleCorrection * ROB_BASE / 2);
-            // Just distance
-            // float vLeft = 1 / RAD_RADIUS * (-distanceCorrection * ROB_BASE / 2);
-            // float vRight = 1 / RAD_RADIUS * (distanceCorrection * ROB_BASE / 2);
 
             float vLeft = 1 / RAD_RADIUS * (0.2 + (angleCorrection - distanceCorrection) * ROB_BASE / 2);
             float vRight = 1 / RAD_RADIUS * (0.2 + (-angleCorrection + distanceCorrection) * ROB_BASE / 2);
-
-            // ROS_INFO("distanceCorrection = %f, angleCorrection = %f", distanceCorrection, angleCorrection);
-            // ROS_INFO("vLeft = %f, vRight = %f", vLeft, vRight);
 
             diffDriveService.request.left  = vLeft;
             diffDriveService.request.right = vRight;
@@ -237,9 +219,9 @@ bool BasicMovements::rotate(float angleInDegrees, float speed)
     // Variables
     float angleInRadians   = angleInDegrees * (PI / 2) / 90;
     float threshold        = NINETY_DEGREES_IN_RAD / 10;
-    
+
     initialiseEncoder();
-    
+
     float wishLeftEncoder  = leftEncoder - 1 / RAD_RADIUS * (ROB_BASE / 2 * angleInRadians);
     float wishRightEncoder = rightEncoder + 1 / RAD_RADIUS * (ROB_BASE / 2 * angleInRadians);
 
@@ -251,7 +233,7 @@ bool BasicMovements::rotate(float angleInDegrees, float speed)
         }
 
         if (fabs((wishLeftEncoder - leftEncoder)) < 0.1) {
-            if(DEBUG) {
+            if (DEBUG) {
                 ROS_INFO("Perfect Angle");
             }
             stop();
@@ -283,7 +265,7 @@ bool BasicMovements::rotateLeft(float speed)
  *
  * Returns: false if obstacle was found otherwise true
 **/
-bool BasicMovements::rotateRight(float speed) 
+bool BasicMovements::rotateRight(float speed)
 {
     return rotate(-90, speed);
 }
