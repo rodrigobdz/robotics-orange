@@ -8,7 +8,6 @@
 #include <wall_recognition.cpp>
 #include <basic_movements.cpp>
 #include <position.cpp>
-//#include <cell.cpp>
 
 #include "orange_fundamentals/Grid.h"
 #include "orange_fundamentals/Cell.h"
@@ -186,7 +185,6 @@ std::vector<Position> Maze::findPossibleCells()
 std::vector<int> Maze::scanCurrentCellInitial(std::vector<int> wallsMaze) 
 {
     // walls robot can see
-    // std::vector<Wall*> wallsRobotView;
     std::vector<int> wallsRobotView;
     std::vector<Wall*> walls = wall_recognition.getWalls();
     if (wall_recognition.hasFrontWall(walls)) {
@@ -214,10 +212,5 @@ std::vector<int> Maze::scanCurrentCell()
     return wallsRobotView;
 
 }
-
-
-
-
-
 
 #endif // MAZE_LIB
