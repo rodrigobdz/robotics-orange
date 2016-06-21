@@ -13,7 +13,7 @@ int main(int argc, char **argv)
 
   Maze maze;
   ROS_INFO("Test");
-  ROS_INFO("Number of walls: %lu", maze.scanCurrentCell().size());
+  ROS_INFO("Number of walls: %lu", maze.scanCurrentCellInitial().size());
 
   return 0;
 }
