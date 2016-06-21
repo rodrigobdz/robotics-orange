@@ -51,10 +51,6 @@ class Maze
     // keeps map
     std::vector<Row> rows;
 
-    // walls robot can see
-    // std::vector<Wall*> wallsRobotView;
-    std::vector<int> wallsRobotView;
-
     // External libraries
     BasicMovements basicMovements;
     WallRecognition wall_recognition;
@@ -135,15 +131,33 @@ std::vector<Position> Maze::findPossibleCells()
     return {*position};
 }
 
-bool Maze::compareWallsInitial(std::vector<int> wallsMaze) {
-    // looks to the right
-    if (wall_recognition.hasLeftWall(wall_recognition.getWalls())) {
-
+bool Maze::compareWallsInitial(std::vector<int> wallsMaze) 
+{
+    // walls robot can see
+    // std::vector<Wall*> wallsRobotView;
+    std::vector<int> wallsRobotView;
+    std::vector<Wall*> walls = wall_recognition.getWalls();
+    if (wall_recognition.hasFrontWall(walls)) {
+        wallsRobotView.push_back(BOTTOM);
     }
+    basic_movements.rotateBackwards();
+    scanCurrentCell();
+    return false;
 }
 
 std::vector<int> Maze::scanCurrentCell() {
-    return {LEFT, UP};
+    std::vector<Wall*> walls = wall_recognition.getWalls();
+    std::vector<int> wallsRobotView;
+    if (wall_recognition.hasLeftWall(walls)) {
+        wallsRobotView.push_back(LEFT);
+    }
+    if (wall_recognition.hasFrontWall(walls)) {
+        wallsRobotView.push_back(UP);
+    }
+    if (wall_recognition.hasRightWall(walls)) {
+        wallsRobotView.push_back(RIGHT);
+    }
+    return wallsRobotView;
 
 }
 
