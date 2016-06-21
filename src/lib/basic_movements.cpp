@@ -70,6 +70,7 @@ class BasicMovements
     float leftEncoder, rightEncoder;
 
     bool move(float desiredVelocity, float desiredTurningVelocity);
+    bool turn(int direction);
     void encoderCallback(const create_fundamentals::SensorPacket::ConstPtr& msg);
     void laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg);
     void initialiseEncoder();
@@ -249,17 +250,32 @@ bool BasicMovements::rotate(float angleInDegrees, float speed)
     return false;
 }
 
-bool BasicMovements::rotateLeft(float speed)
+/*
+ * Parameter: rotation speed
+ *
+ * Returns: false if obstacle was found otherwise true
+**/
+bool BasicMovements::rotateLeft(float speed) 
 {
     return rotate(90, speed);
 }
 
+/*
+ * Parameter: rotation speed
+ *
+ * Returns: false if obstacle was found otherwise true
+**/
 bool BasicMovements::rotateRight(float speed)
 {
     return rotate(-90, speed);
 }
 
-bool BasicMovements::rotateBackwards(float speed)
+/*
+ * Parameter: rotation speed
+ *
+ * Returns: false if obstacle was found otherwise true
+**/
+bool BasicMovements::rotateBackwards(float speed) 
 {
     return rotate(180, speed);
 }
@@ -271,23 +287,7 @@ bool BasicMovements::rotateBackwards(float speed)
 **/
 bool BasicMovements::turnLeft()
 {
-    initialiseEncoder();
-
-    float wishLeftEncoder  = leftEncoder + (1 / (RAD_RADIUS * 2)) * (CELL_LENGTH - ROB_BASE / 2 + ROB_BASE / 2 * PI / 2);
-    float wishRightEncoder = rightEncoder + (1 / (RAD_RADIUS * 2)) * (CELL_LENGTH - ROB_BASE / 2 - ROB_BASE / 2 * PI / 2);
-
-    while (ros::ok()) {
-        ros::spinOnce();
-
-        if (fabs((wishLeftEncoder - leftEncoder)) < 0.5) {
-            stop();
-            return true;
-        }
-
-        move((CELL_LENGTH - ROB_BASE / 2) / 3, -PI / 2 / 3);
-    }
-
-    return false;
+    return turn(LEFT);
 }
 
 /*
@@ -297,10 +297,30 @@ bool BasicMovements::turnLeft()
 **/
 bool BasicMovements::turnRight()
 {
+    return turn(RIGHT);
+}
+
+/*
+ * Turns left or right around a corner. This is not the same as rotate left or right.
+ *
+ * Parameter: direction in which turn should be executed.
+ *            direction should be left or right.
+ *            If invalid direction is passed over then right will be executed.
+ *
+ * Returns: false if obstacle was found otherwise true
+**/
+bool BasicMovements::turn(int direction)
+{
+    // Initialize default turning direction to right.
+    float sign = 1;
+    if (direction == LEFT) {
+        sign = -1;
+    }
+
     initialiseEncoder();
 
-    float wishLeftEncoder  = leftEncoder + (1 / (RAD_RADIUS * 2)) * (CELL_LENGTH - ROB_BASE / 2 + ROB_BASE / 2 * -PI / 2);
-    float wishRightEncoder = rightEncoder + (1 / (RAD_RADIUS * 2)) * (CELL_LENGTH - ROB_BASE / 2 - ROB_BASE / 2 * -PI / 2);
+    float wishLeftEncoder  = leftEncoder + (1 / (RAD_RADIUS * 2)) * (CELL_LENGTH - ROB_BASE / 2 + ROB_BASE / 2 * sign * -PI / 2);
+    float wishRightEncoder = rightEncoder + (1 / (RAD_RADIUS * 2)) * (CELL_LENGTH - ROB_BASE / 2 - ROB_BASE / 2 * sign * -PI / 2);
 
     while (ros::ok()) {
         ros::spinOnce();
@@ -311,10 +331,10 @@ bool BasicMovements::turnRight()
             return true;
         }
 
-        move((CELL_LENGTH - ROB_BASE / 2) / 3, PI / 2 / 3);
+        move((CELL_LENGTH - ROB_BASE / 2) / 3, sign * PI / 2 / 3);
     }
 
-    return false;
+    return false;   
 }
 
 /********************** HELPERS *****************************/

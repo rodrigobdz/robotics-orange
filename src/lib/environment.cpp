@@ -28,7 +28,7 @@ class Env
     bool DEBUG = true;
 
     // External libraries
-    BasicMovements basicMovements;
+    BasicMovements basic_movements;
     WallRecognition wall_recognition;
 
     // Private functions
@@ -58,13 +58,13 @@ bool Env::align(void)
         }
 
         // Drive until wall in sight
-        basicMovements.drive(0.5);
+        basic_movements.drive(0.5);
     }
 
-    if (wall_recognition.getLeftWall(walls) != NULL) {
-        basicMovements.rotateLeft();
+    if (wall_recognition.hasLeftWall(walls)) {
+        basic_movements.rotateLeft();
     } else {
-        basicMovements.rotateRight();
+        basic_movements.rotateRight();
     }
 
     // align to second wall
@@ -73,7 +73,7 @@ bool Env::align(void)
             alignToSingleWall();
             break;
         }
-        basicMovements.driveWall(0.5);
+        basic_movements.driveWall(0.5);
     }
 
     return true;
@@ -89,7 +89,8 @@ bool Env::alignToSingleWall(void)
 {
     ros::Rate r(LOOP_RATE);
     Wall* wall;
-    float angleErrorMarginInRadians = 0.2;
+    float angleErrorMarginInRadians   = 0.2;
+    float distanceErrorMarginInMeters = 0.05;
     while (ros::ok()) {
         // Check the angle again and leave if its ok
         // otherwise enter another loop
@@ -103,19 +104,20 @@ bool Env::alignToSingleWall(void)
             // If angle of wall in front and distance under margin error
             // then error acceptable.
             bool angleIsAcceptable = fabs(wall->getAngleInRadians()) < angleErrorMarginInRadians;
-            bool distanceIsAcceptable = wall->getDistanceInMeters() - CELL_CENTER < 0.1;
+            bool distanceIsAcceptable = wall->getDistanceInMeters() - CELL_CENTER < distanceErrorMarginInMeters;
 
-            if (DEBUG) {
+            if(DEBUG) {
+                ROS_INFO("\nAlign to single wall");
                 ROS_INFO("Wall distance = %f ",wall->getDistanceInMeters());
-                ROS_INFO("Drive distance %f",wall->getDistanceInMeters() - CELL_CENTER);
+                ROS_INFO("Drive distance distance to wall: %f - CELL_CENTER: %f = %f\n", wall->getDistanceInMeters(), CELL_CENTER, wall->getDistanceInMeters() - CELL_CENTER);
             }
 
             if (angleIsAcceptable && distanceIsAcceptable) {
                 break;
             }
 
-            basicMovements.rotate(wall->getAngleInDegrees());
-            basicMovements.drive(wall->getDistanceInMeters() - CELL_CENTER);
+            basic_movements.rotate(wall->getAngleInDegrees());
+            basic_movements.drive(wall->getDistanceInMeters() - CELL_CENTER);
         }
     }
     return true;

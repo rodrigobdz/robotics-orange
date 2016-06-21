@@ -11,28 +11,38 @@ class Plan
         {
         }
     
-        bool execute(std::vector<int> plan);        
+        bool execute(std::vector<int> plan);  
+
+    private:
+        bool DEBUG = true;      
 };
 
 bool Plan::execute(std::vector<int> plan) 
 {
     BasicMovements basicMovements;
     int lastDirection = UP;
+    bool executionSuccessful = true;
+
+    if(DEBUG) {
+        ROS_INFO("Execute plan");
+    }
 
     for (std::vector<int>::iterator it = plan.begin(); it != plan.end(); ++it) {
-        ROS_INFO("Drive in %i, lastDirection = %i", *it, lastDirection);
+        if(DEBUG) {
+            ROS_INFO("Drive in %i, lastDirection = %i", *it, lastDirection);
+        }
 
         switch (lastDirection) {
         case RIGHT:
             switch (*it) {
             case UP:
-                basicMovements.rotateLeft();
+                executionSuccessful = executionSuccessful && basicMovements.rotateLeft();
                 break;
             case LEFT:
-                basicMovements.rotateBackwards();
+                executionSuccessful = executionSuccessful && basicMovements.rotateBackwards();
                 break;
             case DOWN:
-                basicMovements.rotateRight();
+                executionSuccessful = executionSuccessful && basicMovements.rotateRight();
                 break;
             default:
                 break;
@@ -41,13 +51,13 @@ bool Plan::execute(std::vector<int> plan)
         case UP:
             switch (*it) {
             case RIGHT:
-                basicMovements.rotateRight();
+                executionSuccessful = executionSuccessful && basicMovements.rotateRight();
                 break;
             case LEFT:
-                basicMovements.rotateLeft();
+                executionSuccessful = executionSuccessful && basicMovements.rotateLeft();
                 break;
             case DOWN:
-                basicMovements.rotateBackwards();
+                executionSuccessful = executionSuccessful && basicMovements.rotateBackwards();
                 break;
             default:
                 break;
@@ -56,13 +66,13 @@ bool Plan::execute(std::vector<int> plan)
         case LEFT:
             switch (*it) {
             case RIGHT:
-                basicMovements.rotateBackwards();
+                executionSuccessful = executionSuccessful && basicMovements.rotateBackwards();
                 break;
             case UP:
-                basicMovements.rotateRight();
+                executionSuccessful = executionSuccessful && basicMovements.rotateRight();
                 break;
             case DOWN:
-                basicMovements.rotateLeft();
+                executionSuccessful = executionSuccessful && basicMovements.rotateLeft();
                 break;
             default:
                 break;
@@ -71,13 +81,13 @@ bool Plan::execute(std::vector<int> plan)
         case DOWN:
             switch (*it) {
             case RIGHT:
-                basicMovements.rotateLeft();
+                executionSuccessful = executionSuccessful && basicMovements.rotateLeft();
                 break;
             case UP:
-                basicMovements.rotateBackwards();
+                executionSuccessful = executionSuccessful && basicMovements.rotateBackwards();
                 break;
             case LEFT:
-                basicMovements.rotateRight();
+                executionSuccessful = executionSuccessful && basicMovements.rotateRight();
                 break;
             default:
                 break;
@@ -86,11 +96,11 @@ bool Plan::execute(std::vector<int> plan)
         default:
             break;
         }
-        basicMovements.driveWall(CELL_LENGTH);
+        executionSuccessful = executionSuccessful && basicMovements.driveWall(CELL_LENGTH);
         lastDirection = *it;
     }
 
-    return true;
+    return executionSuccessful;
 }
 
 #endif // PLAN_LIB

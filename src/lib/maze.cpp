@@ -181,9 +181,4 @@ std::vector<int> Maze::scanCurrentCell() {
 
 }
 
-
-
-
-
-
 #endif // MAZE_LIB
