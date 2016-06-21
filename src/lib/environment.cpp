@@ -82,7 +82,8 @@ bool Env::alignToSingleWall(void)
 {
     ros::Rate r(LOOP_RATE);
     Wall* wall;
-    float angleErrorMarginInRadians = 0.2;
+    float angleErrorMarginInRadians   = 0.2;
+    float distanceErrorMarginInMeters = 0.05;
     while (ros::ok()) {
         // Check the angle again and leave if its ok
         // otherwise enter another loop
@@ -96,11 +97,12 @@ bool Env::alignToSingleWall(void)
             // If angle of wall in front and distance under margin error 
             // then error acceptable.
             bool angleIsAcceptable = fabs(wall->getAngleInRadians()) < angleErrorMarginInRadians;
-            bool distanceIsAcceptable = wall->getDistanceInMeters() - CELL_CENTER < 0.1;
+            bool distanceIsAcceptable = wall->getDistanceInMeters() - CELL_CENTER < distanceErrorMarginInMeters;
 
             if(DEBUG) {
+                ROS_INFO("\nAlign to single wall");
                 ROS_INFO("Wall distance = %f ",wall->getDistanceInMeters());
-                ROS_INFO("Drive distance %f",wall->getDistanceInMeters() - CELL_CENTER);
+                ROS_INFO("Drive distance distance to wall: %f - CELL_CENTER: %f = %f\n",wall->getDistanceInMeters() - CELL_CENTER);
             }
 
             if (angleIsAcceptable && distanceIsAcceptable) {
@@ -108,8 +110,6 @@ bool Env::alignToSingleWall(void)
             }
 
             basic_movements.rotate(wall->getAngleInDegrees());
-            r.sleep();            
-
             basic_movements.drive(wall->getDistanceInMeters() - CELL_CENTER);
         }
 
