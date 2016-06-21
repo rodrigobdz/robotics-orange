@@ -104,12 +104,14 @@ bool Env::alignToSingleWall(void)
             // If angle of wall in front and distance under margin error
             // then error acceptable.
             bool angleIsAcceptable = fabs(wall->getAngleInRadians()) < angleErrorMarginInRadians;
-            bool distanceIsAcceptable = wall->getDistanceInMeters() - CELL_CENTER < distanceErrorMarginInMeters;
+            bool distanceIsAcceptable = fabs(wall->getDistanceInMeters() - CELL_CENTER) < distanceErrorMarginInMeters;
 
             if(DEBUG) {
                 ROS_INFO("\nAlign to single wall");
                 ROS_INFO("Wall distance = %f ",wall->getDistanceInMeters());
                 ROS_INFO("Drive distance distance to wall: %f - CELL_CENTER: %f = %f\n", wall->getDistanceInMeters(), CELL_CENTER, wall->getDistanceInMeters() - CELL_CENTER);
+                ROS_INFO("angleIsAcceptable %s", angleIsAcceptable ? "true" : "false");
+                ROS_INFO("distanceIsAcceptable %s", distanceIsAcceptable ? "true" : "false");
             }
 
             if (angleIsAcceptable && distanceIsAcceptable) {
