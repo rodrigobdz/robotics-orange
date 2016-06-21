@@ -39,11 +39,9 @@ class Maze
     // void moveOnMap();
 
     std::vector<int> scanCurrentCell();
+    std::vector<int> scanCurrentCellInitial();
 
   private:
-
-    // direction of robot
-    int direction = true;
 
     // Position of robot
     Position *position = new Position(0,0,0);
@@ -82,12 +80,14 @@ std::vector<Row> Maze::getMap()
 
 void Maze::localize()
 {
-    std::vector<Position> possiblePositions;
+    std::vector<Position> possiblePositions = initializePositions();
+
+    std::vector<int> wallsRobotView = scanCurrentCellInitial();
+
+    // vergleiche sicht des roboters mit possiblePosition
+    // possiblePosition wird dezimiert
     
     scanCurrentCell();
-
-    possiblePositions = findPossibleCells();
-
 
 }
 
@@ -117,7 +117,11 @@ void Maze::mapCallback(const Grid::ConstPtr& msg)
 
 std::vector<Position> Maze::findPossibleCellsInitial()
 {
-    std::vector<Position> possiblePositions;
+    std::vector<Position> possiblePositions = initializePositions();
+    std::vector<int> wallsRobotView = scanCurrentCellInitial();
+
+    compareWalls(possiblePositions, wallsRobotView);
+
     for (int i = 0; i < rows.size(); i++) {
         for (int j = 0; j < rows[i].cells.size(); j++) {
             compareWallsInitial(rows[i].cells[i].walls);
@@ -126,12 +130,27 @@ std::vector<Position> Maze::findPossibleCellsInitial()
     return {*position};
 }
 
+std::vector<Position> Maze::initializePositions()
+{
+    std::vector<Position> positions = new std::vector<Position>();
+    Position position;
+    for(int y = 0; y < rows.size(); y++) {
+        for(int x = 0; x < rows[y].size(); x++) {
+            for(int direction = 0; direction < rows.size(); direction++) {
+                position = new Position(x,y,direction);
+                positions.push_back(position);
+            }
+        }
+    }
+    return positions;
+}
+
 std::vector<Position> Maze::findPossibleCells()
 {
     return {*position};
 }
 
-bool Maze::compareWallsInitial(std::vector<int> wallsMaze) 
+std::vector<int> Maze::scanCurrentCellInitial(std::vector<int> wallsMaze) 
 {
     // walls robot can see
     // std::vector<Wall*> wallsRobotView;
@@ -141,8 +160,9 @@ bool Maze::compareWallsInitial(std::vector<int> wallsMaze)
         wallsRobotView.push_back(BOTTOM);
     }
     basic_movements.rotateBackwards();
-    scanCurrentCell();
-    return false;
+    std::vector<int> currentCell = scanCurrentCell();
+    wallsRobotView.insert(wallsRobotView.end(), currentCell.begin(), currentCell.end());
+    return wallsRobotView;
 }
 
 std::vector<int> Maze::scanCurrentCell() {
