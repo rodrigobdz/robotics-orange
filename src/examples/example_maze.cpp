@@ -1,19 +1,27 @@
-#include "ros/ros.h"
+#include <signal.h>
+#include <basic_movements.cpp>
 #include <maze.cpp>
 
-#include "orange_fundamentals/Grid.h"
-#include "orange_fundamentals/Cell.h"
-#include "orange_fundamentals/Row.h"
+void mySigintHandler(int signal) {
+    BasicMovements basicMovements;
+    basicMovements.stop();
+    ros::shutdown();
+}
 
-using namespace orange_fundamentals;
 
 int main(int argc, char **argv)
 {
   ros::init(argc, argv, "example_maze");
 
+  signal(SIGINT, mySigintHandler);
+
   Maze maze;
+  std::vector<int> wallsRobotView = maze.scanCurrentCellInitial();
   ROS_INFO("Test");
-  ROS_INFO("Number of walls: %lu", maze.scanCurrentCellInitial().size());
+  for(int i = 0; i < wallsRobotView.size(); i++) {
+  	ROS_INFO("Wall %d", wallsRobotView[i]);
+  }
+
 
   return 0;
 }

@@ -25,7 +25,7 @@ class Env
     ros::Subscriber laser;
     std::vector<float> ranges;
     std::vector<Wall*> walls;
-    bool DEBUG = true;
+    bool DEBUG = false;
 
     // External libraries
     BasicMovements basic_movements;
