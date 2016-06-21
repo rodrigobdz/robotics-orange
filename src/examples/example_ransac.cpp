@@ -14,9 +14,9 @@ int main(int argc, char** argv)
         walls = wall_recognition.getWalls();
         ROS_INFO("Found %lu walls", (long unsigned int)walls.size());
         for (int wall = 0; wall < walls.size(); wall++) {
-            ROS_INFO("Distance = %f", walls[wall]->getDistanceInMeters());
-            ROS_INFO("Angle = %f", walls[wall]->getAngleInRadians());
-            //ROS_INFO("wall[i].angle = %f", walls[wall]->getAngleInRadians());
+            ROS_INFO("%i: Distance = %f", wall, walls[wall]->getDistanceInMeters());
+            ROS_INFO("%i: Angle = %f", wall, walls[wall]->getAngleInDegrees());
+            ROS_INFO("%i: Confirmed = %d", wall, walls[wall]->isConfirmed());
         }
         r.sleep();
     }

@@ -77,7 +77,7 @@ std::vector<Wall*> WallRecognition::getWalls()
                 continue;
             }
 
-            Wall* currentWall = new Wall(pointA.first, pointA.second, pointB.first, pointB.second);
+            Wall* currentWall = new Wall(pointA.first, pointA.second, pointB.first, pointB.second, ranges);
 
             std::vector<int> currentMatches = getMatches(pointA.first, pointA.second, pointB.first, pointB.second);
 

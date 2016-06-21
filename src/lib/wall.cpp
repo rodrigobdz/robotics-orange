@@ -7,16 +7,39 @@
 class Wall
 {
   public:
-    Wall(float x1, float y1, float x2, float y2)
+    Wall(float x1, float y1, float x2, float y2, std::vector<float> ranges)
     {
         distanceInMeters = calcDistanceInMeters(x1, y1, x2, y2);
         angleInRadians = calcAngleInRadians(x1, y1, x2, y2);
+        if (angleInRadians > PI / 4 && angleInRadians < 3 * PI / 4) {
+            // Left wall
+            this->confirmedWall = false;
+            if (!isnan(ranges[LASER_COUNT-1])) {
+                this->confirmedWall = true;
+            }
+        } else if (angleInRadians > -3 * PI / 4 && angleInRadians < -PI / 4) {
+            // Right wall
+            this->confirmedWall = false;
+            if (!isnan(ranges[0])) {
+                this->confirmedWall = true;
+            }
+        } else if (angleInRadians < PI / 4 && angleInRadians > -PI / 4) {
+            // Front wall
+            this->confirmedWall = false;
+            if (!isnan(ranges[LASER_COUNT / 2])) {
+                this->confirmedWall = true;
+            }
+
+        } else {
+            this->confirmedWall = false;
+        }
     }
     Wall(float distanceInMeters, float angleInRadians) : distanceInMeters(distanceInMeters), angleInRadians(angleInRadians) {}
 
     float getDistanceInMeters() const { return distanceInMeters; }
     float getAngleInRadians() const { return angleInRadians; }
     float getAngleInDegrees() const { return angleInRadians*180/PI; }
+    bool isConfirmed() { return confirmedWall; }
 
     bool isLeftWall();
     bool isRightWall();
@@ -25,6 +48,9 @@ class Wall
   private:
     float distanceInMeters;
     float angleInRadians;
+
+    // Whether the wall is exactly left, in front or right.
+    bool confirmedWall;
 
     float calcDistanceInMeters(float x1, float y1, float x2, float y2);
     float calcAngleInRadians(float x1, float y1, float x2, float y2);
