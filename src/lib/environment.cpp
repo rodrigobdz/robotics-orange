@@ -61,7 +61,7 @@ bool Env::align(void)
         basic_movements.drive(0.5);
     }
 
-    if (wall_recognition.hasLeftWall()) {
+    if (wall_recognition.hasLeftWall(walls)) {
         basic_movements.rotateLeft();
     } else {
         basic_movements.rotateRight();
@@ -109,7 +109,7 @@ bool Env::alignToSingleWall(void)
             if(DEBUG) {
                 ROS_INFO("\nAlign to single wall");
                 ROS_INFO("Wall distance = %f ",wall->getDistanceInMeters());
-                ROS_INFO("Drive distance distance to wall: %f - CELL_CENTER: %f = %f\n",wall->getDistanceInMeters() - CELL_CENTER);
+                ROS_INFO("Drive distance distance to wall: %f - CELL_CENTER: %f = %f\n", wall->getDistanceInMeters(), CELL_CENTER, wall->getDistanceInMeters() - CELL_CENTER);
             }
 
             if (angleIsAcceptable && distanceIsAcceptable) {
