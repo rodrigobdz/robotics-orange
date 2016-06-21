@@ -123,29 +123,51 @@ void Maze::mapCallback(const Grid::ConstPtr& msg)
 std::vector<Position> Maze::findPossiblePositions(std::vector<Position> positionsVector, std::vector<int> wallsRobotView) 
 {
     std::vector<Position> positionsLeft; 
+    for (int i = 0; i < rows.size(); i++) {
+        for (int j = 0; j < rows[i].cells.size(); j++) {
+            compareWalls(rows[i].cells[j].walls, wallsRobotView);
+            // TODO create positionsLeft
+        }
+    }
     return;
+}
+
+bool compareWalls(std::vector<int> wallsMaze, std::vector<int> wallsRobot)
+{
+    if(wallsMaze.size() != wallsRobot.size()) { return false; }
+    for (int rotate = 0; rotate < 4; rotate++) {
+        for (int i = 0; i < wallsMaze.size(); i++) {
+            if (std::find(wallsRobot.begin(), wallsRobot.end(), wallsMaze[i]) == wallsRobot.end()) {
+                return false;
+            }
+        }
+    }
+    return true;
 }
 
 std::vector<int> Maze::rotateCellWallsClockwiuse(std::vector<int> wallsRobotView)
 {
     std::vector<int> newWallView;
-    switch (wallsRobotView.front())
-    {
-        case RIGHT:
-            newWallView.push_back(BOTTOM);
-            break;
-        case UP:
-            newWallView.push_back(RIGHT);
-            break;
-        case LEFT:
-            newWallView.push_back(UP);
-            break;
-        case BOTTOM:
-            newWallView.push_back(LEFT);
-            break;
-         default:
-            break;
-      }
+    for (int i = 0; i < wallsRobotView.size()) {
+        switch (wallsRobotView[i]) {
+            case RIGHT:
+                newWallView.push_back(BOTTOM);
+                break;
+            case UP:
+                newWallView.push_back(RIGHT);
+                break;
+            case LEFT:
+                newWallView.push_back(UP);
+                break;
+            case BOTTOM:
+                newWallView.push_back(LEFT);
+                break;
+            default:
+                break;
+        }
+    }
+    return newWallView;
+
 }
 
 std::vector<Position> Maze::findPossibleCellsInitial()
