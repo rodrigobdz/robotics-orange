@@ -24,6 +24,9 @@ class WallRecognition
     Wall* getLeftWall(std::vector<Wall*> walls);
     Wall* getFrontWall(std::vector<Wall*> walls);
     Wall* getRightWall(std::vector<Wall*> walls);
+    bool hasLeftWall(std::vector<Wall*> walls);
+    bool hasFrontWall(std::vector<Wall*> walls);
+    bool hasRightWall(std::vector<Wall*> walls);
 
     Wall* getNearestWall(std::vector<Wall*> walls);
 
@@ -150,6 +153,37 @@ Wall* WallRecognition::getNearestWall(std::vector<Wall*> walls)
     }
     return nearestWall;
 }
+
+bool WallRecognition::hasLeftWall(std::vector<Wall*> walls)
+{
+    for (int i = 0; i < walls.size(); ++i) {
+        if (walls[i]->isLeftWall()) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool WallRecognition::hasFrontWall(std::vector<Wall*> walls)
+{
+    for (int i = 0; i < walls.size(); ++i) {
+        if (walls[i]->isFrontWall()) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool WallRecognition::hasRightWall(std::vector<Wall*> walls)
+{
+    for (int i = 0; i < walls.size(); ++i) {
+        if (walls[i]->isRightWall()) {
+            return true;
+        }
+    }
+    return false;
+}
+
 
 /********************** HELPERS *****************************/
 

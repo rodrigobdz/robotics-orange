@@ -20,10 +20,12 @@ int main(int argc, char **argv)
   Maze maze;
   ROS_INFO("Test");
 
-  std::vector<Row> rows = maze.getMap();
-  std::vector<orange_fundamentals::Cell> cells = rows[1].cells;
-  std::vector<int> walls = cells[0].walls;
-  ROS_INFO("Map[0][0] = true = %lu", walls.size());
+  ROS_INFO("Number of walls: %lu", maze.scanCurrentCell().size());
+
+  // std::vector<Row> rows = maze.getMap();
+  // std::vector<orange_fundamentals::Cell> cells = rows[1].cells;
+  // std::vector<int> walls = cells[0].walls;
+  // ROS_INFO("Map[0][0] = true = %lu", walls.size());
 
   // maze.parseMap();
 

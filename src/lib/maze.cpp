@@ -38,7 +38,13 @@ class Maze
     // Unneccesary for the first implementation
     // void moveOnMap();
 
+    std::vector<int> scanCurrentCell();
+
   private:
+
+    // direction of robot
+    int direction = true;
+
     // Position of robot
     Position *position = new Position(0,0,0);
 
@@ -46,7 +52,8 @@ class Maze
     std::vector<Row> rows;
 
     // walls robot can see
-    std::vector<Wall*> wallsRobotView;
+    // std::vector<Wall*> wallsRobotView;
+    std::vector<int> wallsRobotView;
 
     // External libraries
     BasicMovements basicMovements;
@@ -55,10 +62,15 @@ class Maze
     // get map from service
     void parseMap();
 
-    // std::vector<int> scanCurrentCell();
-
     ros::NodeHandle n;
     void mapCallback(const Grid::ConstPtr& msg);
+
+    std::vector<Position> findPossibleCellsInitial();
+    std::vector<Position> findPossibleCells();
+    bool compareWallsInitial(std::vector<int> wallsMaze);
+    bool compareWalls(std::vector<int> wallsMaze);
+
+
 
     // wallpattern getWallPattern(std::vector<int> walls);
     // std::string wallsToString(std::vector<int> v);
@@ -74,7 +86,13 @@ std::vector<Row> Maze::getMap()
 
 void Maze::localize()
 {
-    wallsRobotView = wall_recognition.getWalls();
+    std::vector<Position> possiblePositions;
+    
+    scanCurrentCell();
+
+    possiblePositions = findPossibleCells();
+
+
 }
 
 /************************************************************/
@@ -100,5 +118,38 @@ void Maze::mapCallback(const Grid::ConstPtr& msg)
 {
     rows = msg->rows;
 }
+
+std::vector<Position> Maze::findPossibleCellsInitial()
+{
+    std::vector<Position> possiblePositions;
+    for (int i = 0; i < rows.size(); i++) {
+        for (int j = 0; j < rows[i].cells.size(); j++) {
+            compareWallsInitial(rows[i].cells[i].walls);
+        }
+    }
+    return {*position};
+}
+
+std::vector<Position> Maze::findPossibleCells()
+{
+    return {*position};
+}
+
+bool Maze::compareWallsInitial(std::vector<int> wallsMaze) {
+    // looks to the right
+    if (wall_recognition.hasLeftWall(wall_recognition.getWalls())) {
+
+    }
+}
+
+std::vector<int> Maze::scanCurrentCell() {
+    return {LEFT, UP};
+
+}
+
+
+
+
+
 
 #endif // MAZE_LIB
