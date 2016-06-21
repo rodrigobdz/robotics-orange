@@ -84,6 +84,7 @@ void Maze::localize()
 
     std::vector<int> wallsRobotView = scanCurrentCellInitial();
 
+    // loop solange bis wird nur noch eine possiblePosition haben
     // vergleiche sicht des roboters mit possiblePosition
     // possiblePosition wird dezimiert
     
@@ -180,5 +181,10 @@ std::vector<int> Maze::scanCurrentCell() {
     return wallsRobotView;
 
 }
+
+
+
+
+
 
 #endif // MAZE_LIB
