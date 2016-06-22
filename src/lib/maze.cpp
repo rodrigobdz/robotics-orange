@@ -42,7 +42,7 @@ class Maze
     std::vector<int> scanCurrentCell();
     std::vector<int> scanCurrentCellInitial();
 
-    // Should be private, public for testing
+    // TODO Should be private, public for testing
     std::vector<Position> initializePositions();
     bool compareWalls(Position possiblePosition, std::vector<int> wallsRobot);
     std::vector<Position> findPossiblePositions(std::vector<Position> positionsVector, std::vector<int> wallsRobotView);
@@ -78,11 +78,14 @@ void Maze::localize()
 
     possiblePositions = findPossiblePositions(possiblePositions, wallsRobotView);
 
-    // loop solange bis wird nur noch eine possiblePosition haben
-    // vergleiche sicht des roboters mit possiblePosition
-    // possiblePosition wird dezimiert
-
-    scanCurrentCell();
+    // loop solange bis nur noch eine possiblePosition existiert
+    //
+    //   fahre roboter
+    //   updatePositionOnMap()
+    //
+    //   vergleiche sicht des roboters mit possiblePosition
+    //
+    // Setze position des Roboters auf letzte Position
 }
 
 /************************************************************/
