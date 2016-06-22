@@ -14,8 +14,8 @@ class WallRecognition
     {
         // Set up laser callback
         laserSubscriber = n.subscribe("scan_filtered", 1, &WallRecognition::laserCallback, this);
-
-        ranges = *(new std::vector<float>(LASER_COUNT));
+        
+        ranges          = *(new std::vector<float>(LASER_COUNT));
         srand(time(NULL));
     }
 
@@ -32,9 +32,9 @@ class WallRecognition
 
   private:
     // Variables
-    const float TRESHOLD = 60;    // Matches that makes  line to wall
+    const float TRESHOLD   = 60;    // Matches that makes  line to wall
     const float ITERATIONS = 1000; // Number of iterations from ransac algo.
-    const float ERROR = 0.02;      // Difference between line and points
+    const float ERROR      = 0.02;      // Difference between line and points
 
     ros::NodeHandle n;
     ros::Subscriber laserSubscriber;
@@ -83,7 +83,7 @@ std::vector<Wall*> WallRecognition::getWalls()
 
             if (currentMatches.size() > bestMatches.size()) {
                 bestMatches = currentMatches;
-                bestWall = currentWall;
+                bestWall    = currentWall;
             }
         }
 

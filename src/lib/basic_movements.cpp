@@ -82,7 +82,7 @@ bool BasicMovements::move(float desiredVelocity, float desiredTurningVelocity)
     float vLeft = 1 / RAD_RADIUS * (desiredVelocity + ROB_BASE / 2 * desiredTurningVelocity);
     float vRight = 1 / RAD_RADIUS * (desiredVelocity - ROB_BASE / 2 * desiredTurningVelocity);
 
-    diffDriveService.request.left = vLeft;
+    diffDriveService.request.left  = vLeft;
     diffDriveService.request.right = vRight;
 
     diffDriveClient.call(diffDriveService);
@@ -94,7 +94,7 @@ void BasicMovements::stop()
         ROS_INFO("STOP");
     }
 
-    diffDriveService.request.left = 0;
+    diffDriveService.request.left  = 0;
     diffDriveService.request.right = 0;
     diffDriveClient.call(diffDriveService);
 }
@@ -180,11 +180,11 @@ bool BasicMovements::driveWall(float distanceInMeters, float speed)
             move(0.2, 0);
         } else {
             // Search for nearest wall
-            Wall* nearestWall = wall_recognition.getNearestWall(walls);
-
-            float wallAngle = nearestWall->getAngleInRadians();
-            float wallDistance = nearestWall->getDistanceInMeters();
-
+            Wall* nearestWall     = wall_recognition.getNearestWall(walls);
+            
+            float wallAngle       = nearestWall->getAngleInRadians();
+            float wallDistance    = nearestWall->getDistanceInMeters();
+            
             float distanceCorrection;
             float angleCorrection;
             float slopeOfFunction = 0.625;
@@ -194,7 +194,7 @@ bool BasicMovements::driveWall(float distanceInMeters, float speed)
                 angleCorrection = -tan(2 * wallAngle) * PI / 4;
             } else if (nearestWall->isRightWall()) {
                 distanceCorrection = -(slopeOfFunction * PI) * wallDistance + PI / 4;
-                angleCorrection = -tan(2 * wallAngle) * PI / 4;
+                angleCorrection    = -tan(2 * wallAngle) * PI / 4;
             } else {
                 if (DETECT_OBSTACLES) {
                     if (nearestWall->isFrontWall() && wallDistance < SAFETY_DISTANCE) {
@@ -205,7 +205,7 @@ bool BasicMovements::driveWall(float distanceInMeters, float speed)
                 }
             }
 
-            float vLeft = 1 / RAD_RADIUS * (0.2 + (angleCorrection - distanceCorrection) * ROB_BASE / 2);
+            float vLeft  = 1 / RAD_RADIUS * (0.2 + (angleCorrection - distanceCorrection) * ROB_BASE / 2);
             float vRight = 1 / RAD_RADIUS * (0.2 + (-angleCorrection + distanceCorrection) * ROB_BASE / 2);
 
             diffDriveService.request.left  = vLeft;
@@ -364,7 +364,7 @@ void BasicMovements::encoderCallback(const create_fundamentals::SensorPacket::Co
 void BasicMovements::laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg)
 {
     laserInitialized = true;
-    ranges = msg->ranges;
+    ranges           = msg->ranges;
 
     // Initialize minimum range to a default value
     minimumRange = LASER_MAX_REACH;

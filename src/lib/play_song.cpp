@@ -12,7 +12,7 @@ class PlaySongLib
         PlaySongLib()
         {
             storeSong = n.serviceClient<create_fundamentals::StoreSong>("store_song");
-            playSong = n.serviceClient<create_fundamentals::PlaySong>("play_song");
+            playSong  = n.serviceClient<create_fundamentals::PlaySong>("play_song");
         }
 
     void starWars();
@@ -30,64 +30,64 @@ class PlaySongLib
         create_fundamentals::PlaySong playSongService;
 
         // define silence
-        static const unsigned int r = 30;
-
+        static const unsigned int r       = 30;
+        
         // map note names in the lilypad notation to irobot commands
-        static const unsigned int c4 = 60;
-        static const unsigned int cis4 = 61;
-        static const unsigned int des4 = cis4;
-        static const unsigned int d4 = 62;
-        static const unsigned int dis4 = 63;
-        static const unsigned int ees4 = dis4;
-        static const unsigned int e4 = 64;
-        static const unsigned int f4 = 65;
-        static const unsigned int fis4 = 66;
-        static const unsigned int ges4 = fis4;
-        static const unsigned int g4 = 67;
-        static const unsigned int gis4 = 68;
-        static const unsigned int aes4 = gis4;
-        static const unsigned int a4 = 69;
-        static const unsigned int ais4 = 70;
-        static const unsigned int bes4 = ais4;
-        static const unsigned int b4 = 71;
-        static const unsigned int c5 = 72;
-        static const unsigned int cis5 = 73;
-        static const unsigned int des5 = cis5;
-        static const unsigned int d5 = 74;
-        static const unsigned int dis5 = 75;
-        static const unsigned int ees5 = dis5;
-        static const unsigned int e5 = 76;
-        static const unsigned int f5 = 77;
-        static const unsigned int fis5 = 78;
-        static const unsigned int ges5 = fis5;
-        static const unsigned int g5 = 79;
-        static const unsigned int gis5 = 80;
-        static const unsigned int aes5 = gis5;
-        static const unsigned int a5 = 81;
-        static const unsigned int ais5 = 82;
-        static const unsigned int bes5 = ais5;
-        static const unsigned int b5 = 83;
-        static const unsigned int c6 = 84;
-        static const unsigned int cis6 = 85;
-        static const unsigned int des6 = cis6;
-        static const unsigned int d6 = 86;
-        static const unsigned int dis6 = 87;
-        static const unsigned int ees6 = dis6;
-        static const unsigned int e6 = 88;
-        static const unsigned int f6 = 89;
-        static const unsigned int fis6 = 90;
-        static const unsigned int ges6 = fis6;
-
+        static const unsigned int c4      = 60;
+        static const unsigned int cis4    = 61;
+        static const unsigned int des4    = cis4;
+        static const unsigned int d4      = 62;
+        static const unsigned int dis4    = 63;
+        static const unsigned int ees4    = dis4;
+        static const unsigned int e4      = 64;
+        static const unsigned int f4      = 65;
+        static const unsigned int fis4    = 66;
+        static const unsigned int ges4    = fis4;
+        static const unsigned int g4      = 67;
+        static const unsigned int gis4    = 68;
+        static const unsigned int aes4    = gis4;
+        static const unsigned int a4      = 69;
+        static const unsigned int ais4    = 70;
+        static const unsigned int bes4    = ais4;
+        static const unsigned int b4      = 71;
+        static const unsigned int c5      = 72;
+        static const unsigned int cis5    = 73;
+        static const unsigned int des5    = cis5;
+        static const unsigned int d5      = 74;
+        static const unsigned int dis5    = 75;
+        static const unsigned int ees5    = dis5;
+        static const unsigned int e5      = 76;
+        static const unsigned int f5      = 77;
+        static const unsigned int fis5    = 78;
+        static const unsigned int ges5    = fis5;
+        static const unsigned int g5      = 79;
+        static const unsigned int gis5    = 80;
+        static const unsigned int aes5    = gis5;
+        static const unsigned int a5      = 81;
+        static const unsigned int ais5    = 82;
+        static const unsigned int bes5    = ais5;
+        static const unsigned int b5      = 83;
+        static const unsigned int c6      = 84;
+        static const unsigned int cis6    = 85;
+        static const unsigned int des6    = cis6;
+        static const unsigned int d6      = 86;
+        static const unsigned int dis6    = 87;
+        static const unsigned int ees6    = dis6;
+        static const unsigned int e6      = 88;
+        static const unsigned int f6      = 89;
+        static const unsigned int fis6    = 90;
+        static const unsigned int ges6    = fis6;
+        
         // define some note lengths
         // change the top MEASURE (4/4 time) to get faster/slower speeds
         static const unsigned int MEASURE = 160;
-        static const unsigned int HALF = MEASURE/2;
-        static const unsigned int Q = MEASURE/4;
-        static const unsigned int E = MEASURE/8;
-        static const unsigned int Ed = MEASURE*3/16;
-        static const unsigned int S = MEASURE/16;
-
-        float MEASURE_TIME = (float)(MEASURE)/64;
+        static const unsigned int HALF    = MEASURE/2;
+        static const unsigned int Q       = MEASURE/4;
+        static const unsigned int E       = MEASURE/8;
+        static const unsigned int Ed      = MEASURE*3/16;
+        static const unsigned int S       = MEASURE/16;
+        
+        float MEASURE_TIME                = (float)(MEASURE)/64;
 };
 
 void PlaySongLib::beep()

@@ -42,7 +42,7 @@ class Env
 bool Env::align(void)
 {
     int countWalls = 0;
-    bool success = true;
+    bool success   = true;
     // align to first wall
     while (ros::ok()) {
         walls = wall_recognition.getWalls();
@@ -96,7 +96,7 @@ bool Env::alignToSingleWall(void)
     Wall* wall;
     float angleErrorMarginInRadians   = 0.2;
     float distanceErrorMarginInMeters = 0.05;
-    bool success = true;
+    bool success                      = true;
 
     while (ros::ok()) {
         // Check the angle again and leave if its ok
