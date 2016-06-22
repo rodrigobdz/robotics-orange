@@ -92,13 +92,13 @@ class PlaySongLib
 
 void PlaySongLib::beep()
 {
-    storeSongService.request.number = 3;
-    storeSongService.request.song = {bes4};
+    storeSongService.request.number = 1;
+    storeSongService.request.song = {a4,Q,HALF};
     storeSong.call(storeSongService);
 
-    playSongService.request.number = 3;
+    playSongService.request.number = 1;
     playSong.call(playSongService);
-    ros::Duration(MEASURE_TIME*1).sleep();
+    ros::Duration(MEASURE_TIME*2.01).sleep();
 }
 
 void PlaySongLib::failure()
