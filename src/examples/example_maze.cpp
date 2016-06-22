@@ -14,7 +14,6 @@ int main(int argc, char **argv)
   signal(SIGINT, mySigintHandler);
 
   Maze maze;
-  ROS_INFO("Test");
   std::vector<int> wallsRobotView = maze.scanCurrentCellInitial();
 
   for(int i = 0; i < wallsRobotView.size(); i++) {

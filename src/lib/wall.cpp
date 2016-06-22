@@ -15,19 +15,25 @@ class Wall
             // Left wall
             this->confirmedWall = false;
             if (!isnan(ranges[LASER_COUNT-1])) {
-                this->confirmedWall = true;
+                if (ranges[LASER_COUNT-1] < 0.7) {
+                    this->confirmedWall = true;
+                }
             }
         } else if (angleInRadians > -3 * PI / 4 && angleInRadians < -PI / 4) {
             // Right wall
             this->confirmedWall = false;
             if (!isnan(ranges[0])) {
-                this->confirmedWall = true;
+                if (ranges[0] < 0.7) {
+                    this->confirmedWall = true;
+                }
             }
         } else if (angleInRadians < PI / 4 && angleInRadians > -PI / 4) {
             // Front wall
             this->confirmedWall = false;
             if (!isnan(ranges[LASER_COUNT / 2])) {
-                this->confirmedWall = true;
+                if (ranges[LASER_COUNT / 2] < 0.7) {
+                    this->confirmedWall = true;
+                }
             }
 
         } else {
