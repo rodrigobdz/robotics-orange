@@ -58,17 +58,17 @@ add_executable(example_ransac src/examples/example_ransac.cpp)
 target_link_libraries(example_ransac ${catkin_LIBRARIES})
 add_dependencies(example_ransac create_fundamentals_generate_messages_cpp)
 
-# add_executable(example_drive src/examples/example_drive.cpp)
-# target_link_libraries(example_drive ${catkin_LIBRARIES})
-# add_dependencies(example_drive create_fundamentals_generate_messages_cpp)
-
 #add_executable(example_plan src/examples/example_plan.cpp)
 #target_link_libraries(example_plan ${catkin_LIBRARIES})
 #add_dependencies(example_plan create_fundamentals_generate_messages_cpp)
 
-add_executable(example_maze src/examples/example_maze.cpp)
-target_link_libraries(example_maze ${catkin_LIBRARIES})
-add_dependencies(example_maze create_fundamentals_generate_messages_cpp)
+# add_executable(example_maze src/examples/example_maze.cpp)
+# target_link_libraries(example_maze ${catkin_LIBRARIES})
+# add_dependencies(example_maze create_fundamentals_generate_messages_cpp)
+
+add_executable(example_playsong src/examples/example_playsong.cpp)
+target_link_libraries(example_playsong ${catkin_LIBRARIES})
+add_dependencies(example_playsong create_fundamentals_generate_messages_cpp)
                     #################################
                     #           HOMEWORKS           #
                     #################################

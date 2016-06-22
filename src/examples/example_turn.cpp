@@ -1,7 +1,5 @@
 #include <basic_movements.cpp>
 #include <signal.h>
-#include <constants.cpp>
-
 
 void stopMotors(int signal) {
     BasicMovements basicMovements;

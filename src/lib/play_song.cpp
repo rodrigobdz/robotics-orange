@@ -103,21 +103,13 @@ void PlaySongLib::beep()
 
 void PlaySongLib::failure()
 {
-    storeSongService.request.number = 1;
-    storeSongService.request.song = {a4,Q, a4,Q, a4,Q, f4,Ed, c5,S, a4,Q, f4,Ed, c5,S, a4,HALF};
+    storeSongService.request.number = 6;
+    storeSongService.request.song = {r,E, f4,E, aes4,Q};
     storeSong.call(storeSongService);
 
-    storeSongService.request.number = 2;
-    storeSongService.request.song = {e5,Q, e5,Q, e5,Q, f5,Ed, c5,S,aes4,Q, f4,Ed, c5,S, a4,HALF};
-    storeSong.call(storeSongService);
-
-    playSongService.request.number = 1;
+    playSongService.request.number = 6;
     playSong.call(playSongService);
-    ros::Duration(MEASURE_TIME*2.01).sleep();
-
-    playSongService.request.number = 2;
-    playSong.call(playSongService);
-    ros::Duration(MEASURE_TIME*2.01).sleep();
+    ros::Duration(MEASURE_TIME*1.76).sleep();
 }
 
 void PlaySongLib::starWars() 

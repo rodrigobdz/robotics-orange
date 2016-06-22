@@ -47,6 +47,7 @@ bool Env::align(void)
     while (ros::ok()) {
         walls = wall_recognition.getWalls();
         countWalls = walls.size();
+        success = true;
 
         if (DEBUG) {
             for (int i = 0; i < countWalls; i++) {
@@ -109,24 +110,34 @@ bool Env::alignToSingleWall(void)
 
             // If angle of wall in front and distance under margin error
             // then error acceptable.
+            success = true;
             bool angleIsAcceptable = fabs(wall->getAngleInRadians()) < angleErrorMarginInRadians;
             bool distanceIsAcceptable = fabs(wall->getDistanceInMeters() - CELL_CENTER) < distanceErrorMarginInMeters;
 
             if(DEBUG) {
                 ROS_INFO("\nAlign to single wall");
                 ROS_INFO("Wall distance = %f ",wall->getDistanceInMeters());
-                ROS_INFO("Drive distance distance to wall: %f - CELL_CENTER: %f = %f\n", wall->getDistanceInMeters(), CELL_CENTER, wall->getDistanceInMeters() - CELL_CENTER);
+                ROS_INFO("Distance to wall: %f", wall->getDistanceInMeters() - CELL_CENTER);
+                ROS_INFO("Angle to wall: %f", wall->getAngleInDegrees());
                 ROS_INFO("angleIsAcceptable %s", angleIsAcceptable ? "true" : "false");
-                ROS_INFO("distanceIsAcceptable %s", distanceIsAcceptable ? "true" : "false");
+                ROS_INFO("distanceIsAcceptable %s\n", distanceIsAcceptable ? "true" : "false");
             }
 
-            if (angleIsAcceptable && distanceIsAcceptable) {
+            if(angleIsAcceptable && distanceIsAcceptable) {
                 break;
             }
 
-            success = success && basic_movements.rotate(wall->getAngleInDegrees());
-            success = success && basic_movements.drive(wall->getDistanceInMeters() - CELL_CENTER);
+            if(!angleIsAcceptable) {
+                success = success && basic_movements.rotate(wall->getAngleInDegrees());
+                r.sleep();
+            }
+
+            if(!distanceIsAcceptable) {
+                success = success && basic_movements.drive(wall->getDistanceInMeters() - CELL_CENTER);
+                r.sleep();
+            }
         }
+        r.sleep();
     }
 
     return success;
