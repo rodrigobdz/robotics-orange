@@ -4,6 +4,7 @@
 // Import pi constant (M_PI)
 #define _USE_MATH_DEFINES
 #include <cmath>
+#include <limits>
 
 // Distances are given in meters
 static const float DISTANCE_LASER_TO_ROBOT_CENTER = 0.125;
@@ -13,6 +14,7 @@ static const float CELL_LENGTH                    = 0.80;
 static const float LASER_MAX_REACH                = 1;
 
 static const float PI                             = M_PI;
+static const int MAX_INT                          = std::numeric_limits<int>::max();
 static const float LASER_COUNT                    = 512;
 static const float ROB_DIAMETER                   = 0.34;
 static const float ROB_BASE                       = 0.258;

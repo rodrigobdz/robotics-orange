@@ -21,9 +21,9 @@ class Position
     void print();
 
   private:
-    int x         = true;
-    int y         = true;
-    int direction = true;
+    int x         = -1;
+    int y         = -1;
+    int direction = -1;
 };
 
 void Position::print()
