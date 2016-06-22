@@ -37,7 +37,9 @@ class Maze
     // TODO Need better name to differ from real move to theoretically move
     // Maybe boolean to differ between move forward and backward
     // Unneccesary for the first implementation
-    // void updatePositionOnMap();
+    std::vector<Position> updatePositionsForward(std::vector<Position> positions, bool driveForward);
+    std::vector<Position> updatePositionsTurn(std::vector<Position> positions, int turn);
+    void updatePositionOnMap();
 
     std::vector<int> scanCurrentCell();
     std::vector<int> scanCurrentCellInitial();
@@ -79,7 +81,13 @@ void Maze::localize()
     possiblePositions = findPossiblePositions(possiblePositions, wallsRobotView);
 
     // loop solange bis nur noch eine possiblePosition existiert
-    //
+    //while (possiblePositions.size() > 1) {
+    //    basic_movements.driveWall(0.8);
+    //    updatePositionOnMap(possiblePosition);
+    //    wallsRobotView = scanCurrentCell();
+    //    possiblePositions = findPossiblePositions(possiblePositions, wallsRobotView);
+    //}
+
     //   fahre roboter
     //   updatePositionOnMap()
     //
@@ -104,6 +112,39 @@ void Maze::parseMap()
         ros::spinOnce();
     }
     return;
+}
+
+// TODO Annahme bearbeiten
+// Annahme ist dass die Positionsbewegung auch sinn macht
+std::vector<Position> Maze::updatePositionsForward(std::vector<Position> positions, bool driveForward) {
+    std::vector<Position> updatedPositions;
+
+    // Drive forward
+    if(driveForward){
+        for (int i = 0; i < positions.size(); i++) {
+            if (positions[i].getDirection() == UP) {
+                updatedPositions.push_back(Position{positions[i].getXCorrdinate(), positions[i].getYCorrdinate() - 1,
+                                                    positions[i].getDirection()});
+            } else if (positions[i].getDirection() == LEFT) {
+                updatedPositions.push_back(Position{positions[i].getXCorrdinate() - 1, positions[i].getYCorrdinate(),
+                                                    positions[i].getDirection()});
+            } else if (positions[i].getDirection() == RIGHT) {
+                updatedPositions.push_back(Position{positions[i].getXCorrdinate() + 1, positions[i].getYCorrdinate(),
+                                                    positions[i].getDirection()});
+            } else if (positions[i].getDirection() == DOWN) {
+                updatedPositions.push_back(Position{positions[i].getXCorrdinate(), positions[i].getYCorrdinate() + 1,
+                                                    positions[i].getDirection()});
+            }
+
+        }
+    }
+    return updatedPositions;
+}
+
+std::vector<Position> Maze::updatePositionsTurn(std::vector<Position> positions, int turn)
+{
+
+
 }
 
 // update the global @rows vector
@@ -152,9 +193,6 @@ bool Maze::compareWalls(Position possiblePosition, std::vector<int> wallsRobot)
             }
             wallOfCell.push_back(newDirection);
         }
-    }
-    for(int i = 0; i < wallOfCell.size(); i++){
-        ROS_INFO("wallOfCell = %d", wallOfCell[i]);
     }
 
     if(wallOfCell.size() != wallsRobot.size()){
