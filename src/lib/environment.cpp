@@ -115,7 +115,7 @@ bool Env::alignToSingleWall(void)
             bool distanceIsAcceptable = fabs(wall->getDistanceInMeters() - CELL_CENTER) < distanceErrorMarginInMeters;
 
             if(DEBUG) {
-                ROS_INFO("\nAlign to single wall");
+                printf("Align to single wall\n");
                 ROS_INFO("Wall distance = %f ",wall->getDistanceInMeters());
                 ROS_INFO("Distance to wall: %f", wall->getDistanceInMeters() - CELL_CENTER);
                 ROS_INFO("Angle to wall: %f", wall->getAngleInDegrees());
@@ -129,12 +129,10 @@ bool Env::alignToSingleWall(void)
 
             if(!angleIsAcceptable) {
                 success = success && basic_movements.rotate(wall->getAngleInDegrees());
-                r.sleep();
             }
 
             if(!distanceIsAcceptable) {
                 success = success && basic_movements.drive(wall->getDistanceInMeters() - CELL_CENTER);
-                r.sleep();
             }
         }
         r.sleep();

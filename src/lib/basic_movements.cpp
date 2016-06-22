@@ -129,6 +129,9 @@ bool BasicMovements::drive(float distanceInMeters, float speed)
             // only when robot has to drive forward
             if (minimumRange < SAFETY_DISTANCE && sign > 0) {
                 // Robot recognized an obstacle, distance could not be completed
+                if(DEBUG){
+                    ROS_INFO("Obstacle obstructing");
+                }
                 stop();
                 return false;
             }
@@ -188,10 +191,12 @@ bool BasicMovements::driveWall(float distanceInMeters, float speed)
                 distanceCorrection = -(slopeOfFunction * PI) * wallDistance + PI / 4;
                 angleCorrection = -tan(2 * wallAngle) * PI / 4;
             } else {
-                if (nearestWall->isFrontWall() && wallDistance < SAFETY_DISTANCE) {
-                    // Robot recognized an obstacle, distance could not be completed
-                    stop();
-                    return false;
+                if (DETECT_OBSTACLES) {
+                    if (nearestWall->isFrontWall() && wallDistance < SAFETY_DISTANCE) {
+                        // Robot recognized an obstacle, distance could not be completed
+                        stop();
+                        return false;
+                    }
                 }
             }
 
