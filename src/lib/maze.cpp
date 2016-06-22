@@ -21,8 +21,8 @@ class Maze
   public:
     Maze()
     {
-        //env.align();
-        //parseMap();
+        // env.align();
+        parseMap();
         // localize();
     }
 
@@ -42,6 +42,12 @@ class Maze
     std::vector<int> scanCurrentCell();
     std::vector<int> scanCurrentCellInitial();
 
+    // Should be private, public for testing
+    std::vector<Position> initializePositions();
+    bool compareWalls(Position possiblePosition, std::vector<int> wallsRobot);
+    // keeps map
+    std::vector<Row> rows;
+
   private:
     // External libraries
     BasicMovements basic_movements;
@@ -49,12 +55,9 @@ class Maze
     Env env;
     Position position{0, 0, 0}; // Position of robot
 
-    // keeps map
-    std::vector<Row> rows;
 
     ros::NodeHandle n;
 
-    std::vector<Position> initializePositions();
     std::vector<Position> findPossibleCellsInitial();
     std::vector<Position> findPossibleCells();
     std::vector<Position> findPossiblePositions(std::vector<Position> positionsVector, std::vector<int> wallsRobotView);
@@ -63,7 +66,6 @@ class Maze
     void parseMap();
     void mapCallback(const Grid::ConstPtr& msg); // get map from service
     bool compareWallsInitial(std::vector<int> wallsMaze);
-    bool compareWalls(std::vector<Position> wallsMaze, std::vector<int> wallsRobot);
 };
 
 std::vector<Row> Maze::getMap() { return rows; }
@@ -108,26 +110,25 @@ std::vector<Position> Maze::findPossiblePositions(std::vector<Position> position
                                                   std::vector<int> wallsRobotView)
 {
     std::vector<Position> positionsLeft;
-    for (int i = 0; i < rows.size(); i++) {
-        for (int j = 0; j < rows[i].cells.size(); j++) {
-            // compareWalls(rows[i].cells[j].walls, wallsRobotView);
-            // TODO create positionsLeft
-        }
+    for(int direction = 0; direction < positionsVector.size(); direction ++){
+        // compareWalls(positionsVector[direction], wallsRobotView);
+        // TODO create positionsLeft
     }
     // TODO return computed value
     return positionsVector;
 }
 
-bool Maze::compareWalls(std::vector<Position> wallsMaze, std::vector<int> wallsRobot)
+bool Maze::compareWalls(Position possiblePosition, std::vector<int> wallsRobot)
 {
-    if (wallsMaze.size() != wallsRobot.size()) {
+    std::vector<int> wallOfCell = rows[possiblePosition.getYCorrdinate()].cells[possiblePosition.getXCorrdinate()].walls;
+
+    if(wallOfCell.size() != wallsRobot.size()){
         return false;
     }
-    for (int rotate = 0; rotate < 4; rotate++) {
-        for (int i = 0; i < wallsMaze.size(); i++) {
-            // if (std::find(wallsRobot.begin(), wallsRobot.end(), wallsMaze[i]) == wallsRobot.end()) {
-            //     return false;
-            // }
+
+    for(int i = 0; i < wallsRobot.size(); i++){
+        if (std::find(wallOfCell.begin(), wallOfCell.end(), wallsRobot[i]) == wallOfCell.end()) {
+            return false;
         }
     }
     return true;
@@ -168,7 +169,7 @@ std::vector<Position> Maze::findPossibleCellsInitial()
     std::vector<Position> possiblePositions = initializePositions();
     std::vector<int> wallsRobotView = scanCurrentCellInitial();
 
-    compareWalls(possiblePositions, wallsRobotView);
+    // compareWalls(possiblePositions, wallsRobotView);
 
     for (int i = 0; i < rows.size(); i++) {
         for (int j = 0; j < rows[i].cells.size(); j++) {
