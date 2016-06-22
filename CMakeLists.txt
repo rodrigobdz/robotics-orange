@@ -66,9 +66,9 @@ include_directories(include ${catkin_INCLUDE_DIRS} src/lib)
 # target_link_libraries(example_maze ${catkin_LIBRARIES})
 # add_dependencies(example_maze create_fundamentals_generate_messages_cpp)
 
-add_executable(example_playsong src/examples/example_playsong.cpp)
-target_link_libraries(example_playsong ${catkin_LIBRARIES})
-add_dependencies(example_playsong create_fundamentals_generate_messages_cpp)
+# add_executable(example_playsong src/examples/example_playsong.cpp)
+# target_link_libraries(example_playsong ${catkin_LIBRARIES})
+# add_dependencies(example_playsong create_fundamentals_generate_messages_cpp)
 
 add_executable(example_align src/examples/example_align.cpp)
 target_link_libraries(example_align ${catkin_LIBRARIES})

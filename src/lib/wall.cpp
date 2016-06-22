@@ -52,6 +52,8 @@ class Wall
     bool isFrontWall();
 
   private:
+    bool DEBUG = false;
+
     float distanceInMeters;
     float angleInRadians;
 
@@ -117,7 +119,9 @@ float Wall::calcAngleInRadians(float x1, float y1, float x2, float y2)
 
     float oldAngleInRadians = atan2(y, x);
 
-    // ROS_INFO("x = %f, y = %f, angle = %f", x, y, newAngleInRadians);
+    if(DEBUG) {
+        ROS_INFO("x = %f, y = %f, angle = %f", x, y, newAngleInRadians);
+    }
 
     float newAngleInRadians;
     if (oldAngleInRadians > -PI / 2) {
