@@ -2,16 +2,16 @@
 #include <basic_movements.cpp>
 #include <maze.cpp>
 
-void mySigintHandler(int signal) {
-    BasicMovements basicMovements;
-    basicMovements.stop();
+void stopMotors(int signal) {
+    BasicMovements basic_movements;
+    basic_movements.stop();
     ros::shutdown();
 }
 
 int main(int argc, char **argv)
 {
   ros::init(argc, argv, "example_maze");
-  signal(SIGINT, mySigintHandler);
+  signal(SIGINT, stopMotors);
 
   Maze maze;
   std::vector<Position> possiblePositions = maze.initializePositions();

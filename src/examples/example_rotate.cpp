@@ -1,26 +1,22 @@
-#include <basic_movements.cpp>
 #include <signal.h>
-#include <constants.cpp>
-
+#include <basic_movements.cpp>
 
 void stopMotors(int signal) {
-    BasicMovements basicMovements;
-    basicMovements.stop();
+    BasicMovements basic_movements;
+    basic_movements.stop();
 }
 
 int main(int argc, char **argv)
 {
-	ros::init(argc, argv, "example_rotate");
+  ros::init(argc, argv, "example_rotate");
+  BasicMovements basic_movements;
+  signal(SIGINT, stopMotors);
 
-    BasicMovements basicMovements;
-
-	signal(SIGINT, stopMotors);
-
-	// Rotate 90 degrees clockwise with a velocity of 7 rad/s
-	basicMovements.rotateRight();
-	basicMovements.rotateLeft();
-	basicMovements.rotateRight();
-	basicMovements.rotateLeft();
+  // Rotate 90 degrees clockwise with a velocity of 7 rad/s
+  basic_movements.rotateRight();
+  basic_movements.rotateLeft();
+  basic_movements.rotateRight();
+  basic_movements.rotateLeft();
 }
 
 
