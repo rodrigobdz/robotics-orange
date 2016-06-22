@@ -10,7 +10,7 @@ class Wall
     Wall(float x1, float y1, float x2, float y2, std::vector<float> ranges)
     {
         distanceInMeters = calcDistanceInMeters(x1, y1, x2, y2);
-        angleInRadians = calcAngleInRadians(x1, y1, x2, y2);
+        angleInRadians   = calcAngleInRadians(x1, y1, x2, y2);
         if (angleInRadians > PI / 4 && angleInRadians < 3 * PI / 4) {
             // Left wall
             this->confirmedWall = false;
@@ -52,6 +52,8 @@ class Wall
     bool isFrontWall();
 
   private:
+    bool DEBUG = false;
+
     float distanceInMeters;
     float angleInRadians;
 
@@ -117,7 +119,9 @@ float Wall::calcAngleInRadians(float x1, float y1, float x2, float y2)
 
     float oldAngleInRadians = atan2(y, x);
 
-    // ROS_INFO("x = %f, y = %f, angle = %f", x, y, newAngleInRadians);
+    if(DEBUG) {
+        ROS_INFO("x = %f, y = %f, angle = %f", x, y, newAngleInRadians);
+    }
 
     float newAngleInRadians;
     if (oldAngleInRadians > -PI / 2) {
@@ -129,10 +133,22 @@ float Wall::calcAngleInRadians(float x1, float y1, float x2, float y2)
     return newAngleInRadians;
 }
 
-bool Wall::isLeftWall() { return (angleInRadians > PI / 4 && angleInRadians < 3 * PI / 4); }// angle between 45 and 135 degrees
+// angle between 45 and 135 degrees
+bool Wall::isLeftWall() 
+{
+    return (angleInRadians > PI / 4 && angleInRadians < 3 * PI / 4); 
+}
 
-bool Wall::isRightWall() { return (angleInRadians > -3 * PI / 4 && angleInRadians < -PI / 4); } // angle between -45 and -135 degrees
+// angle between -45 and -135 degrees
+bool Wall::isRightWall() 
+{
+    return (angleInRadians > -3 * PI / 4 && angleInRadians < -PI / 4); 
+}
 
-bool Wall::isFrontWall() { return (angleInRadians < PI / 4 && angleInRadians > -PI / 4); } // angle between -45 and 45 degrees
+// angle between -45 and 45 degrees
+bool Wall::isFrontWall() 
+{ 
+    return (angleInRadians < PI / 4 && angleInRadians > -PI / 4); 
+}
 
 #endif

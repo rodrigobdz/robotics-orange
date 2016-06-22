@@ -209,16 +209,16 @@ std::vector<Position> Maze::updatePositionsForward(std::vector<Position> positio
     // Drive forward
     for (int i = 0; i < positions.size(); i++) {
         if (positions[i].getDirection() == UP) {
-            updatedPositions.push_back(Position{positions[i].getXCorrdinate(), positions[i].getYCorrdinate() - 1,
+            updatedPositions.push_back(Position{positions[i].getXCoordinate(), positions[i].getYCoordinate() - 1,
                                                 positions[i].getDirection()});
         } else if (positions[i].getDirection() == LEFT) {
-            updatedPositions.push_back(Position{positions[i].getXCorrdinate() - 1, positions[i].getYCorrdinate(),
+            updatedPositions.push_back(Position{positions[i].getXCoordinate() - 1, positions[i].getYCoordinate(),
                                                 positions[i].getDirection()});
         } else if (positions[i].getDirection() == RIGHT) {
-            updatedPositions.push_back(Position{positions[i].getXCorrdinate() + 1, positions[i].getYCorrdinate(),
+            updatedPositions.push_back(Position{positions[i].getXCoordinate() + 1, positions[i].getYCoordinate(),
                                                 positions[i].getDirection()});
         } else if (positions[i].getDirection() == DOWN) {
-            updatedPositions.push_back(Position{positions[i].getXCorrdinate(), positions[i].getYCorrdinate() + 1,
+            updatedPositions.push_back(Position{positions[i].getXCoordinate(), positions[i].getYCoordinate() + 1,
                                                 positions[i].getDirection()});
         }
     }
@@ -230,29 +230,29 @@ std::vector<Position> Maze::updatePositionsTurn(std::vector<Position> positions,
     std::vector<Position> updatedPositions;
     for (int i = 0; i < positions.size(); i++) {
         if (turn == UP) {
-            updatedPositions.push_back(
-                Position{positions[i].getXCorrdinate(), positions[i].getYCorrdinate(), positions[i].getDirection()});
+            updatedPositions.push_back(Position{positions[i].getXCoordinate(), positions[i].getYCoordinate(),
+                                                positions[i].getDirection()});
         } else if (turn == RIGHT) {
             int newDirection = positions[i].getDirection() - 1;
             if (newDirection < 0) {
                 newDirection = newDirection + 4;
             }
             updatedPositions.push_back(
-                Position{positions[i].getXCorrdinate(), positions[i].getYCorrdinate(), newDirection});
+                Position{positions[i].getXCoordinate(), positions[i].getYCoordinate(), newDirection});
         } else if (turn == LEFT) {
             int newDirection = positions[i].getDirection() + 1;
             if (newDirection > 3) {
                 newDirection = newDirection - 4;
             }
             updatedPositions.push_back(
-                Position{positions[i].getXCorrdinate(), positions[i].getYCorrdinate(), newDirection});
+                Position{positions[i].getXCoordinate(), positions[i].getYCoordinate(), newDirection});
         } else if (turn == DOWN) {
             int newDirection = positions[i].getDirection() + 2;
             if (newDirection > 3) {
                 newDirection = newDirection - 4;
             }
             updatedPositions.push_back(
-                Position{positions[i].getXCorrdinate(), positions[i].getYCorrdinate(), newDirection});
+                Position{positions[i].getXCoordinate(), positions[i].getYCoordinate(), newDirection});
         }
     }
     return updatedPositions;

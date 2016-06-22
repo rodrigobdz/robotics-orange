@@ -10,25 +10,25 @@ class Position
   public:
     Position(int x, int y, int direction)
     {
-        this->x = x;
-        this->y = y;
+        this->x         = x;
+        this->y         = y;
         this->direction = direction;
     }
 
-    int getXCorrdinate() { return x; }
-    int getYCorrdinate() { return y; }
+    int getXCoordinate() { return x; }
+    int getYCoordinate() { return y; }
     int getDirection() { return direction; }
     void print();
 
   private:
-    int x = true;
-    int y = true;
+    int x         = true;
+    int y         = true;
     int direction = true;
 };
 
-void Position::print(){
+void Position::print()
+{
     ROS_INFO("X = %d, Y = %d, direction = %d", x, y, direction);
-
 }
 
 #endif

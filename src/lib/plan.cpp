@@ -18,7 +18,7 @@ class Plan
 bool Plan::execute(std::vector<int> plan) 
 {
     BasicMovements basic_movements;
-    int lastDirection = UP;
+    int lastDirection        = UP;
     bool executionSuccessful = true;
 
     if(DEBUG) {
