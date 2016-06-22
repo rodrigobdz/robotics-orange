@@ -160,6 +160,11 @@ bool BasicMovements::drive(float distanceInMeters, float speed)
 **/
 bool BasicMovements::driveWall(float distanceInMeters, float speed)
 {
+    // Use normal drive function when distance is negative
+    if(distanceInMeters < 0) {
+        return drive(distanceInMeters, speed);
+    }
+
     initialiseEncoder();
 
     float wishLeftEncoder  = leftEncoder + distanceInMeters / RAD_RADIUS;
