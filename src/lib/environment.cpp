@@ -26,7 +26,7 @@ class Env
     ros::Subscriber laser;
     std::vector<float> ranges;
     std::vector<Wall*> walls;
-    bool DEBUG = true;
+    bool DEBUG = false;
 
     // External libraries
     BasicMovements basic_movements;
@@ -112,7 +112,7 @@ bool Env::alignToSingleWall(void)
             // then error acceptable.
             success = true;
             bool angleIsAcceptable = fabs(wall->getAngleInRadians()) < angleErrorMarginInRadians;
-            float distanceToWall = wall->getDistanceInMeters() - CELL_CENTER; 
+            float distanceToWall = wall->getDistanceInMeters() - CELL_CENTER;
             bool distanceIsAcceptable = fabs(distanceToWall) < distanceErrorMarginInMeters;
 
             if(DEBUG) {

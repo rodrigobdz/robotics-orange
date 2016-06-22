@@ -14,24 +14,7 @@ int main(int argc, char** argv)
     signal(SIGINT, stopMotors);
 
     Maze maze;
-    std::vector<Position> possiblePositions = maze.initializePositions();
-    std::vector<int> wallsRobot{0, 3, 2};
-
-    ROS_INFO("possiblePositions for deletion = %lu", possiblePositions.size());
-    possiblePositions = maze.findPossiblePositions(possiblePositions, wallsRobot);
-    ROS_INFO("possiblePositions after deletion = %lu", possiblePositions.size());
-
-    for (int i = 0; i < possiblePositions.size(); i++) {
-        possiblePositions[i].print();
-    }
-
-    ROS_INFO("UpdatePositions");
-    //possiblePositions = maze.updatePositionsForward(possiblePositions);
-    possiblePositions = maze.updatePositionsTurn(possiblePositions, LEFT);
-
-    for (int i = 0; i < possiblePositions.size(); i++) {
-        possiblePositions[i].print();
-    }
+    ROS_INFO("Position x = %d, y = %d, direction = %d", maze.getPosition().getXCorrdinate(), maze.getPosition().getYCorrdinate(), maze.getPosition().getDirection());
 
     return 0;
 }
