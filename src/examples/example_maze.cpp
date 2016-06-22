@@ -26,7 +26,8 @@ int main(int argc, char** argv)
     }
 
     ROS_INFO("UpdatePositions");
-    possiblePositions= maze.updatePositions(possiblePositions, true, 1);
+    //possiblePositions = maze.updatePositionsForward(possiblePositions);
+    possiblePositions = maze.updatePositionsTurn(possiblePositions, LEFT);
 
     for (int i = 0; i < possiblePositions.size(); i++) {
         possiblePositions[i].print();
