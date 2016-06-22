@@ -2,21 +2,21 @@
 #include <signal.h>
 
 void stopMotors(int signal) {
-    BasicMovements basicMovements;
-    basicMovements.stop();
+    BasicMovements basic_movements;
+    basic_movements.stop();
 }
 
 int main(int argc, char **argv)
 {
 	ros::init(argc, argv, "example_turn");
 
-    BasicMovements basicMovements;
+    BasicMovements basic_movements;
 
 	signal(SIGINT, stopMotors);
 
 	// Rotate 90 degrees clockwise with a velocity of 7 rad/s
-	basicMovements.turnRight();
-	basicMovements.turnLeft();
+	basic_movements.turnRight();
+	basic_movements.turnLeft();
 
 }
 
