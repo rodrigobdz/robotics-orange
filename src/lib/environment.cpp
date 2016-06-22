@@ -112,30 +112,39 @@ bool Env::alignToSingleWall(void)
             // then error acceptable.
             success = true;
             bool angleIsAcceptable = fabs(wall->getAngleInRadians()) < angleErrorMarginInRadians;
-            bool distanceIsAcceptable = fabs(wall->getDistanceInMeters() - CELL_CENTER) < distanceErrorMarginInMeters;
+            float distanceToWall = wall->getDistanceInMeters() - CELL_CENTER; 
+            bool distanceIsAcceptable = fabs(distanceToWall) < distanceErrorMarginInMeters;
 
             if(DEBUG) {
                 printf("Align to single wall\n");
                 ROS_INFO("Wall distance = %f ",wall->getDistanceInMeters());
-                ROS_INFO("Distance to wall: %f", wall->getDistanceInMeters() - CELL_CENTER);
+                ROS_INFO("Distance to wall: %f", distanceToWall);
                 ROS_INFO("Angle to wall: %f", wall->getAngleInDegrees());
                 ROS_INFO("angleIsAcceptable %s", angleIsAcceptable ? "true" : "false");
                 ROS_INFO("distanceIsAcceptable %s\n", distanceIsAcceptable ? "true" : "false");
             }
 
+            // Check if robot is already aligned
             if(angleIsAcceptable && distanceIsAcceptable) {
                 break;
             }
 
+            // Correct angle if not acceptable yet
             if(!angleIsAcceptable) {
                 success = success && basic_movements.rotate(wall->getAngleInDegrees());
             }
 
+            // Drive distance if not acceptable yet
             if(!distanceIsAcceptable) {
-                success = success && basic_movements.drive(wall->getDistanceInMeters() - CELL_CENTER);
+                success = success && basic_movements.driveWall(distanceToWall);
             }
         }
+        // Give some time to the loop to finish current statements
         r.sleep();
+    }
+
+    if(DEBUG) {
+        ROS_INFO("Success %s", success ? "true" : "false");
     }
 
     return success;
