@@ -120,7 +120,39 @@ std::vector<Position> Maze::findPossiblePositions(std::vector<Position> position
 
 bool Maze::compareWalls(Position possiblePosition, std::vector<int> wallsRobot)
 {
-    std::vector<int> wallOfCell = rows[possiblePosition.getYCorrdinate()].cells[possiblePosition.getXCorrdinate()].walls;
+    std::vector<int> wallOfCellBeforeDirection = rows[possiblePosition.getYCorrdinate()].cells[possiblePosition.getXCorrdinate()].walls;
+    std::vector<int> wallOfCell;
+
+    if (possiblePosition.getDirection() == UP) {
+        wallOfCell = wallOfCellBeforeDirection;
+    } else if (possiblePosition.getDirection() == RIGHT) {
+        for(int i = 0; i < wallOfCellBeforeDirection.size(); i++){
+            int newDirection = wallOfCellBeforeDirection[i]+1;
+            if(newDirection > 3){
+                newDirection = newDirection - 4;
+            }
+            wallOfCell.push_back(newDirection);
+        }
+    } else if (possiblePosition.getDirection() == LEFT) {
+        for(int i = 0; i < wallOfCellBeforeDirection.size(); i++){
+            int newDirection = wallOfCellBeforeDirection[i]-1;
+            if(newDirection < 0){
+                newDirection = newDirection + 4;
+            }
+            wallOfCell.push_back(newDirection);
+        }
+    } else if (possiblePosition.getDirection() == DOWN) {
+        for(int i = 0; i < wallOfCellBeforeDirection.size(); i++){
+            int newDirection = wallOfCellBeforeDirection[i]+2;
+            if(newDirection > 3){
+                newDirection = newDirection - 4;
+            }
+            wallOfCell.push_back(newDirection);
+        }
+    }
+    for(int i = 0; i < wallOfCell.size(); i++){
+        ROS_INFO("wallOfCell = %d", wallOfCell[i]);
+    }
 
     if(wallOfCell.size() != wallsRobot.size()){
         return false;
