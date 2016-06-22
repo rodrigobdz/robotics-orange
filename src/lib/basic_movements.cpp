@@ -181,10 +181,10 @@ bool BasicMovements::driveWall(float distanceInMeters, float speed)
         } else {
             // Search for nearest wall
             Wall* nearestWall     = wall_recognition.getNearestWall(walls);
-            
+
             float wallAngle       = nearestWall->getAngleInRadians();
             float wallDistance    = nearestWall->getDistanceInMeters();
-            
+
             float distanceCorrection;
             float angleCorrection;
             float slopeOfFunction = 0.625;
@@ -197,7 +197,7 @@ bool BasicMovements::driveWall(float distanceInMeters, float speed)
                 angleCorrection    = -tan(2 * wallAngle) * PI / 4;
             } else {
                 if (DETECT_OBSTACLES) {
-                    if (nearestWall->isFrontWall() && wallDistance < SAFETY_DISTANCE) {
+                    if (nearestWall->isConfirmed() && nearestWall->isFrontWall() && wallDistance < SAFETY_DISTANCE) {
                         // Robot recognized an obstacle, distance could not be completed
                         stop();
                         return false;
@@ -266,7 +266,7 @@ bool BasicMovements::rotate(float angleInDegrees, float speed)
  *
  * Returns: false if obstacle was found otherwise true
 **/
-bool BasicMovements::rotateLeft(float speed) 
+bool BasicMovements::rotateLeft(float speed)
 {
     return rotate(90, speed);
 }
@@ -286,7 +286,7 @@ bool BasicMovements::rotateRight(float speed)
  *
  * Returns: false if obstacle was found otherwise true
 **/
-bool BasicMovements::rotateBackwards(float speed) 
+bool BasicMovements::rotateBackwards(float speed)
 {
     return rotate(180, speed);
 }
@@ -345,7 +345,7 @@ bool BasicMovements::turn(int direction)
         move((CELL_LENGTH - ROB_BASE / 2) / 3, sign * PI / 2 / 3);
     }
 
-    return false;   
+    return false;
 }
 
 /********************** HELPERS *****************************/
