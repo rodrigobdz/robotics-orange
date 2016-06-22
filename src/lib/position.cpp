@@ -18,11 +18,17 @@ class Position
     int getXCorrdinate() { return x; }
     int getYCorrdinate() { return y; }
     int getDirection() { return direction; }
+    void print();
 
   private:
     int x = true;
     int y = true;
     int direction = true;
 };
+
+void Position::print(){
+    ROS_INFO("X = %d, Y = %d, direction = %d", x, y, direction);
+
+}
 
 #endif

@@ -45,6 +45,7 @@ class Maze
     // Should be private, public for testing
     std::vector<Position> initializePositions();
     bool compareWalls(Position possiblePosition, std::vector<int> wallsRobot);
+    std::vector<Position> findPossiblePositions(std::vector<Position> positionsVector, std::vector<int> wallsRobotView);
     // keeps map
     std::vector<Row> rows;
 
@@ -60,7 +61,6 @@ class Maze
 
     std::vector<Position> findPossibleCellsInitial();
     std::vector<Position> findPossibleCells();
-    std::vector<Position> findPossiblePositions(std::vector<Position> positionsVector, std::vector<int> wallsRobotView);
     std::vector<int> rotateCellWallsClockwise(std::vector<int> wallsRobotView);
 
     void parseMap();
@@ -110,12 +110,12 @@ std::vector<Position> Maze::findPossiblePositions(std::vector<Position> position
                                                   std::vector<int> wallsRobotView)
 {
     std::vector<Position> positionsLeft;
-    for(int direction = 0; direction < positionsVector.size(); direction ++){
-        // compareWalls(positionsVector[direction], wallsRobotView);
-        // TODO create positionsLeft
+    for (int position = 0; position < positionsVector.size(); position++) {
+        if (compareWalls(positionsVector[position], wallsRobotView)) {
+            positionsLeft.push_back(positionsVector[position]);
+        }
     }
-    // TODO return computed value
-    return positionsVector;
+    return positionsLeft;
 }
 
 bool Maze::compareWalls(Position possiblePosition, std::vector<int> wallsRobot)
@@ -216,7 +216,7 @@ std::vector<Position> Maze::initializePositions()
     std::vector<Position> positions{};
     for (int y = 0; y < rows.size(); y++) {
         for (int x = 0; x < rows[y].cells.size(); x++) {
-            for (int direction = 0; direction < rows.size(); direction++) {
+            for (int direction = 0; direction < 4; direction++) {
                 Position position{x, y, direction};
                 positions.push_back(position);
             }
