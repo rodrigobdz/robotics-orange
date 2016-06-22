@@ -8,27 +8,30 @@ void stopMotors(int signal) {
     ros::shutdown();
 }
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "example_maze");
-  signal(SIGINT, stopMotors);
+    ros::init(argc, argv, "example_maze");
+    signal(SIGINT, stopMotors);
 
-  Maze maze;
-  std::vector<Position> possiblePositions = maze.initializePositions();
-  std::vector<int> wallsRobot{0,2,3};
+    Maze maze;
+    std::vector<Position> possiblePositions = maze.initializePositions();
+    std::vector<int> wallsRobot{0, 3, 2};
 
-  ROS_INFO("possiblePositions for deletion = %lu", possiblePositions.size());
-  possiblePositions = maze.findPossiblePositions(possiblePositions, wallsRobot);
-  ROS_INFO("possiblePositions after deletion = %lu", possiblePositions.size());
+    ROS_INFO("possiblePositions for deletion = %lu", possiblePositions.size());
+    possiblePositions = maze.findPossiblePositions(possiblePositions, wallsRobot);
+    ROS_INFO("possiblePositions after deletion = %lu", possiblePositions.size());
 
-  for(int i = 0; i < possiblePositions.size(); i++){
-      possiblePositions[i].print();
-  }
+    for (int i = 0; i < possiblePositions.size(); i++) {
+        possiblePositions[i].print();
+    }
 
-  // std::vector<int> wallsRobotView = maze.scanCurrentCellInitial();
-  // for(int i = 0; i < wallsRobotView.size(); i++) {
-  // 	ROS_INFO("Wall %d", wallsRobotView[i]);
-  // }
+    ROS_INFO("UpdatePositions");
+    //possiblePositions = maze.updatePositionsForward(possiblePositions);
+    possiblePositions = maze.updatePositionsTurn(possiblePositions, LEFT);
 
-  return 0;
+    for (int i = 0; i < possiblePositions.size(); i++) {
+        possiblePositions[i].print();
+    }
+
+    return 0;
 }
