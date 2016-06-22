@@ -104,8 +104,8 @@ void Maze::localize()
         if (DEBUG) {
             ROS_INFO("Current possiblePosition = %lu", possiblePositions.size());
             for (int i = 0; i < possiblePositions.size(); i++) {
-                ROS_INFO("X = %d, Y = %d, direction = %d", possiblePositions[i].getXCorrdinate(),
-                         possiblePositions[i].getYCorrdinate(), possiblePositions[i].getDirection());
+                ROS_INFO("X = %d, Y = %d, direction = %d", possiblePositions[i].getXCoordinate(),
+                         possiblePositions[i].getYCoordinate(), possiblePositions[i].getDirection());
             }
         }
         Wall* rightWall = NULL;
@@ -276,7 +276,7 @@ std::vector<Position> Maze::findPossiblePositions(std::vector<Position> position
 bool Maze::compareWalls(Position possiblePosition, std::vector<int> wallsRobot)
 {
     std::vector<int> wallOfCellBeforeDirection =
-        rows[possiblePosition.getYCorrdinate()].cells[possiblePosition.getXCorrdinate()].walls;
+        rows[possiblePosition.getYCoordinate()].cells[possiblePosition.getXCoordinate()].walls;
     std::vector<int> wallOfCell;
 
     if (possiblePosition.getDirection() == UP) {

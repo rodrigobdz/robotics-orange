@@ -14,7 +14,7 @@ int main(int argc, char** argv)
     signal(SIGINT, stopMotors);
 
     Maze maze;
-    ROS_INFO("Position x = %d, y = %d, direction = %d", maze.getPosition().getXCorrdinate(), maze.getPosition().getYCorrdinate(), maze.getPosition().getDirection());
+    ROS_INFO("Position x = %d, y = %d, direction = %d", maze.getPosition().getXCoordinate(), maze.getPosition().getYCoordinate(), maze.getPosition().getDirection());
 
     return 0;
 }

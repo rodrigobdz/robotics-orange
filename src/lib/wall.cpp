@@ -119,9 +119,6 @@ float Wall::calcAngleInRadians(float x1, float y1, float x2, float y2)
 
     float oldAngleInRadians = atan2(y, x);
 
-    if(DEBUG) {
-        ROS_INFO("x = %f, y = %f, angle = %f", x, y, newAngleInRadians);
-    }
 
     float newAngleInRadians;
     if (oldAngleInRadians > -PI / 2) {
@@ -130,6 +127,10 @@ float Wall::calcAngleInRadians(float x1, float y1, float x2, float y2)
         newAngleInRadians = oldAngleInRadians + PI * 3 / 2;
     }
 
+    if(DEBUG) {
+        ROS_INFO("x = %f, y = %f, angle = %f", x, y, newAngleInRadians);
+    }
+    
     return newAngleInRadians;
 }
 

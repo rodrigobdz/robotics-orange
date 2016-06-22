@@ -13,7 +13,7 @@ int main(int argc, char** argv)
   ros::init(argc, argv, "example_align");
   signal(SIGINT, stopMotors);
   
-  PathFinder pathFinder;
+  // PathFinder pathFinder;
   // pathFinder.find();
 
   return 0;
