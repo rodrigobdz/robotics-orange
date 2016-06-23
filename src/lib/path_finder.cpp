@@ -23,6 +23,7 @@ class PathFinder
         void initializeWeightedMap(Position);
         void setDistancesInWeightedMap(Position, Position);
         std::vector<Position> getNeighbours(Position);
+
         std::vector<std::vector<int>> weightedMap;
 
     private:
@@ -84,17 +85,25 @@ void PathFinder::setDistancesInWeightedMap(Position currentCell, Position goalCe
 {
     // Get all reachable cells from current position
     std::vector<Position> neighbours = getNeighbours(currentCell);
+    ROS_INFO("Test2");
+
     // Append all neighbours to vectors with unexplored cells
     neighbourBacklog.insert(neighbourBacklog.end(), neighbours.begin(), neighbours.end());
     int weightCurrentCell = weightedMap[currentCell.getXCoordinate()][currentCell.getYCoordinate()];
+    ROS_INFO("Test3");
+    
     // Select next neighbour in breadth first search
     Position neighbourOfInterest = neighbourBacklog[0];
+    ROS_INFO("Test4");
+    
     // Weight next neighbour
     int weightNeighbourOfInterest = weightedMap[neighbourOfInterest.getXCoordinate()][neighbourOfInterest.getYCoordinate()];
+    
     // Update weight of neighbour
     if (weightCurrentCell + 1 < weightNeighbourOfInterest ) {
         weightedMap[neighbourOfInterest.getXCoordinate()][neighbourOfInterest.getYCoordinate()] = weightCurrentCell + 1;
     }
+    
     // Erase explored neighbour
     neighbourBacklog.erase(neighbourBacklog.begin());
 
@@ -102,42 +111,40 @@ void PathFinder::setDistancesInWeightedMap(Position currentCell, Position goalCe
     if (neighbourBacklog.size() == 0) { 
         return; 
     }
+    
     // Continue to explore the rest of the map
     setDistancesInWeightedMap(neighbourOfInterest, goalCell);
 }
 
 std::vector<Position> PathFinder::getNeighbours(Position position)
 {
+    ROS_INFO("TestNeighbourBefore");
+    ROS_INFO("size %lu %lu", rows[0].cells.size(), rows.size());
     std::vector<int> walls = rows[position.getYCoordinate()].cells[position.getXCoordinate()].walls;
+    ROS_INFO("TestNeighbourAfter");
     std::vector<Position> neighbours;
     Position possibleNeighbour;
+
     // std::vector<> v;
     // Loop through all possible orientations to
     // discover if a neighbor is accessible or not.
     for (int i = 0; i < 4; i++) {
-        if (walls[i] == TOP) {
-            possibleNeighbour = {position.getYCoordinate() - 1, position.getXCoordinate(), -1};
-            if (weightedMap[possibleNeighbour.getXCoordinate()][possibleNeighbour.getYCoordinate()] != MAX_INT) {
-                neighbours.push_back(possibleNeighbour);    
+        ROS_INFO("TestNeighbour");
+        if (std::find(walls.begin(),walls.end(),i) == walls.end()) {
+            ROS_INFO("TestNeighbourT %i", i);
+            if(i == RIGHT){
+                possibleNeighbour = {position.getXCoordinate() + 1, position.getYCoordinate(), -1};
+            } else if(i == UP){
+                possibleNeighbour = {position.getXCoordinate(), position.getYCoordinate() - 1, -1};
+            }else if(i == LEFT){
+                possibleNeighbour = {position.getXCoordinate() - 1, position.getYCoordinate(), -1};
+            }else if(i == DOWN){
+                possibleNeighbour = {position.getXCoordinate(), position.getYCoordinate() + 1, -1};
             }
-            
-        } else if (walls[i] == RIGHT) {
-            possibleNeighbour = {position.getYCoordinate(), position.getXCoordinate() + 1, -1};
-            if (weightedMap[possibleNeighbour.getXCoordinate()][possibleNeighbour.getYCoordinate()] != MAX_INT) {
-                neighbours.push_back(possibleNeighbour);    
-            }
-        } else if (walls[i] == LEFT) {
-            possibleNeighbour = {position.getYCoordinate(), position.getXCoordinate() -1, -1};
-            if (weightedMap[possibleNeighbour.getXCoordinate()][possibleNeighbour.getYCoordinate()] != MAX_INT) {
-                neighbours.push_back(possibleNeighbour);    
-            }
-        } else if (walls[i] == BOTTOM) {
-            possibleNeighbour = {position.getYCoordinate() + 1, position.getXCoordinate(), -1};
-            if (weightedMap[possibleNeighbour.getXCoordinate()][possibleNeighbour.getYCoordinate()] != MAX_INT) {
-                neighbours.push_back(possibleNeighbour);    
-            }
+            neighbours.push_back(possibleNeighbour);    
         }
     }
+    return neighbours;
 }
 
 void PathFinder::parseMap()
