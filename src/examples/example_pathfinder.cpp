@@ -10,11 +10,24 @@ void stopMotors(int signal) {
 
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "example_align");
-  signal(SIGINT, stopMotors);
-  
-  // PathFinder pathFinder;
-  // pathFinder.find();
+	ros::init(argc, argv, "example_align");
+ 	signal(SIGINT, stopMotors);
 
-  return 0;
+ 	PathFinder path_finder;
+  
+ 	std::vector<std::vector<int>> map;
+
+
+	path_finder.initializeWeightedMap({0,0,0});
+
+	map = path_finder.weightedMap;
+	ROS_INFO("Test");
+	ROS_INFO("Size %lu", map.size());
+	
+	for (int i = 0; i < 5; ++i) 
+	{
+		ROS_INFO("%i %i %i %i %i %i %i", map[0][i], map[1][i], map[2][i], map[3][i], map[4][i], map[5][i], map[6][i]);
+	}
+
+  	return 0;
 }

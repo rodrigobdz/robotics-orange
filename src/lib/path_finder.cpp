@@ -12,30 +12,35 @@
 class PathFinder
 {
     public:
-        PathFinder(std::vector<Row> rows)
+        PathFinder()
         {
             // Initialize map in form of rows from
             // which columns are accessible
-            this->rows = rows;
+            parseMap();
         }
         
         std::vector<int> find(Position start, Position end);
+        void initializeWeightedMap(Position);
+        void setDistancesInWeightedMap(Position, Position);
+        std::vector<Position> getNeighbours(Position);
+        std::vector<std::vector<int>> weightedMap;
 
     private:
         // Variables
         bool DEBUG = true;
         std::vector<Row> rows; // Map variable
-        std::vector<std::vector<int>> weightedMap;
+        ros::NodeHandle n;
+        
         // Vector with cells to explore
         std::vector<Position> neighbourBacklog;
         Position currentCell;
+        std::vector<std::vector<Position>> possiblePaths;
         
         // External libraries
 
         // Functions
-        void initializeWeightedMap(Position);
-        void setDistancesInWeightedMap(Position);
-        std::vector<Position> getNeighbours(Position);
+        void parseMap();
+        void mapCallback(const Grid::ConstPtr& msg); // get map from service
 };
 
 std::vector<int> PathFinder::find(Position start, Position end)
@@ -45,7 +50,7 @@ std::vector<int> PathFinder::find(Position start, Position end)
     }
     // Initialize weights in map starting from given position
     initializeWeightedMap(start);
-    setDistancesInWeightedMap(start);
+    setDistancesInWeightedMap(start, end);
 
 }
 
@@ -71,7 +76,7 @@ void PathFinder::initializeWeightedMap(Position start)
 *   currentCell - start position from where all distances are
 *                 calculated
 */
-void PathFinder::setDistancesInWeightedMap(Position currentCell)
+void PathFinder::setDistancesInWeightedMap(Position currentCell, Position goalCell)
 {
     // Get all reachable cells from current position
     std::vector<Position> neighbours = getNeighbours(currentCell);
@@ -83,8 +88,8 @@ void PathFinder::setDistancesInWeightedMap(Position currentCell)
     // Weight next neighbour
     int weightNeighbourOfInterest = weightedMap[neighbourOfInterest.getXCoordinate()][neighbourOfInterest.getYCoordinate()];
     // Update weight of neighbour
-    if (weightCurrentCell++ < weightNeighbourOfInterest ) {
-        weightedMap[neighbourOfInterest.getXCoordinate()][neighbourOfInterest.getYCoordinate()] = weightCurrentCell++;
+    if (weightCurrentCell + 1 < weightNeighbourOfInterest ) {
+        weightedMap[neighbourOfInterest.getXCoordinate()][neighbourOfInterest.getYCoordinate()] = weightCurrentCell + 1;
     }
     // Erase explored neighbour
     neighbourBacklog.erase(neighbourBacklog.begin());
@@ -94,7 +99,7 @@ void PathFinder::setDistancesInWeightedMap(Position currentCell)
         return; 
     }
     // Continue to explore the rest of the map
-    setDistancesInWeightedMap(neighbourOfInterest);
+    setDistancesInWeightedMap(neighbourOfInterest, goalCell);
 }
 
 std::vector<Position> PathFinder::getNeighbours(Position position)
@@ -130,5 +135,22 @@ std::vector<Position> PathFinder::getNeighbours(Position position)
         }
     }
 }
+
+void PathFinder::parseMap()
+{
+    // get map from service
+    ros::Subscriber map;
+    map = n.subscribe("map", 1, &PathFinder::mapCallback, this);
+    while (rows.size() == 0) {
+        ros::spinOnce();
+    }
+    map.shutdown();
+    return;
+}
+
+// update the global @rows vector
+void PathFinder::mapCallback(const Grid::ConstPtr& msg) { rows = msg->rows; }
+
+
 
 #endif // PATH_FINDER_LIB
