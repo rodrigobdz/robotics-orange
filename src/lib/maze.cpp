@@ -216,15 +216,11 @@ std::vector<Position> Maze::findPossiblePositions(std::vector<Position> position
                                                   std::vector<int> wallsRobotView)
 {
     std::vector<Position> positionsLeft;
-    ROS_INFO("1.6.1");
     for (int position = 0; position < positionsVector.size(); position++) {
-        ROS_INFO("1.6.2");
         if (compareWalls(positionsVector[position], wallsRobotView)) {
             positionsLeft.push_back(positionsVector[position]);
-            ROS_INFO("1.6.3");
         }
     }
-    ROS_INFO("1.6.4");
     if (DEBUG) {
         if (positionsLeft.size() == 0) {
             ROS_INFO("PositionsLeft 0");
@@ -362,29 +358,20 @@ void Maze::searchCorrectPosition()
 
         walls = wall_recognition.getWalls();
 
-        ROS_INFO("1");
         if (!wall_recognition.hasRightWall(walls)) {
-            ROS_INFO("1.1");
             basic_movements.rotateRight();
-            ROS_INFO("1.2");
             possiblePositions = updatePositionsTurn(possiblePositions, RIGHT);
-            ROS_INFO("1.3");
-            basic_movements.driveWall(0.8);
-            ROS_INFO("1.4");
+            basic_movements.driveWall(CELL_LENGTH);
             possiblePositions = updatePositionsForward(possiblePositions);
-            ROS_INFO("1.5");
             std::vector<int> wallsRobotView = scanCurrentCell();
-            ROS_INFO("1.6");
             possiblePositions = findPossiblePositions(possiblePositions, wallsRobotView);
-            ROS_INFO("1.7");
             continue;
         } else {
-            ROS_INFO("3");
             rightWall = wall_recognition.getRightWall(walls);
             if (!rightWall->isConfirmed()) {
                 basic_movements.rotateRight();
                 possiblePositions = updatePositionsTurn(possiblePositions, RIGHT);
-                basic_movements.driveWall(0.8);
+                basic_movements.driveWall(CELL_LENGTH);
                 possiblePositions = updatePositionsForward(possiblePositions);
                 std::vector<int> wallsRobotView = scanCurrentCell();
                 possiblePositions = findPossiblePositions(possiblePositions, wallsRobotView);
@@ -393,18 +380,15 @@ void Maze::searchCorrectPosition()
         }
 
         if (!wall_recognition.hasFrontWall(walls)) {
-            ROS_INFO("4");
-            basic_movements.driveWall(0.8);
+            basic_movements.driveWall(CELL_LENGTH);
             possiblePositions = updatePositionsForward(possiblePositions);
             std::vector<int> wallsRobotView = scanCurrentCell();
             possiblePositions = findPossiblePositions(possiblePositions, wallsRobotView);
             continue;
         } else {
-            ROS_INFO("5");
             frontWall = wall_recognition.getFrontWall(walls);
             if (!frontWall->isConfirmed()) {
-                ROS_INFO("1");
-                basic_movements.driveWall(0.8);
+                basic_movements.driveWall(CELL_LENGTH);
                 possiblePositions = updatePositionsForward(possiblePositions);
                 std::vector<int> wallsRobotView = scanCurrentCell();
                 possiblePositions = findPossiblePositions(possiblePositions, wallsRobotView);
@@ -413,29 +397,25 @@ void Maze::searchCorrectPosition()
         }
 
         if (!wall_recognition.hasLeftWall(walls)) {
-            ROS_INFO("6");
             basic_movements.rotateLeft();
             possiblePositions = updatePositionsTurn(possiblePositions, LEFT);
-            basic_movements.driveWall(0.8);
+            basic_movements.driveWall(CELL_LENGTH);
             possiblePositions = updatePositionsForward(possiblePositions);
             continue;
         } else {
-            ROS_INFO("7");
             leftWall = wall_recognition.getLeftWall(walls);
             if (!leftWall->isConfirmed()) {
-                ROS_INFO("8");
                 basic_movements.rotateLeft();
                 possiblePositions = updatePositionsTurn(possiblePositions, LEFT);
-                basic_movements.driveWall(0.8);
+                basic_movements.driveWall(CELL_LENGTH);
                 possiblePositions = updatePositionsForward(possiblePositions);
                 continue;
             }
         }
 
-        ROS_INFO("9");
         basic_movements.rotateBackwards();
         possiblePositions = updatePositionsTurn(possiblePositions, DOWN);
-        basic_movements.driveWall(0.8);
+        basic_movements.driveWall(CELL_LENGTH);
         possiblePositions = updatePositionsForward(possiblePositions);
     }
 }

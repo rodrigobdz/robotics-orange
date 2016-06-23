@@ -10,11 +10,19 @@ void stopMotors(int signal) {
 
 int main(int argc, char **argv)
 {
-  ros::init(argc, argv, "example_driveWall");
-  signal(SIGINT, stopMotors);
-  
-  BasicMovements basic_movements;
-  basic_movements.driveWall(4);
+	ros::init(argc, argv, "example_driveWall");
+    signal(SIGINT, stopMotors);
+
+    BasicMovements basicMovements;
+    WallRecognition wall_recognition;
+
+	signal(SIGINT, mySigintHandler);
+
+	basicMovements.driveWall(0.4);
+
+    std::vector<Wall*> walls = wall_recognition.getWalls();
+	Wall* frontWall = wall_recognition.getFrontWall(walls);
+	ROS_INFO("Frontwall distance = %f", frontWall->getDistanceInMeters());
 
   return 0;
 }

@@ -170,24 +170,69 @@ bool BasicMovements::driveWall(float distanceInMeters, float speed)
     float wishLeftEncoder  = leftEncoder + distanceInMeters / RAD_RADIUS;
     float wishRightEncoder = rightEncoder + distanceInMeters / RAD_RADIUS;
 
+    if(DEBUG){
+        ROS_INFO("leftEncoder = %f, wishLeftEncoder = %f", leftEncoder, wishLeftEncoder);
+        ROS_INFO("rightEncoder = %f, wishRightEncoder = %f", rightEncoder, wishRightEncoder);
+    }
+
     std::vector<Wall*> walls;
 
     while (fabs(wishRightEncoder - rightEncoder) > 1) {
         ros::spinOnce();
         walls = wall_recognition.getWalls();
+        Wall* frontWall = wall_recognition.getFrontWall(walls);
+        Wall* rightWall = wall_recognition.getRightWall(walls);
+        Wall* leftWall = wall_recognition.getLeftWall(walls);
+        Wall* nearestWall = NULL;
 
+        float wallAngle   ;
+        float wallDistance;
+
+        float distanceCorrection;
+        float angleCorrection;
+        float slopeOfFunction = 0.625;
+
+        // ROS_INFO("Distance to drive %f", fabs(wishRightEncoder - rightEncoder) * RAD_RADIUS < 0.4);
         if (walls.size() == 0) { // Drive forward
             move(0.2, 0);
-        } else {
+        } else /*if(fabs(wishRightEncoder - rightEncoder) * RAD_RADIUS < 0.4 && frontWall != NULL) {
+            while (frontWall->getDistanceInMeters() > 0.4) {
+                if (nearestWall->isLeftWall()) {
+                    distanceCorrection = (slopeOfFunction * PI) * wallDistance - PI / 4;
+                    angleCorrection = -tan(2 * wallAngle) * PI / 4;
+                } else if (nearestWall->isLeftWall()) {
+                    distanceCorrection = -(slopeOfFunction * PI) * wallDistance + PI / 4;
+                    angleCorrection = -tan(2 * wallAngle) * PI / 4;
+                } else {
+                    angleCorrection = 0;
+                    distanceCorrection = 0;
+                }
+                float vLeft = 1 / RAD_RADIUS * (0.2 + (angleCorrection - distanceCorrection) * ROB_BASE / 2);
+                float vRight = 1 / RAD_RADIUS * (0.2 + (-angleCorrection + distanceCorrection) * ROB_BASE / 2);
+
+                diffDriveService.request.left = vLeft;
+                diffDriveService.request.right = vRight;
+
+                diffDriveClient.call(diffDriveService);
+
+                walls           = wall_recognition.getWalls();
+
+                frontWall       = wall_recognition.getFrontWall(walls);
+                nearestWall     = wall_recognition.getNearestWall(walls);
+
+                wallAngle       = nearestWall->getAngleInRadians();
+                wallDistance    = nearestWall->getDistanceInMeters();
+            }
+            move(0, 0);
+            return true;
+        } else */{
             // Search for nearest wall
-            Wall* nearestWall     = wall_recognition.getNearestWall(walls);
+            nearestWall     = wall_recognition.getNearestWall(walls);
+            wallAngle       = nearestWall->getAngleInRadians();
+            wallDistance    = nearestWall->getDistanceInMeters();
 
-            float wallAngle       = nearestWall->getAngleInRadians();
-            float wallDistance    = nearestWall->getDistanceInMeters();
-
-            float distanceCorrection;
-            float angleCorrection;
-            float slopeOfFunction = 0.625;
+            wallAngle       = nearestWall->getAngleInRadians();
+            wallDistance    = nearestWall->getDistanceInMeters();
 
             if (nearestWall->isLeftWall()) {
                 distanceCorrection = (slopeOfFunction * PI) * wallDistance - PI / 4;
