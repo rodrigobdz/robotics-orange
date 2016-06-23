@@ -21,8 +21,10 @@ class PathFinder
         
         std::vector<int> find(Position start, Position end);
         void initializeWeightedMap(Position);
-        void setDistancesInWeightedMap(Position, Position);
+        void setDistancesInWeightedMap(Position);
         std::vector<Position> getNeighbours(Position);
+        std::vector<int> findShortestPath(Position, Position);
+        int getDriveDirection(Position to, Position from);
 
         std::vector<std::vector<int>> weightedMap;
 
@@ -34,7 +36,6 @@ class PathFinder
         
         // Vector with cells to explore
         std::vector<Position> neighbourBacklog;
-        Position currentCell;
         std::vector<std::vector<Position>> possiblePaths;
         
         // External libraries
@@ -51,7 +52,8 @@ std::vector<int> PathFinder::find(Position start, Position end)
     }
     // Initialize weights in map starting from given position
     initializeWeightedMap(start);
-    setDistancesInWeightedMap(start, end);
+    setDistancesInWeightedMap(start);
+    return findShortestPath(start, end);
 
 }
 
@@ -81,17 +83,13 @@ void PathFinder::initializeWeightedMap(Position start)
 *   currentCell - start position from where all distances are
 *                 calculated
 */
-void PathFinder::setDistancesInWeightedMap(Position currentCell, Position goalCell)
+void PathFinder::setDistancesInWeightedMap(Position currentCell)
 {
     // Get all reachable cells from current position
     std::vector<Position> neighbours = getNeighbours(currentCell);
     std::vector<Position> neighboursOfInterest;
 
-    ROS_INFO("Test2");
-    
-    ROS_INFO("Current Cell: %d %d", currentCell.getXCoordinate(), currentCell.getYCoordinate());
     int weightCurrentCell = weightedMap[currentCell.getXCoordinate()][currentCell.getYCoordinate()];
-    ROS_INFO("Weight current cell: %d", weightCurrentCell);
 
         // Append all neighbours to vectors with unexplored cells
     for(int i = 0; i < neighbours.size(); i++) {
@@ -103,7 +101,6 @@ void PathFinder::setDistancesInWeightedMap(Position currentCell, Position goalCe
     
     // Check if there is a next neighbour to explore
     if (neighbourBacklog.size() == 0) { 
-        ROS_INFO("Test4");
         return; 
     }
 
@@ -111,11 +108,8 @@ void PathFinder::setDistancesInWeightedMap(Position currentCell, Position goalCe
     for(int i = 0; i < neighboursOfInterest.size(); i++){
         // Weight next neighbour
         int weightNeighbourOfInterest = weightedMap[neighboursOfInterest[i].getXCoordinate()][neighboursOfInterest[i].getYCoordinate()];
-        ROS_INFO("Weight neighbour of interest: %d", weightNeighbourOfInterest);  
-        
         // Update weight of neighbour
         if (weightCurrentCell + 1 < weightNeighbourOfInterest ) {
-            ROS_INFO("Test3");
             weightedMap[neighboursOfInterest[i].getXCoordinate()][neighboursOfInterest[i].getYCoordinate()] = weightCurrentCell + 1;
         }
     }
@@ -126,7 +120,42 @@ void PathFinder::setDistancesInWeightedMap(Position currentCell, Position goalCe
     neighbourBacklog.erase(neighbourBacklog.begin());
     
     // Continue to explore the rest of the map
-    setDistancesInWeightedMap(nextCell, goalCell);
+    setDistancesInWeightedMap(nextCell);
+}
+
+std::vector<int> PathFinder::findShortestPath(Position start, Position end) {
+    ROS_INFO("Test1");
+    std::vector<int> plan;
+    Position currentCell = end;
+    while (weightedMap[currentCell.getXCoordinate()][currentCell.getYCoordinate()] != 0) {
+        std::vector<Position> neighbours = getNeighbours(currentCell);
+    
+        int weightCurrentCell = weightedMap[currentCell.getXCoordinate()][currentCell.getYCoordinate()];
+
+        // Append all neighbours to vectors with unexplored cells
+        for(int i = 0; i < neighbours.size(); i++) {
+            if (weightedMap[neighbours[i].getXCoordinate()][neighbours[i].getYCoordinate()] == weightCurrentCell - 1) {
+                plan.insert(plan.begin(), getDriveDirection(currentCell, neighbours[i]));
+                currentCell = neighbours[i];
+                break;
+            }   
+        }
+    }
+    return plan;
+}
+
+int PathFinder::getDriveDirection(Position to, Position from) {
+    int differenceX = from.getXCoordinate() - to.getXCoordinate();
+    int differenceY = from.getYCoordinate() - to.getYCoordinate();
+    if (differenceX == 1) {
+        return LEFT;
+    } else if (differenceX == -1) {
+        return RIGHT;
+    } else if (differenceY == 1) {
+        return UP;
+    } else if (differenceY == -1) {
+        return DOWN;
+    }
 }
 
 std::vector<Position> PathFinder::getNeighbours(Position position)
