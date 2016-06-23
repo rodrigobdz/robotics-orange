@@ -17,12 +17,10 @@ int main(int argc, char** argv)
   
  	std::vector<std::vector<int>> map;
 
-
-	path_finder.initializeWeightedMap({0,0,0});
-
+	path_finder.initializeWeightedMap({0,2,0});
 	map = path_finder.weightedMap;
 	ROS_INFO("Test");
-	ROS_INFO("Size %lu", map.size());
+	ROS_INFO("Size %lu %lu", map.size(), map[0].size());
 	
 	for (int i = 0; i < 5; ++i) 
 	{

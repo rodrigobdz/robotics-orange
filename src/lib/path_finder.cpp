@@ -56,14 +56,18 @@ std::vector<int> PathFinder::find(Position start, Position end)
 
 void PathFinder::initializeWeightedMap(Position start)
 {
-    for(int y; y < rows.size(); y++) {
-        for(int x; x < rows[y].cells.size(); x++) {
+    for(int x = 0; x < rows[0].cells.size(); x++) {
+        std::vector<int> column;
+        for(int y = 0; y < rows.size(); y++) {
+        
             if(y == start.getYCoordinate() && x == start.getXCoordinate()) {
-                weightedMap[x][y] = 0;
+
+                column.push_back(0);
                 continue;
             }
-            weightedMap[x][y] = MAX_INT;
+            column.push_back(MAX_INT);
         }
+        weightedMap.push_back(column);
     }
 }
 
