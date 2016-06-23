@@ -43,7 +43,6 @@ std::vector<int> PathFinder::find(Position start, Position end)
     if(DEBUG) {
         ROS_INFO("PathFinder find start: %d end: %d", start.getXCoordinate(), start.getYCoordinate());
     }
-    neighbourBacklog = {};
     // Initialize weights in map starting from given position
     initializeWeightedMap(start);
     setDistancesInWeightedMap(start);
@@ -82,10 +81,10 @@ void PathFinder::setDistancesInWeightedMap(Position currentCell)
     // Select next neighbour in breadth first search
     Position neighbourOfInterest = neighbourBacklog[0];
     // Weight next neighbour
-    int weightNeighbourOfInterest = weightedMap[neighbourBacklog[neighbourOfInterest].getXCoordinate()][neighbourBacklog[neighbourOfInterest].getYCoordinate()];
+    int weightNeighbourOfInterest = weightedMap[neighbourOfInterest.getXCoordinate()][neighbourOfInterest.getYCoordinate()];
     // Update weight of neighbour
     if (weightCurrentCell++ < weightNeighbourOfInterest ) {
-        weightedMap[neighbourBacklog[neighbourOfInterest].getXCoordinate()][neighbourBacklog[neighbourOfInterest].getYCoordinate()] = weightCurrentCell++;
+        weightedMap[neighbourOfInterest.getXCoordinate()][neighbourOfInterest.getYCoordinate()] = weightCurrentCell++;
     }
     // Erase explored neighbour
     neighbourBacklog.erase(neighbourBacklog.begin());
@@ -101,17 +100,34 @@ void PathFinder::setDistancesInWeightedMap(Position currentCell)
 std::vector<Position> PathFinder::getNeighbours(Position position)
 {
     std::vector<int> walls = rows[position.getYCoordinate()].cells[position.getXCoordinate()].walls;
+    std::vector<Position> neighbours;
+    Position possibleNeighbour;
     // std::vector<> v;
     // Loop through all possible orientations to
     // discover if a neighbor is accessible or not.
     for (int i = 0; i < 4; i++) {
-        // switch (walls[i]) {
-        //     case TOP:
-        // }
-    }
-
-    if (true) {
-
+        if (walls[i] == TOP) {
+            possibleNeighbour = {position.getYCoordinate() - 1, position.getXCoordinate(), -1};
+            if (weightedMap[possibleNeighbour.getXCoordinate()][possibleNeighbour.getYCoordinate()] != MAX_INT) {
+                neighbours.push_back(possibleNeighbour);    
+            }
+            
+        } else if (walls[i] == RIGHT) {
+            possibleNeighbour = {position.getYCoordinate(), position.getXCoordinate() + 1, -1};
+            if (weightedMap[possibleNeighbour.getXCoordinate()][possibleNeighbour.getYCoordinate()] != MAX_INT) {
+                neighbours.push_back(possibleNeighbour);    
+            }
+        } else if (walls[i] == LEFT) {
+            possibleNeighbour = {position.getYCoordinate(), position.getXCoordinate() -1, -1};
+            if (weightedMap[possibleNeighbour.getXCoordinate()][possibleNeighbour.getYCoordinate()] != MAX_INT) {
+                neighbours.push_back(possibleNeighbour);    
+            }
+        } else if (walls[i] == BOTTOM) {
+            possibleNeighbour = {position.getYCoordinate() + 1, position.getXCoordinate(), -1};
+            if (weightedMap[possibleNeighbour.getXCoordinate()][possibleNeighbour.getYCoordinate()] != MAX_INT) {
+                neighbours.push_back(possibleNeighbour);    
+            }
+        }
     }
 }
 

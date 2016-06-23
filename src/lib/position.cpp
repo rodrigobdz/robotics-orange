@@ -15,6 +15,13 @@ class Position
         this->direction = direction;
     }
 
+    Position()
+    {
+        this->x         = -1;
+        this->y         = -1;
+        this->direction = -1;
+    }
+
     int getXCoordinate() { return x; }
     int getYCoordinate() { return y; }
     int getDirection() { return direction; }
