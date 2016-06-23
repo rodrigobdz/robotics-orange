@@ -85,43 +85,53 @@ void PathFinder::setDistancesInWeightedMap(Position currentCell, Position goalCe
 {
     // Get all reachable cells from current position
     std::vector<Position> neighbours = getNeighbours(currentCell);
-    ROS_INFO("Test2");
+    std::vector<Position> neighboursOfInterest;
 
-    // Append all neighbours to vectors with unexplored cells
-    neighbourBacklog.insert(neighbourBacklog.end(), neighbours.begin(), neighbours.end());
+    ROS_INFO("Test2");
+    
+    ROS_INFO("Current Cell: %d %d", currentCell.getXCoordinate(), currentCell.getYCoordinate());
     int weightCurrentCell = weightedMap[currentCell.getXCoordinate()][currentCell.getYCoordinate()];
-    ROS_INFO("Test3");
-    
-    // Select next neighbour in breadth first search
-    Position neighbourOfInterest = neighbourBacklog[0];
-    ROS_INFO("Test4");
-    
-    // Weight next neighbour
-    int weightNeighbourOfInterest = weightedMap[neighbourOfInterest.getXCoordinate()][neighbourOfInterest.getYCoordinate()];
-    
-    // Update weight of neighbour
-    if (weightCurrentCell + 1 < weightNeighbourOfInterest ) {
-        weightedMap[neighbourOfInterest.getXCoordinate()][neighbourOfInterest.getYCoordinate()] = weightCurrentCell + 1;
+    ROS_INFO("Weight current cell: %d", weightCurrentCell);
+
+        // Append all neighbours to vectors with unexplored cells
+    for(int i = 0; i < neighbours.size(); i++) {
+        if (weightedMap[neighbours[i].getXCoordinate()][neighbours[i].getYCoordinate()] > weightCurrentCell + 1) {
+            neighbourBacklog.push_back(neighbours[i]);
+            neighboursOfInterest.push_back(neighbours[i]);
+        }
     }
+    
+    // Check if there is a next neighbour to explore
+    if (neighbourBacklog.size() == 0) { 
+        ROS_INFO("Test4");
+        return; 
+    }
+
+    // Select next neighbour in breadth first search
+    for(int i = 0; i < neighboursOfInterest.size(); i++){
+        // Weight next neighbour
+        int weightNeighbourOfInterest = weightedMap[neighboursOfInterest[i].getXCoordinate()][neighboursOfInterest[i].getYCoordinate()];
+        ROS_INFO("Weight neighbour of interest: %d", weightNeighbourOfInterest);  
+        
+        // Update weight of neighbour
+        if (weightCurrentCell + 1 < weightNeighbourOfInterest ) {
+            ROS_INFO("Test3");
+            weightedMap[neighboursOfInterest[i].getXCoordinate()][neighboursOfInterest[i].getYCoordinate()] = weightCurrentCell + 1;
+        }
+    }
+    
+    Position nextCell = neighbourBacklog[0];
     
     // Erase explored neighbour
     neighbourBacklog.erase(neighbourBacklog.begin());
-
-    // Check if there is a next neighbour to explore
-    if (neighbourBacklog.size() == 0) { 
-        return; 
-    }
     
     // Continue to explore the rest of the map
-    setDistancesInWeightedMap(neighbourOfInterest, goalCell);
+    setDistancesInWeightedMap(nextCell, goalCell);
 }
 
 std::vector<Position> PathFinder::getNeighbours(Position position)
 {
-    ROS_INFO("TestNeighbourBefore");
-    ROS_INFO("size %lu %lu", rows[0].cells.size(), rows.size());
     std::vector<int> walls = rows[position.getYCoordinate()].cells[position.getXCoordinate()].walls;
-    ROS_INFO("TestNeighbourAfter");
     std::vector<Position> neighbours;
     Position possibleNeighbour;
 
@@ -129,9 +139,7 @@ std::vector<Position> PathFinder::getNeighbours(Position position)
     // Loop through all possible orientations to
     // discover if a neighbor is accessible or not.
     for (int i = 0; i < 4; i++) {
-        ROS_INFO("TestNeighbour");
         if (std::find(walls.begin(),walls.end(),i) == walls.end()) {
-            ROS_INFO("TestNeighbourT %i", i);
             if(i == RIGHT){
                 possibleNeighbour = {position.getXCoordinate() + 1, position.getYCoordinate(), -1};
             } else if(i == UP){
