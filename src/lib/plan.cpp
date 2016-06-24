@@ -3,22 +3,24 @@
 
 #include <constants.cpp>
 #include <basic_movements.cpp>
+#include <maze.cpp>
 
 class Plan
 {
     public:
-        Plan(){}
-    
-        bool execute(std::vector<int> plan);  
+      Plan() {}
+
+        bool execute(std::vector<int> plan, int direction);
 
     private:
-        bool DEBUG = true;      
+        bool DEBUG = true;
+
 };
 
-bool Plan::execute(std::vector<int> plan) 
+bool Plan::execute(std::vector<int> plan, int direction)
 {
     BasicMovements basic_movements;
-    int lastDirection        = UP;
+    int lastDirection        = direction;
     bool executionSuccessful = true;
 
     if(DEBUG) {
