@@ -28,11 +28,17 @@ add_message_files(
 )
 
 #uncomment if you have defined services
-add_service_files(FILES ExecutePlan.srv)
+add_service_files(
+    FILES
+    ExecutePlan.srv
+    MoveToPosition.srv
+)
 
 ## Generate added messages and services with any dependencies listed here
 generate_messages(
-    DEPENDENCIES std_msgs create_fundamentals
+    DEPENDENCIES
+    std_msgs
+    create_fundamentals
 )
 
 # catkin_package parameters: http://ros.org/doc/groovy/api/catkin/html/dev_guide/generated_cmake_api.html#catkin-package
@@ -58,13 +64,13 @@ include_directories(include ${catkin_INCLUDE_DIRS} src/lib)
 # target_link_libraries(example_ransac ${catkin_LIBRARIES})
 # add_dependencies(example_ransac create_fundamentals_generate_messages_cpp)
 
-#add_executable(example_plan src/examples/example_plan.cpp)
-#target_link_libraries(example_plan ${catkin_LIBRARIES})
-#add_dependencies(example_plan create_fundamentals_generate_messages_cpp)
+add_executable(example_driveWall src/examples/example_driveWall.cpp)
+target_link_libraries(example_driveWall ${catkin_LIBRARIES})
+add_dependencies(example_driveWall create_fundamentals_generate_messages_cpp)
 
-add_executable(example_maze src/examples/example_maze.cpp)
-target_link_libraries(example_maze ${catkin_LIBRARIES})
-add_dependencies(example_maze create_fundamentals_generate_messages_cpp)
+add_executable(example_plan src/examples/example_plan.cpp)
+target_link_libraries(example_plan ${catkin_LIBRARIES})
+add_dependencies(example_plan create_fundamentals_generate_messages_cpp)
 
 # add_executable(example_playsong src/examples/example_playsong.cpp)
 # target_link_libraries(example_playsong ${catkin_LIBRARIES})

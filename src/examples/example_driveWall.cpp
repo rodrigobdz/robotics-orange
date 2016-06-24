@@ -16,9 +16,7 @@ int main(int argc, char **argv)
     BasicMovements basicMovements;
     WallRecognition wall_recognition;
 
-	signal(SIGINT, mySigintHandler);
-
-	basicMovements.driveWall(0.4);
+	basicMovements.driveWall(0.7);
 
     std::vector<Wall*> walls = wall_recognition.getWalls();
 	Wall* frontWall = wall_recognition.getFrontWall(walls);
