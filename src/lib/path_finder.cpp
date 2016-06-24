@@ -18,31 +18,28 @@ class PathFinder
             // which columns are accessible
             parseMap();
         }
-        
+
         std::vector<int> find(Position start, Position end);
+
+    private:
+        // Variables
+        bool DEBUG = false;
+        std::vector<Row> rows; // Map variable
+        ros::NodeHandle n;
+        std::vector<std::vector<int>> weightedMap;
+
+        // Vector with cells to explore
+        std::vector<Position> neighbourBacklog;
+        std::vector<std::vector<Position>> possiblePaths;
+
+        // Functions
+        void parseMap();
+        void mapCallback(const Grid::ConstPtr& msg); // get map from service
         void initializeWeightedMap(Position);
         void setDistancesInWeightedMap(Position);
         std::vector<Position> getNeighbours(Position);
         std::vector<int> findShortestPath(Position, Position);
         int getDriveDirection(Position to, Position from);
-
-        std::vector<std::vector<int>> weightedMap;
-
-    private:
-        // Variables
-        bool DEBUG = true;
-        std::vector<Row> rows; // Map variable
-        ros::NodeHandle n;
-        
-        // Vector with cells to explore
-        std::vector<Position> neighbourBacklog;
-        std::vector<std::vector<Position>> possiblePaths;
-        
-        // External libraries
-
-        // Functions
-        void parseMap();
-        void mapCallback(const Grid::ConstPtr& msg); // get map from service
 };
 
 std::vector<int> PathFinder::find(Position start, Position end)
@@ -62,7 +59,7 @@ void PathFinder::initializeWeightedMap(Position start)
     for(int x = 0; x < rows[0].cells.size(); x++) {
         std::vector<int> column;
         for(int y = 0; y < rows.size(); y++) {
-        
+
             if(y == start.getYCoordinate() && x == start.getXCoordinate()) {
 
                 column.push_back(0);
@@ -75,11 +72,11 @@ void PathFinder::initializeWeightedMap(Position start)
 }
 
 /*
-* Calculate all distances from starting point to all 
+* Calculate all distances from starting point to all
 * posible destinations. Breadth-first search is used as
 * algorithm.
 *
-* Parameters: 
+* Parameters:
 *   currentCell - start position from where all distances are
 *                 calculated
 */
@@ -98,10 +95,10 @@ void PathFinder::setDistancesInWeightedMap(Position currentCell)
             neighboursOfInterest.push_back(neighbours[i]);
         }
     }
-    
+
     // Check if there is a next neighbour to explore
-    if (neighbourBacklog.size() == 0) { 
-        return; 
+    if (neighbourBacklog.size() == 0) {
+        return;
     }
 
     // Select next neighbour in breadth first search
@@ -113,23 +110,22 @@ void PathFinder::setDistancesInWeightedMap(Position currentCell)
             weightedMap[neighboursOfInterest[i].getXCoordinate()][neighboursOfInterest[i].getYCoordinate()] = weightCurrentCell + 1;
         }
     }
-    
+
     Position nextCell = neighbourBacklog[0];
-    
+
     // Erase explored neighbour
     neighbourBacklog.erase(neighbourBacklog.begin());
-    
+
     // Continue to explore the rest of the map
     setDistancesInWeightedMap(nextCell);
 }
 
 std::vector<int> PathFinder::findShortestPath(Position start, Position end) {
-    ROS_INFO("Test1");
     std::vector<int> plan;
     Position currentCell = end;
     while (weightedMap[currentCell.getXCoordinate()][currentCell.getYCoordinate()] != 0) {
         std::vector<Position> neighbours = getNeighbours(currentCell);
-    
+
         int weightCurrentCell = weightedMap[currentCell.getXCoordinate()][currentCell.getYCoordinate()];
 
         // Append all neighbours to vectors with unexplored cells
@@ -138,7 +134,7 @@ std::vector<int> PathFinder::findShortestPath(Position start, Position end) {
                 plan.insert(plan.begin(), getDriveDirection(currentCell, neighbours[i]));
                 currentCell = neighbours[i];
                 break;
-            }   
+            }
         }
     }
     return plan;
@@ -178,7 +174,7 @@ std::vector<Position> PathFinder::getNeighbours(Position position)
             }else if(i == DOWN){
                 possibleNeighbour = {position.getXCoordinate(), position.getYCoordinate() + 1, -1};
             }
-            neighbours.push_back(possibleNeighbour);    
+            neighbours.push_back(possibleNeighbour);
         }
     }
     return neighbours;
