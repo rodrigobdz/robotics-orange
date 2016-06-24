@@ -193,7 +193,7 @@ bool BasicMovements::driveWall(float distanceInMeters, float speed)
         float slopeOfFunction = 0.625;
 
         // ROS_INFO("Distance to drive %f", fabs(wishRightEncoder - rightEncoder) * RAD_RADIUS < 0.4);
-        if (walls.size() == 0) { // Drive forward
+        if (walls.size() == 0 || walls.size() == 1 && frontWall != NULL) { // Drive forward
             move(0.2, 0);
         } else /*if(fabs(wishRightEncoder - rightEncoder) * RAD_RADIUS < 0.4 && frontWall != NULL) {
             while (frontWall->getDistanceInMeters() > 0.4) {
