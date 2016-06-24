@@ -58,7 +58,7 @@ class Maze
     WallRecognition wall_recognition;
     Env env;
 
-    bool DEBUG = true;
+    bool DEBUG = false;
 
     std::vector<Position> findPossibleCells();
 
@@ -106,6 +106,9 @@ void Maze::localize()
     }
 
     position = possiblePositions[0];
+    if(DEBUG){
+        ROS_INFO("Final position X = %d, Y = %d, direction = %d", position.getXCoordinate(), position.getYCoordinate(), position.getDirection());
+    }
 }
 
 /************************************************************/
@@ -127,8 +130,6 @@ void Maze::parseMap()
     return;
 }
 
-// TODO Annahme bearbeiten
-// Annahme ist dass die Positionsbewegung auch Sinn macht
 std::vector<Position> Maze::updatePositionsForward(std::vector<Position> positions)
 {
     std::vector<Position> updatedPositions;
