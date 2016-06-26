@@ -73,6 +73,7 @@ int main(int argc, char** argv)
         goldPositions = deletePosition(goldPositions, nearestPosition);
 
         // Update current position
+        maze.updatePositionOnMap(shortestPath);
 
     }
 

@@ -25,6 +25,9 @@ class Position
     int getXCoordinate() { return x; }
     int getYCoordinate() { return y; }
     int getDirection() { return direction; }
+    void setXCoordinate(int x) { this->x = x; }
+    void setYCoordinate(int y) { this->y = y; }
+    void setDirection(int direction) { this->direction = direction; }
     void print();
 
   private:

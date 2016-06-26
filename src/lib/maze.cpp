@@ -39,6 +39,7 @@ class Maze
     void localize();
 
     Position getPosition();
+    bool updatePositionOnMap(std::vector<int> plan);
 
     std::vector<Position> updatePositionsForward(std::vector<Position> positions);
     std::vector<Position> updatePositionsTurn(std::vector<Position> positions, int turn);
@@ -111,6 +112,21 @@ void Maze::localize()
     }
 }
 
+bool Maze::updatePositionOnMap(std::vector<int> plan){
+    for(int i = 0; i < plan.size(); i++){
+        if(plan[i] == RIGHT){
+            position.setXCoordinate(position.getXCoordinate()+1);
+        } else if (plan[i] == TOP) {
+            position.setYCoordinate(position.getYCoordinate()-1);
+        } else if (plan[i] == LEFT) {
+            position.setXCoordinate(position.getXCoordinate()-1);
+        } else if (plan[i] == DOWN) {
+            position.setYCoordinate(position.getYCoordinate()+1);
+        }
+
+    }
+
+}
 /************************************************************/
 /*                         Helpers                          */
 /************************************************************/
