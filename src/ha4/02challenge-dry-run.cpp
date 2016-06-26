@@ -3,6 +3,7 @@
 #include <maze.cpp>
 #include <position.cpp>
 #include <path_finder.cpp>
+#include <play_song.cpp>
 #include <basic_movements.cpp>
 
 void stopMotors(int signal) {
@@ -49,6 +50,7 @@ int main(int argc, char** argv)
     Plan plan;
     Maze maze;
     PathFinder pathFinder;
+    PlaySongLib play_song;
 
     Position gold1{0, 3, -1};
     Position gold2{2, 4, -1};
@@ -83,7 +85,7 @@ int main(int argc, char** argv)
         goldPositions = deletePosition(goldPositions, nearestPosition);
 
         maze.updatePositionOnMap(shortestPath);
-
+        play_song.starWarsShort();
     }
 
     currentPosition = maze.getPosition();
