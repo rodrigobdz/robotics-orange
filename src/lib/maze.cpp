@@ -36,6 +36,11 @@ class Maze
         }
     }
 
+    Maze(Position currentPosition)
+    {
+        this->position = currentPosition;
+    }
+
     void localize();
 
     Position getPosition();

@@ -221,7 +221,7 @@ bool BasicMovements::driveWall(float distanceInMeters, float speed)
                 walls           = wall_recognition.getWalls();
 
                 frontWall       = wall_recognition.getFrontWall(walls);
-                nearestWall     = wall_recognition.getNearestWall(walls);
+                nearestWall     = wall_recognition.getNearestSideWall(walls);
 
                 wallAngle       = nearestWall->getAngleInRadians();
                 wallDistance    = nearestWall->getDistanceInMeters();
@@ -230,7 +230,7 @@ bool BasicMovements::driveWall(float distanceInMeters, float speed)
             return true;
         } else */{
             // Search for nearest wall
-            nearestWall     = wall_recognition.getNearestWall(walls);
+            nearestWall     = wall_recognition.getNearestSideWall(walls);
             wallAngle       = nearestWall->getAngleInRadians();
             wallDistance    = nearestWall->getDistanceInMeters();
 
