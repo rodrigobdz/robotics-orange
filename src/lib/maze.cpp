@@ -59,7 +59,7 @@ class Maze
     WallRecognition wall_recognition;
     Env env;
 
-    bool DEBUG = false;
+    bool DEBUG = true;
 
     std::vector<Position> findPossibleCells();
 
@@ -107,23 +107,24 @@ void Maze::localize()
     }
 
     position = possiblePositions[0];
-    if(DEBUG){
-        ROS_INFO("Final position X = %d, Y = %d, direction = %d", position.getXCoordinate(), position.getYCoordinate(), position.getDirection());
-    }
+    ROS_INFO("Final position X = %d, Y = %d, direction = %d", position.getXCoordinate(), position.getYCoordinate(), position.getDirection());
 }
 
 bool Maze::updatePositionOnMap(std::vector<int> plan){
     for(int i = 0; i < plan.size(); i++){
         if(plan[i] == RIGHT){
             position.setXCoordinate(position.getXCoordinate()+1);
+            position.setDirection(RIGHT);
         } else if (plan[i] == TOP) {
             position.setYCoordinate(position.getYCoordinate()-1);
+            position.setDirection(TOP);
         } else if (plan[i] == LEFT) {
             position.setXCoordinate(position.getXCoordinate()-1);
+            position.setDirection(LEFT);
         } else if (plan[i] == DOWN) {
             position.setYCoordinate(position.getYCoordinate()+1);
+            position.setDirection(DOWN);
         }
-
     }
 
 }

@@ -56,6 +56,8 @@ std::vector<int> PathFinder::find(Position start, Position end)
 
 void PathFinder::initializeWeightedMap(Position start)
 {
+    std::vector<std::vector<int>> newMap{};
+    weightedMap = newMap;
     for(int x = 0; x < rows[0].cells.size(); x++) {
         std::vector<int> column;
         for(int y = 0; y < rows.size(); y++) {
