@@ -16,6 +16,7 @@ class PlaySongLib
         }
 
     void starWars();
+    void starWarsShort();
     void failure();
     void beep();
 
@@ -28,6 +29,7 @@ class PlaySongLib
         create_fundamentals::StoreSong srv;
         create_fundamentals::StoreSong storeSongService;
         create_fundamentals::PlaySong playSongService;
+        void storeStarWars();
 
         // define silence
         static const unsigned int r       = 30;
@@ -110,7 +112,7 @@ void PlaySongLib::failure()
     playSong.call(playSongService);
 }
 
-void PlaySongLib::starWars() 
+void PlaySongLib::storeStarWars()
 {
     storeSongService.request.number = 0;
     storeSongService.request.song = {r,Q};
@@ -139,6 +141,24 @@ void PlaySongLib::starWars()
     storeSongService.request.number = 6;
     storeSongService.request.song = {r,E, f4,E, aes4,Q, f4,Ed, c5,S,a4,Q, f4,Ed, c5,S, a4,HALF};
     storeSong.call(storeSongService);
+}
+
+void PlaySongLib::starWarsShort() 
+{
+    storeStarWars();
+
+    playSongService.request.number = 1;
+    playSong.call(playSongService);
+    ros::Duration(MEASURE_TIME*2.01).sleep();
+
+    playSongService.request.number = 2;
+    playSong.call(playSongService);
+    ros::Duration(MEASURE_TIME*2.01).sleep();
+}
+
+void PlaySongLib::starWars() 
+{
+    storeStarWars();
 
     playSongService.request.number = 1;
     playSong.call(playSongService);
