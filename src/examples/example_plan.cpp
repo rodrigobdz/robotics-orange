@@ -13,7 +13,7 @@ void stopMotors(int signal) {
 
 Position findNearestPosition(Position currentPosition, std::vector<Position> positions)
 {
-	PathFinder pathFinder;
+    PathFinder pathFinder;
     Position nearestPosition;
     int shortestLength = 100000;
 
@@ -32,8 +32,9 @@ std::vector<Position> deletePosition(std::vector<Position> positions, Position t
 {
     std::vector<Position> newPositions;
     for (int i = 0; i < positions.size(); i++) {
-        if (positions[i].getXCoordinate() != toDelete.getXCoordinate() &&
-            positions[i].getYCoordinate() != toDelete.getYCoordinate()) {
+        if (positions[i].getXCoordinate() == toDelete.getXCoordinate() &&
+            positions[i].getYCoordinate() == toDelete.getYCoordinate()) {
+        } else {
             newPositions.push_back(positions[i]);
         }
     }
@@ -53,7 +54,7 @@ int main(int argc, char** argv)
     Position gold2{2, 4, -1};
     Position gold3{2, 0, -1};
     Position gold4{3, 2, -1};
-    Position gold5{3, 3, -1};
+    Position gold5{3, 5, -1};
     std::vector<Position> goldPositions{gold1, gold2, gold3, gold4, gold5};
 
     Position pickup1{1, 2, -1};
@@ -69,10 +70,19 @@ int main(int argc, char** argv)
         nearestPosition = findNearestPosition(currentPosition, goldPositions);
         shortestPath = pathFinder.find(currentPosition, nearestPosition);
 
+        ROS_INFO("CurrentPosition : %i, %i, %i", currentPosition.getXCoordinate(), currentPosition.getYCoordinate(), currentPosition.getDirection());
+        ROS_INFO("Remaining plans: %lu", goldPositions.size());
+        ROS_INFO("Drive to: %i, %i, %i",  nearestPosition.getXCoordinate(), nearestPosition.getYCoordinate(), nearestPosition.getDirection());
+        ROS_INFO("Drive plan: ");
+
+        for(int i = 0; i < shortestPath.size(); i++){
+            printf("%i ", shortestPath[i]);
+        }
+        printf("\n");
         plan.execute(shortestPath, currentPosition.getDirection());
         goldPositions = deletePosition(goldPositions, nearestPosition);
 
-        // Update current position
+        maze.updatePositionOnMap(shortestPath);
 
     }
 
