@@ -98,7 +98,6 @@ void PlaySongLib::beep()
 
     playSongService.request.number = 1;
     playSong.call(playSongService);
-    ros::Duration(MEASURE_TIME*2.01).sleep();
 }
 
 void PlaySongLib::failure()
@@ -109,7 +108,6 @@ void PlaySongLib::failure()
 
     playSongService.request.number = 6;
     playSong.call(playSongService);
-    ros::Duration(MEASURE_TIME*1.76).sleep();
 }
 
 void PlaySongLib::starWars() 
@@ -172,7 +170,6 @@ void PlaySongLib::starWars()
 
     playSongService.request.number = 6;
     playSong.call(playSongService);
-    ros::Duration(MEASURE_TIME*1.76).sleep();
 }
 
 #endif // PLAY_SONG_LIB

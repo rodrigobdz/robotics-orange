@@ -76,9 +76,9 @@ add_dependencies(example_plan create_fundamentals_generate_messages_cpp)
 # target_link_libraries(example_playsong ${catkin_LIBRARIES})
 # add_dependencies(example_playsong create_fundamentals_generate_messages_cpp)
 
-# add_executable(example_align src/examples/example_align.cpp)
-# target_link_libraries(example_align ${catkin_LIBRARIES})
-# add_dependencies(example_align create_fundamentals_generate_messages_cpp)
+add_executable(example_align src/examples/example_align.cpp)
+target_link_libraries(example_align ${catkin_LIBRARIES})
+add_dependencies(example_align create_fundamentals_generate_messages_cpp)
 
 # add_executable(example_pathfinder src/examples/example_pathfinder.cpp)
 # target_link_libraries(example_pathfinder ${catkin_LIBRARIES})
