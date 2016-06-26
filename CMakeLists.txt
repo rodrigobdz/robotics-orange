@@ -88,10 +88,14 @@ add_dependencies(example_plan create_fundamentals_generate_messages_cpp)
                     #           HOMEWORKS           #
                     #################################
 
-# add_executable(global_localization src/ha3/01global_localization.cpp)
-# target_link_libraries(global_localization ${catkin_LIBRARIES})
-# add_dependencies(global_localization create_fundamentals_generate_messages_cpp)
+# add_executable(moving_through_the_grid src/ha2/01moving_through_the_grid.cpp)
+# target_link_libraries(moving_through_the_grid ${catkin_LIBRARIES})
+# add_dependencies(moving_through_the_grid create_fundamentals_generate_messages_cpp)
 
 # add_executable(track_position_and_orientation src/ha3/02tracking_position_and_orientation.cpp)
 # target_link_libraries(track_position_and_orientation ${catkin_LIBRARIES})
 # add_dependencies(track_position_and_orientation create_fundamentals_generate_messages_cpp)
+
+add_executable(path_planning src/ha4/01path_planning.cpp)
+target_link_libraries(path_planning ${catkin_LIBRARIES})
+add_dependencies(path_planning create_fundamentals_generate_messages_cpp)
