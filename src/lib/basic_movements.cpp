@@ -371,6 +371,8 @@ bool BasicMovements::turnRight()
 bool BasicMovements::turn(int direction)
 {
     // Initialize default turning direction to right.
+    // Float type is used to avoid data loss when multiplying 
+    // with other floats
     float sign = 1;
     if (direction == LEFT) {
         sign = -1;
@@ -385,6 +387,20 @@ bool BasicMovements::turn(int direction)
         ros::spinOnce();
         ROS_INFO("rightEncoder %f, wishRightEncoder %f", rightEncoder, wishRightEncoder);
 
+        if (DETECT_OBSTACLES) {
+            // Check if robot is about to crash into something
+            // only when robot has to drive forward
+            if (minimumRange < SAFETY_DISTANCE) {
+                // Robot recognized an obstacle, distance could not be completed
+                if(DEBUG){
+                    ROS_INFO("Turn: Obstacle obstructing");
+                }
+                stop();
+                return false;
+            }
+        }
+
+        // Check if robot rotation is enough including error margin
         if (fabs((wishRightEncoder - rightEncoder)) < 0.5) {
             stop();
             return true;
