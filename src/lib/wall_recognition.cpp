@@ -28,7 +28,7 @@ class WallRecognition
     bool hasFrontWall(std::vector<Wall*> walls);
     bool hasRightWall(std::vector<Wall*> walls);
 
-    Wall* getNearestWall(std::vector<Wall*> walls);
+    Wall* getNearestSideWall(std::vector<Wall*> walls);
 
   private:
     // Variables
@@ -140,13 +140,13 @@ Wall* WallRecognition::getRightWall(std::vector<Wall*> walls)
     return NULL;
 }
 
-Wall* WallRecognition::getNearestWall(std::vector<Wall*> walls)
+Wall* WallRecognition::getNearestSideWall(std::vector<Wall*> walls)
 {
     Wall* nearestWall = NULL;
     float smallestDistance = 100;
 
     for (int i = 0; i < walls.size(); i++) {
-        if (smallestDistance > walls[i]->getDistanceInMeters()) {
+        if (smallestDistance > walls[i]->getDistanceInMeters() && !walls[i]->isFrontWall()) {
             nearestWall = walls[i];
             smallestDistance = walls[i]->getDistanceInMeters();
         }
