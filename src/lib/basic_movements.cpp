@@ -82,6 +82,23 @@ bool BasicMovements::move(float desiredVelocity, float desiredTurningVelocity)
     float vLeft = 1 / RAD_RADIUS * (desiredVelocity + ROB_BASE / 2 * desiredTurningVelocity);
     float vRight = 1 / RAD_RADIUS * (desiredVelocity - ROB_BASE / 2 * desiredTurningVelocity);
 
+    
+    if (DETECT_OBSTACLES) {
+        // Get all new data from pending callbacks
+        ros::spin();
+        // Check if robot is about to crash into something
+        // only when robot has to drive forward
+        // Requirements: Robot should drive forward
+        if (minimumRange < SAFETY_DISTANCE && desiredVelocity > 0) {
+            // Robot recognized an obstacle, distance could not be completed
+            if(DEBUG){
+                ROS_INFO("Move: Obstacle obstructing");
+            }
+            stop();
+            return false;
+        }
+    }
+
     diffDriveService.request.left  = vLeft;
     diffDriveService.request.right = vRight;
 
