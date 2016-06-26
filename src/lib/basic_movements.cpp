@@ -130,7 +130,7 @@ bool BasicMovements::drive(float distanceInMeters, float speed)
             if (minimumRange < SAFETY_DISTANCE && sign > 0) {
                 // Robot recognized an obstacle, distance could not be completed
                 if(DEBUG){
-                    ROS_INFO("Obstacle obstructing");
+                    ROS_INFO("Drive: Obstacle obstructing");
                 }
                 stop();
                 return false;
@@ -192,7 +192,10 @@ bool BasicMovements::driveWall(float distanceInMeters, float speed)
         float angleCorrection;
         float slopeOfFunction = 0.625;
 
-        // ROS_INFO("Distance to drive %f", fabs(wishRightEncoder - rightEncoder) * RAD_RADIUS < 0.4);
+        if (DEBUG) {
+            ROS_INFO("Distance to drive %f", fabs(wishRightEncoder - rightEncoder) * RAD_RADIUS);
+        }
+
         if (walls.size() == 0 || walls.size() == 1 && frontWall != NULL) { // Drive forward
             move(0.2, 0);
         } else /*if(fabs(wishRightEncoder - rightEncoder) * RAD_RADIUS < 0.4 && frontWall != NULL) {
@@ -223,7 +226,7 @@ bool BasicMovements::driveWall(float distanceInMeters, float speed)
                 wallAngle       = nearestWall->getAngleInRadians();
                 wallDistance    = nearestWall->getDistanceInMeters();
             }
-            move(0, 0);
+            stop();
             return true;
         } else */{
             // Search for nearest wall
@@ -259,7 +262,7 @@ bool BasicMovements::driveWall(float distanceInMeters, float speed)
             diffDriveClient.call(diffDriveService);
         }
     }
-    move(0, 0);
+    stop();
 
     return true;
 }
@@ -368,6 +371,8 @@ bool BasicMovements::turnRight()
 bool BasicMovements::turn(int direction)
 {
     // Initialize default turning direction to right.
+    // Float type is used to avoid data loss when multiplying 
+    // with other floats
     float sign = 1;
     if (direction == LEFT) {
         sign = -1;
@@ -382,6 +387,20 @@ bool BasicMovements::turn(int direction)
         ros::spinOnce();
         ROS_INFO("rightEncoder %f, wishRightEncoder %f", rightEncoder, wishRightEncoder);
 
+        if (DETECT_OBSTACLES) {
+            // Check if robot is about to crash into something
+            // only when robot has to drive forward
+            if (minimumRange < SAFETY_DISTANCE) {
+                // Robot recognized an obstacle, distance could not be completed
+                if(DEBUG){
+                    ROS_INFO("Turn: Obstacle obstructing");
+                }
+                stop();
+                return false;
+            }
+        }
+
+        // Check if robot rotation is enough including error margin
         if (fabs((wishRightEncoder - rightEncoder)) < 0.5) {
             stop();
             return true;
