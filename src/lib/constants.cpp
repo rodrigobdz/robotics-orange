@@ -32,7 +32,7 @@ static const int LEFT                             = 2;
 static const int DOWN                             = 3;
 
 // additional wall positions
-static const int TOP							  = 1;
-static const int BOTTOM 						  = 3;
+static const int TOP                              = 1;
+static const int BOTTOM                           = 3;
 
 #endif // CONSTANTS_LIB

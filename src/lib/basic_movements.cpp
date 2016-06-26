@@ -223,7 +223,7 @@ bool BasicMovements::driveWall(float distanceInMeters, float speed)
                 wallAngle       = nearestWall->getAngleInRadians();
                 wallDistance    = nearestWall->getDistanceInMeters();
             }
-            move(0, 0);
+            stop();
             return true;
         } else */{
             // Search for nearest wall
@@ -259,7 +259,7 @@ bool BasicMovements::driveWall(float distanceInMeters, float speed)
             diffDriveClient.call(diffDriveService);
         }
     }
-    move(0, 0);
+    stop();
 
     return true;
 }
