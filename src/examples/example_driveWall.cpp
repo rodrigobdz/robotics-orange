@@ -16,8 +16,12 @@ int main(int argc, char **argv)
     BasicMovements basicMovements;
     WallRecognition wall_recognition;
 
-	basicMovements.driveWall(1, 0.6);
-    // basicMovements.rotateLeft();
+    while(true){
+        ROS_INFO("Next loop");
+        basicMovements.driveWall(1, 0.6);
+        // basicMovements.rotateLeft();
+        // basicMovements.rotateLeft();
+    }
 	// basicMovements.driveWall(0.7);
 
     // std::vector<Wall*> walls = wall_recognition.getWalls();

@@ -39,7 +39,7 @@ class BasicMovements
         bool rotateRight(float speed = DEFAULT_SPEED);
         bool rotateBackwards(float speed = DEFAULT_SPEED);
 
-        bool driveWall(float distanceInMeters, float speed = DEFAULT_SPEED / 25);
+        bool driveWall(float distanceInMeters, float speed = DEFAULT_SPEED);
         bool turnLeft();
         bool turnRight();
 
@@ -198,14 +198,14 @@ bool BasicMovements::driveWall(float distanceInMeters, float speed)
 
         if (walls.size() == 0 || walls.size() == 1 && frontWall != NULL) { // Drive forward
             move(0.2, 0);
-        } else {
+        } else if(rightWall != NULL || leftWall != NULL){
             // Search for nearest wall
             nearestWall     = wall_recognition.getNearestSideWall(walls);
             wallAngle       = nearestWall->getAngleInRadians();
             wallDistance    = nearestWall->getDistanceInMeters();
 
 
-            if (DETECT_OBSTACLES) {
+            /*if (DETECT_OBSTACLES) {
                 std::vector<Wall*> walls = wall_recognition.getWalls();
 
                 if(wall_recognition.hasFrontWall(walls)){
@@ -215,16 +215,16 @@ bool BasicMovements::driveWall(float distanceInMeters, float speed)
                         return false;
                     }
                 }
-            }
+            }*/
 
-            distanceCorrection = 5 * (slopeOfFunction * PI * wallDistance - PI / 4);
-            angleCorrection = 4 * (-(PI /4) *  tan(2 * wallAngle));
+            distanceCorrection = (slopeOfFunction * PI * wallDistance - PI / 4);
+            angleCorrection = (-(PI /4) *  tan(2 * wallAngle));
             if (nearestWall->isLeftWall()) {
                 distanceCorrection = -distanceCorrection;
             }
 
-            float vLeft  = 1 / RAD_RADIUS * (speed + (angleCorrection + distanceCorrection) * ROB_BASE / 2);
-            float vRight = 1 / RAD_RADIUS * (speed - (angleCorrection + distanceCorrection) * ROB_BASE / 2);
+            float vLeft  = speed + 1 / RAD_RADIUS * (angleCorrection + distanceCorrection) * ROB_BASE / 2;
+            float vRight = speed -  1 / RAD_RADIUS * (angleCorrection + distanceCorrection) * ROB_BASE / 2;
 
             diffDriveService.request.left  = vLeft;
             diffDriveService.request.right = vRight;
