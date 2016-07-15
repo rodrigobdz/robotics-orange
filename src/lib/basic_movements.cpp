@@ -14,67 +14,67 @@
 
 class BasicMovements
 {
-  public:
-    BasicMovements()
-    {
-        // Set up encoders callback
-        encoderSubscriber   = n.subscribe("sensor_packet", 1, &BasicMovements::encoderCallback, this);
-        diffDriveClient     = n.serviceClient<create_fundamentals::DiffDrive>("diff_drive");
+    public:
+        BasicMovements()
+        {
+            // Set up encoders callback
+            encoderSubscriber   = n.subscribe("sensor_packet", 1, &BasicMovements::encoderCallback, this);
+            diffDriveClient     = n.serviceClient<create_fundamentals::DiffDrive>("diff_drive");
 
-        // Set up laser callback
-        laserSubscriber     = n.subscribe("scan_filtered", 1, &BasicMovements::laserCallback, this);
+            // Set up laser callback
+            laserSubscriber     = n.subscribe("scan_filtered", 1, &BasicMovements::laserCallback, this);
 
-        // Set up reset encoders client
-        resetEncodersClient = n.serviceClient<create_fundamentals::ResetEncoders>("reset_encoders");
+            // Set up reset encoders client
+            resetEncodersClient = n.serviceClient<create_fundamentals::ResetEncoders>("reset_encoders");
 
-        // Initialize minimum range to a default value to be able to stop when obstacle is found
-        laserInitialized    = false;
-        encoderInitialized  = false;
-    }
+            // Initialize minimum range to a default value to be able to stop when obstacle is found
+            laserInitialized    = false;
+            encoderInitialized  = false;
+        }
 
-    void stop();
-    bool drive(float distanceInMeters, float speed = DEFAULT_SPEED);
-    bool rotate(float angleInDegrees, float speed = DEFAULT_SPEED);
-    bool rotateLeft(float speed = DEFAULT_SPEED);
-    bool rotateRight(float speed = DEFAULT_SPEED);
-    bool rotateBackwards(float speed = DEFAULT_SPEED);
+        void stop();
+        bool drive(float distanceInMeters, float speed = DEFAULT_SPEED);
+        bool rotate(float angleInDegrees, float speed = DEFAULT_SPEED);
+        bool rotateLeft(float speed = DEFAULT_SPEED);
+        bool rotateRight(float speed = DEFAULT_SPEED);
+        bool rotateBackwards(float speed = DEFAULT_SPEED);
 
-    bool driveWall(float distanceInMeters, float speed = DEFAULT_SPEED);
-    bool turnLeft();
-    bool turnRight();
+        bool driveWall(float distanceInMeters, float speed = DEFAULT_SPEED / 25);
+        bool turnLeft();
+        bool turnRight();
 
-  private:
-    static const bool DETECT_OBSTACLES   = true;
-    static const bool DEBUG              = false; // Defines if output should be printed
-    static const bool CALLBACK_DEBUG     = false; // Decide to print output from callbacks
-    float minimumRange;                           // Global variable to store minimum distance to object if found
-    bool laserInitialized;
-    bool encoderInitialized;
+    private:
+        static const bool DETECT_OBSTACLES   = true;
+        static const bool DEBUG              = false; // Defines if output should be printed
+        static const bool CALLBACK_DEBUG     = false; // Decide to print output from callbacks
+        float minimumRange;                           // Global variable to store minimum distance to object if found
+        bool laserInitialized;
+        bool encoderInitialized;
 
-    ros::NodeHandle n;
-    // Encoders
-    ros::Subscriber encoderSubscriber;
-    // Differential Drive
-    create_fundamentals::DiffDrive diffDriveService;
-    ros::ServiceClient diffDriveClient;
-    // Reset Encoders
-    create_fundamentals::ResetEncoders resetEncodersService;
-    ros::ServiceClient resetEncodersClient;
-    // Laser
-    ros::Subscriber laserSubscriber;
+        ros::NodeHandle n;
+        // Encoders
+        ros::Subscriber encoderSubscriber;
+        // Differential Drive
+        create_fundamentals::DiffDrive diffDriveService;
+        ros::ServiceClient diffDriveClient;
+        // Reset Encoders
+        create_fundamentals::ResetEncoders resetEncodersService;
+        ros::ServiceClient resetEncodersClient;
+        // Laser
+        ros::Subscriber laserSubscriber;
 
-    // WallRecognition
-    WallRecognition wall_recognition;
+        // WallRecognition
+        WallRecognition wall_recognition;
 
-    std::vector<float> ranges;
-    float leftEncoder, rightEncoder;
+        std::vector<float> ranges;
+        float leftEncoder, rightEncoder;
 
-    bool move(float desiredVelocity, float desiredTurningVelocity);
-    bool turn(int direction);
-    void encoderCallback(const create_fundamentals::SensorPacket::ConstPtr& msg);
-    void laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg);
-    void initialiseEncoder();
-    void resetEncoders();
+        bool move(float desiredVelocity, float desiredTurningVelocity);
+        bool turn(int direction);
+        void encoderCallback(const create_fundamentals::SensorPacket::ConstPtr& msg);
+        void laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg);
+        void initialiseEncoder();
+        void resetEncoders();
 };
 
 bool BasicMovements::move(float desiredVelocity, float desiredTurningVelocity)
@@ -104,7 +104,7 @@ void BasicMovements::stop()
  *         will go backwards
  *         No negative speed allowed.
  * Returns: false if obstacle was found otherwise true
-**/
+ **/
 bool BasicMovements::drive(float distanceInMeters, float speed)
 {
     if (DEBUG) {
@@ -157,7 +157,7 @@ bool BasicMovements::drive(float distanceInMeters, float speed)
  * same time aligning to it.
  *
  * Returns: false if obstacle was found otherwise true
-**/
+ **/
 bool BasicMovements::driveWall(float distanceInMeters, float speed)
 {
     // Use normal drive function when distance is negative
@@ -198,54 +198,18 @@ bool BasicMovements::driveWall(float distanceInMeters, float speed)
 
         if (walls.size() == 0 || walls.size() == 1 && frontWall != NULL) { // Drive forward
             move(0.2, 0);
-        } else /*if(fabs(wishRightEncoder - rightEncoder) * RAD_RADIUS < 0.4 && frontWall != NULL) {
-            while (frontWall->getDistanceInMeters() > 0.4) {
-                if (nearestWall->isLeftWall()) {
-                    distanceCorrection = (slopeOfFunction * PI) * wallDistance - PI / 4;
-                    angleCorrection = -tan(2 * wallAngle) * PI / 4;
-                } else if (nearestWall->isLeftWall()) {
-                    distanceCorrection = -(slopeOfFunction * PI) * wallDistance + PI / 4;
-                    angleCorrection = -tan(2 * wallAngle) * PI / 4;
-                } else {
-                    angleCorrection = 0;
-                    distanceCorrection = 0;
-                }
-                float vLeft = 1 / RAD_RADIUS * (0.2 + (angleCorrection - distanceCorrection) * ROB_BASE / 2);
-                float vRight = 1 / RAD_RADIUS * (0.2 + (-angleCorrection + distanceCorrection) * ROB_BASE / 2);
-
-                diffDriveService.request.left = vLeft;
-                diffDriveService.request.right = vRight;
-
-                diffDriveClient.call(diffDriveService);
-
-                walls           = wall_recognition.getWalls();
-
-                frontWall       = wall_recognition.getFrontWall(walls);
-                nearestWall     = wall_recognition.getNearestSideWall(walls);
-
-                wallAngle       = nearestWall->getAngleInRadians();
-                wallDistance    = nearestWall->getDistanceInMeters();
-            }
-            stop();
-            return true;
-        } else */{
+        } else {
             // Search for nearest wall
             nearestWall     = wall_recognition.getNearestSideWall(walls);
             wallAngle       = nearestWall->getAngleInRadians();
             wallDistance    = nearestWall->getDistanceInMeters();
 
-            wallAngle       = nearestWall->getAngleInRadians();
-            wallDistance    = nearestWall->getDistanceInMeters();
 
-            if (nearestWall->isLeftWall()) {
-                distanceCorrection = (slopeOfFunction * PI) * wallDistance - PI / 4;
-                angleCorrection = -tan(2 * wallAngle) * PI / 4;
-            } else if (nearestWall->isRightWall()) {
-                distanceCorrection = -(slopeOfFunction * PI) * wallDistance + PI / 4;
-                angleCorrection    = -tan(2 * wallAngle) * PI / 4;
-            } else {
-                if (DETECT_OBSTACLES) {
-                    if (nearestWall->isConfirmed() && nearestWall->isFrontWall() && wallDistance < SAFETY_DISTANCE) {
+            if (DETECT_OBSTACLES) {
+                std::vector<Wall*> walls = wall_recognition.getWalls();
+
+                if(wall_recognition.hasFrontWall(walls)){
+                    if(wall_recognition.getFrontWall(walls)->getDistanceInMeters() < 0.4){
                         // Robot recognized an obstacle, distance could not be completed
                         stop();
                         return false;
@@ -253,8 +217,14 @@ bool BasicMovements::driveWall(float distanceInMeters, float speed)
                 }
             }
 
-            float vLeft  = 1 / RAD_RADIUS * (0.2 + (angleCorrection - distanceCorrection) * ROB_BASE / 2);
-            float vRight = 1 / RAD_RADIUS * (0.2 + (-angleCorrection + distanceCorrection) * ROB_BASE / 2);
+            distanceCorrection = 5 * (slopeOfFunction * PI * wallDistance - PI / 4);
+            angleCorrection = 4 * (-(PI /4) *  tan(2 * wallAngle));
+            if (nearestWall->isLeftWall()) {
+                distanceCorrection = -distanceCorrection;
+            }
+
+            float vLeft  = 1 / RAD_RADIUS * (speed + (angleCorrection + distanceCorrection) * ROB_BASE / 2);
+            float vRight = 1 / RAD_RADIUS * (speed - (angleCorrection + distanceCorrection) * ROB_BASE / 2);
 
             diffDriveService.request.left  = vLeft;
             diffDriveService.request.right = vRight;
@@ -272,7 +242,7 @@ bool BasicMovements::driveWall(float distanceInMeters, float speed)
  *         else if negative counter clockwise
  *         No negative speed allowed.
  * Returns: false if obstacle was found otherwise true
-**/
+ **/
 bool BasicMovements::rotate(float angleInDegrees, float speed)
 {
     // Variables
@@ -313,7 +283,7 @@ bool BasicMovements::rotate(float angleInDegrees, float speed)
  * Parameter: rotation speed
  *
  * Returns: false if obstacle was found otherwise true
-**/
+ **/
 bool BasicMovements::rotateLeft(float speed)
 {
     return rotate(90, speed);
@@ -323,7 +293,7 @@ bool BasicMovements::rotateLeft(float speed)
  * Parameter: rotation speed
  *
  * Returns: false if obstacle was found otherwise true
-**/
+ **/
 bool BasicMovements::rotateRight(float speed)
 {
     return rotate(-90, speed);
@@ -333,7 +303,7 @@ bool BasicMovements::rotateRight(float speed)
  * Parameter: rotation speed
  *
  * Returns: false if obstacle was found otherwise true
-**/
+ **/
 bool BasicMovements::rotateBackwards(float speed)
 {
     return rotate(180, speed);
@@ -343,7 +313,7 @@ bool BasicMovements::rotateBackwards(float speed)
  * Turns left around a corner. This is not the same as rotate left.
  *
  * Returns: false if obstacle was found otherwise true
-**/
+ **/
 bool BasicMovements::turnLeft()
 {
     return turn(LEFT);
@@ -353,7 +323,7 @@ bool BasicMovements::turnLeft()
  * Turns right around a corner. This is not the same as rotate right.
  *
  * Returns: false if obstacle was found otherwise true
-**/
+ **/
 bool BasicMovements::turnRight()
 {
     return turn(RIGHT);
@@ -367,11 +337,11 @@ bool BasicMovements::turnRight()
  *            If invalid direction is passed over then right will be executed.
  *
  * Returns: false if obstacle was found otherwise true
-**/
+ **/
 bool BasicMovements::turn(int direction)
 {
     // Initialize default turning direction to right.
-    // Float type is used to avoid data loss when multiplying 
+    // Float type is used to avoid data loss when multiplying
     // with other floats
     float sign = 1;
     if (direction == LEFT) {
@@ -452,7 +422,7 @@ void BasicMovements::initialiseEncoder()
 
 /*
  * Reset the encoders and corresponding helper values.
-**/
+ **/
 void BasicMovements::resetEncoders()
 {
     resetEncodersClient.call(resetEncodersService);
