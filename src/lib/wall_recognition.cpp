@@ -14,7 +14,7 @@ class WallRecognition
     {
         // Set up laser callback
         laserSubscriber = n.subscribe("scan_filtered", 1, &WallRecognition::laserCallback, this);
-        
+
         ranges          = *(new std::vector<float>(LASER_COUNT));
         srand(time(NULL));
     }
@@ -66,7 +66,7 @@ std::vector<Wall*> WallRecognition::getWalls()
     for (int j = 0; j <= 2; j++) {
         // Variables
         std::vector<int> bestMatches;
-        Wall* bestWall;
+        Wall* bestWall = NULL;
 
         for (int i = 0; i < ITERATIONS; ++i) {
             // Get coordiantes of two random selected points

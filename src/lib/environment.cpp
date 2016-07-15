@@ -93,7 +93,7 @@ bool Env::align(void)
 bool Env::alignToSingleWall(void)
 {
     ros::Rate r(LOOP_RATE);
-    Wall* wall;
+    Wall* wall = NULL;
     float angleErrorMarginInRadians   = 0.2;
     float distanceErrorMarginInMeters = 0.05;
     bool success                      = true;
