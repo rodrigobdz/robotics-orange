@@ -124,6 +124,7 @@ bool BasicMovements::drive(float distanceInMeters, float speed)
         ros::spinOnce();
         if(DETECT_OBSTACLES) {
             if(!detectObstacles(sign)) {
+                ROS_INFO("FALSE 1");
                 return false;
             }
         }
@@ -166,11 +167,14 @@ bool BasicMovements::driveWall(float distanceInMeters, float speed)
         ROS_INFO("rightEncoder = %f, wishRightEncoder = %f", rightEncoder, wishRightEncoder);
     }
 
-    ROS_INFO("1.");
     std::vector<Wall*> walls = wall_recognition.getWalls();
-    ROS_INFO("2.");
 
     while (fabs(wishRightEncoder - rightEncoder) > 1) {
+        if(DETECT_OBSTACLES) {
+            if(!detectObstacles(1)){
+                return true;
+            }
+        }
         ros::spinOnce();
         walls = wall_recognition.getWalls();
         Wall* frontWall = wall_recognition.getFrontWall(walls);
@@ -190,18 +194,12 @@ bool BasicMovements::driveWall(float distanceInMeters, float speed)
         }
 
         if (walls.size() == 0 || walls.size() == 1 && frontWall != NULL) { // Drive forward
-            if(drive(0.2)) {
-                return false;
-            }
+            move(0.2, 0);
         } else if(rightWall != NULL || leftWall != NULL){
             // Search for nearest wall
             nearestWall     = wall_recognition.getNearestSideWall(walls);
             wallAngle       = nearestWall->getAngleInRadians();
             wallDistance    = nearestWall->getDistanceInMeters();
-
-            if(DETECT_OBSTACLES) {
-                detectObstacles(1);
-            }
 
             distanceCorrection = (slopeOfFunction * PI * wallDistance - PI / 4);
             angleCorrection = (-(PI / 4) * tan(2 * wallAngle));
@@ -362,7 +360,7 @@ bool BasicMovements::turn(int direction)
 
     while (ros::ok()) {
         ros::spinOnce();
-        ROS_INFO("rightEncoder %f, wishRightEncoder %f", rightEncoder, wishRightEncoder);
+        // ROS_INFO("rightEncoder %f, wishRightEncoder %f", rightEncoder, wishRightEncoder);
 
         // Check if robot rotation is enough including error margin
         if (direction == RIGHT && wishRightEncoder < rightEncoder) {
@@ -391,7 +389,8 @@ bool BasicMovements::detectObstacles(float sign)
     if (minimumRange < SAFETY_DISTANCE && sign > 0) {
         std::vector<Wall*> walls = wall_recognition.getWalls();
         if(wall_recognition.hasFrontWall(walls)){
-            if(wall_recognition.getFrontWall(walls)->getDistanceInMeters() < SAFETY_DISTANCE){
+            Wall* frontWall = wall_recognition.getFrontWall(walls);
+            if (frontWall->isConfirmed() && frontWall->getDistanceInMeters() < SAFETY_DISTANCE) {
                 // Robot recognized an obstacle, distance could not be completed
                 if(DEBUG){
                     ROS_INFO("Drive: Obstacle obstructing");

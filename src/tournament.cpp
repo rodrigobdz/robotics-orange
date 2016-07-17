@@ -77,17 +77,17 @@ int main(int argc, char** argv)
         ROS_INFO("CurrentPosition : %i, %i, %i", currentPosition.getXCoordinate(), currentPosition.getYCoordinate(), currentPosition.getDirection());
         ROS_INFO("Remaining plans: %lu", goldPositions.size());
         ROS_INFO("Drive to: %i, %i, %i",  nearestPosition.getXCoordinate(), nearestPosition.getYCoordinate(), nearestPosition.getDirection());
-        ROS_INFO("Drive plan: ");
+        printf("Drive plan: ");
 
         for(int i = 0; i < shortestPath.size(); i++){
             printf("%i ", shortestPath[i]);
         }
         printf("\n");
-        if (!plan.execute(shortestPath, currentPosition.getDirection())) {
+        if (!plan.executeSmooth(shortestPath, currentPosition.getDirection())) {
             maze.relocalize();
             continue;
         }
-        
+
         goldPositions = deletePosition(goldPositions, nearestPosition);
 
         maze.updatePositionOnMap(shortestPath);

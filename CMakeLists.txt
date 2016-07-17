@@ -64,17 +64,14 @@ add_executable(example_playsong src/examples/example_playsong.cpp)
 target_link_libraries(example_playsong ${catkin_LIBRARIES})
 add_dependencies(example_playsong create_fundamentals_generate_messages_cpp)
 
-add_executable(example_drive src/examples/example_drive.cpp)
-target_link_libraries(example_drive ${catkin_LIBRARIES})
-add_dependencies(example_drive create_fundamentals_generate_messages_cpp)
+add_executable(example_driveWall src/examples/example_driveWall.cpp)
+target_link_libraries(example_driveWall ${catkin_LIBRARIES})
+add_dependencies(example_driveWall create_fundamentals_generate_messages_cpp)
 
                     #################################
                     #           TOURNAMENT          #
                     #################################
 
-add_executable(challenge_smooth src/tournament/challenge_smooth.cpp)
-target_link_libraries(challenge_smooth ${catkin_LIBRARIES})
-add_dependencies(challenge_smooth create_fundamentals_generate_messages_cpp)
 
 add_executable(tournament src/tournament.cpp)
 target_link_libraries(tournament ${catkin_LIBRARIES})
