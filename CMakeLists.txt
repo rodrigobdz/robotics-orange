@@ -64,6 +64,10 @@ add_executable(example_playsong src/examples/example_playsong.cpp)
 target_link_libraries(example_playsong ${catkin_LIBRARIES})
 add_dependencies(example_playsong create_fundamentals_generate_messages_cpp)
 
+add_executable(example_drive src/examples/example_drive.cpp)
+target_link_libraries(example_drive ${catkin_LIBRARIES})
+add_dependencies(example_drive create_fundamentals_generate_messages_cpp)
+
                     #################################
                     #           TOURNAMENT          #
                     #################################

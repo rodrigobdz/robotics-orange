@@ -13,5 +13,7 @@ int main(int argc, char** argv)
     signal(SIGINT, stopMotors);
 
     BasicMovements basic_movements;
-    basic_movements.drive(-0.2, 5);
+    bool success = basic_movements.drive(CELL_LENGTH*2);
+
+    ROS_INFO("Success %s", success ? "true" : "false");
 }

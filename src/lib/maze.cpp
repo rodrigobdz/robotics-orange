@@ -21,17 +21,19 @@ class Maze
   public:
     Maze()
     {
-        if (!DEBUG) {
-            env.align();
-            parseMap();
-            localize();
-        } else {
+        if(DEBUG) {
             ROS_INFO("align start");
-            env.align();
+        }
+        env.align();
+        if(DEBUG) {
             ROS_INFO("align finished, start parse");
-            parseMap();
+        }
+        parseMap();
+        if(DEBUG) {
             ROS_INFO("parse finished, start localize");
-            localize();
+        }
+        localize();
+        if(DEBUG) {
             ROS_INFO("localize finished");
         }
     }
@@ -42,6 +44,7 @@ class Maze
     }
 
     void localize();
+    void relocalize();
 
     Position getPosition();
     bool updatePositionOnMap(std::vector<int> plan);
@@ -113,6 +116,13 @@ void Maze::localize()
 
     position = possiblePositions[0];
     ROS_INFO("Final position X = %d, Y = %d, direction = %d", position.getXCoordinate(), position.getYCoordinate(), position.getDirection());
+}
+
+void Maze::relocalize()
+{
+    ROS_INFO("Relocalize");
+    env.align();
+    localize();
 }
 
 bool Maze::updatePositionOnMap(std::vector<int> plan){

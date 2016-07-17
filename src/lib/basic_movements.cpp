@@ -71,6 +71,7 @@ class BasicMovements
     std::vector<float> ranges;
     float leftEncoder, rightEncoder;
 
+    bool detectObstacles(float sign);
     bool turn(int direction);
     void encoderCallback(const create_fundamentals::SensorPacket::ConstPtr& msg);
     void laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg);
@@ -120,20 +121,9 @@ bool BasicMovements::drive(float distanceInMeters, float speed)
     resetEncoders();
 
     while (ros::ok()) {
-        if (DETECT_OBSTACLES) {
-            while (!laserInitialized) {
-                // Get laser data before driving to recognize obstacles beforehand
-                ros::spinOnce();
-            }
-
-            // Check if robot is about to crash into something
-            // only when robot has to drive forward
-            if (minimumRange < SAFETY_DISTANCE && sign > 0) {
-                // Robot recognized an obstacle, distance could not be completed
-                if (DEBUG) {
-                    ROS_INFO("Drive: Obstacle obstructing");
-                }
-                stop();
+        ros::spinOnce();
+        if(DETECT_OBSTACLES) {
+            if(!detectObstacles(sign)) {
                 return false;
             }
         }
@@ -176,7 +166,9 @@ bool BasicMovements::driveWall(float distanceInMeters, float speed)
         ROS_INFO("rightEncoder = %f, wishRightEncoder = %f", rightEncoder, wishRightEncoder);
     }
 
+    ROS_INFO("1.");
     std::vector<Wall*> walls = wall_recognition.getWalls();
+    ROS_INFO("2.");
 
     while (fabs(wishRightEncoder - rightEncoder) > 1) {
         ros::spinOnce();
@@ -193,29 +185,23 @@ bool BasicMovements::driveWall(float distanceInMeters, float speed)
         float angleCorrection;
         float slopeOfFunction = 0.625;
 
-        if (DEBUG) {
+        if (CALLBACK_DEBUG) {
             ROS_INFO("Distance to drive %f", fabs(wishRightEncoder - rightEncoder) * RAD_RADIUS);
         }
 
         if (walls.size() == 0 || walls.size() == 1 && frontWall != NULL) { // Drive forward
-            move(0.2, 0);
-        } else if (rightWall != NULL || leftWall != NULL) {
+            if(drive(0.2)) {
+                return false;
+            }
+        } else if(rightWall != NULL || leftWall != NULL){
             // Search for nearest wall
-            nearestWall = wall_recognition.getNearestSideWall(walls);
-            wallAngle = nearestWall->getAngleInRadians();
-            wallDistance = nearestWall->getDistanceInMeters();
+            nearestWall     = wall_recognition.getNearestSideWall(walls);
+            wallAngle       = nearestWall->getAngleInRadians();
+            wallDistance    = nearestWall->getDistanceInMeters();
 
-            /*if (DETECT_OBSTACLES) {
-                std::vector<Wall*> walls = wall_recognition.getWalls();
-
-                if (wall_recognition.hasFrontWall(walls)) {
-                    if (wall_recognition.getFrontWall(walls)->getDistanceInMeters() < 0.4) {
-                        // Robot recognized an obstacle, distance could not be completed
-                        stop();
-                        return false;
-                    }
-                }
-            }*/
+            if(DETECT_OBSTACLES) {
+                detectObstacles(1);
+            }
 
             distanceCorrection = (slopeOfFunction * PI * wallDistance - PI / 4);
             angleCorrection = (-(PI / 4) * tan(2 * wallAngle));
@@ -236,7 +222,9 @@ bool BasicMovements::driveWall(float distanceInMeters, float speed)
     walls = wall_recognition.getWalls();
     Wall* frontWall = wall_recognition.getFrontWall(walls);
     if (frontWall != NULL) {
-        ROS_INFO("Correct odometry");
+        if(DEBUG) {
+            ROS_INFO("Correct odometry");
+        }
         while (frontWall->getDistanceInMeters() < 0.7 && frontWall->getDistanceInMeters() > 0.45) {
             float vLeft = speed;
             float vRight = speed;
@@ -288,7 +276,7 @@ bool BasicMovements::rotate(float angleInDegrees, float speed)
 
     while (ros::ok()) {
         ros::spinOnce();
-        if (DEBUG) {
+        if(CALLBACK_DEBUG) {
             // ROS_INFO("leftEncoder %f, wishLeftEncoder %f", leftEncoder, wishLeftEncoder);
             ROS_INFO("fabs((wishLeftEncoder - leftEncoder)) = %f", fabs((wishLeftEncoder - leftEncoder)));
         }
@@ -374,20 +362,7 @@ bool BasicMovements::turn(int direction)
 
     while (ros::ok()) {
         ros::spinOnce();
-        // ROS_INFO("rightEncoder %f, wishRightEncoder %f", rightEncoder, wishRightEncoder);
-
-        // if (DETECT_OBSTACLES) {
-        //     // Check if robot is about to crash into something
-        //     // only when robot has to drive forward
-        //     if (minimumRange < SAFETY_DISTANCE) {
-        //         // Robot recognized an obstacle, distance could not be completed
-        //         if(DEBUG){
-        //             ROS_INFO("Turn: Obstacle obstructing");
-        //         }
-        //         stop();
-        //         return false;
-        //     }
-        // }
+        ROS_INFO("rightEncoder %f, wishRightEncoder %f", rightEncoder, wishRightEncoder);
 
         // Check if robot rotation is enough including error margin
         if (direction == RIGHT && wishRightEncoder < rightEncoder) {
@@ -404,6 +379,31 @@ bool BasicMovements::turn(int direction)
 
     return false;
 }
+
+bool BasicMovements::detectObstacles(float sign)
+{
+    if(DEBUG) {
+        ROS_INFO("detectObstacles");
+    }
+    initialiseEncoder();
+    // Check if robot is about to crash into something
+    // only when robot has to drive forward
+    if (minimumRange < SAFETY_DISTANCE && sign > 0) {
+        std::vector<Wall*> walls = wall_recognition.getWalls();
+        if(wall_recognition.hasFrontWall(walls)){
+            if(wall_recognition.getFrontWall(walls)->getDistanceInMeters() < SAFETY_DISTANCE){
+                // Robot recognized an obstacle, distance could not be completed
+                if(DEBUG){
+                    ROS_INFO("Drive: Obstacle obstructing");
+                }
+                stop();
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
 
 /********************** HELPERS *****************************/
 

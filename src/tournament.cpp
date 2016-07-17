@@ -6,6 +6,8 @@
 #include <play_song.cpp>
 #include <basic_movements.cpp>
 
+static const bool DEBUG = true;
+
 void stopMotors(int signal) {
     BasicMovements basic_movements;
     basic_movements.stop();
@@ -14,12 +16,12 @@ void stopMotors(int signal) {
 
 Position findNearestPosition(Position currentPosition, std::vector<Position> positions)
 {
-    PathFinder pathFinder;
+    PathFinder path_finder;
     Position nearestPosition;
     int shortestLength = 100000;
 
     for (int i = 0; i < positions.size(); i++) {
-        std::vector<int> plan_instructions = pathFinder.find(currentPosition, positions[i]);
+        std::vector<int> plan_instructions = path_finder.find(currentPosition, positions[i]);
         if (shortestLength > plan_instructions.size()) {
             nearestPosition = positions[i];
             shortestLength = plan_instructions.size();
@@ -49,7 +51,7 @@ int main(int argc, char** argv)
 
     Plan plan;
     Maze maze;
-    PathFinder pathFinder;
+    PathFinder path_finder;
     PlaySongLib play_song;
 
     Position gold1{0, 3, -1};
@@ -70,7 +72,7 @@ int main(int argc, char** argv)
     while(goldPositions.size()  > 0){
         currentPosition = maze.getPosition();
         nearestPosition = findNearestPosition(currentPosition, goldPositions);
-        shortestPath = pathFinder.find(currentPosition, nearestPosition);
+        shortestPath = path_finder.find(currentPosition, nearestPosition);
 
         ROS_INFO("CurrentPosition : %i, %i, %i", currentPosition.getXCoordinate(), currentPosition.getYCoordinate(), currentPosition.getDirection());
         ROS_INFO("Remaining plans: %lu", goldPositions.size());
@@ -81,7 +83,11 @@ int main(int argc, char** argv)
             printf("%i ", shortestPath[i]);
         }
         printf("\n");
-        plan.execute(shortestPath, currentPosition.getDirection());
+        if (!plan.execute(shortestPath, currentPosition.getDirection())) {
+            maze.relocalize();
+            continue;
+        }
+        
         goldPositions = deletePosition(goldPositions, nearestPosition);
 
         maze.updatePositionOnMap(shortestPath);
@@ -90,7 +96,7 @@ int main(int argc, char** argv)
 
     currentPosition = maze.getPosition();
     nearestPosition = findNearestPosition(currentPosition, pickupPositions);
-    shortestPath = pathFinder.find(currentPosition, nearestPosition);
+    shortestPath = path_finder.find(currentPosition, nearestPosition);
 
     plan.execute(shortestPath, currentPosition.getDirection());
 
