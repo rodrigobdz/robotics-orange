@@ -15,7 +15,13 @@ int main(int argc, char **argv)
 	signal(SIGINT, stopMotors);
 
 	// Rotate 90 degrees clockwise with a velocity of 7 rad/s
-	basic_movements.turnRight();
+	// basic_movements.turnRight();
+	basic_movements.turnLeft();
+	// basic_movements.turnRight();
+	basic_movements.turnLeft();
+	// basic_movements.turnRight();
+	basic_movements.turnLeft();
+	// basic_movements.turnRight();
 	basic_movements.turnLeft();
 
 }

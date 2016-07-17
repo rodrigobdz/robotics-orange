@@ -43,6 +43,7 @@ class BasicMovements
         bool turnLeft();
         bool turnRight();
 
+        bool move(float desiredVelocity, float desiredTurningVelocity);
     private:
         static const bool DETECT_OBSTACLES   = true;
         static const bool DEBUG              = false; // Defines if output should be printed
@@ -69,7 +70,6 @@ class BasicMovements
         std::vector<float> ranges;
         float leftEncoder, rightEncoder;
 
-        bool move(float desiredVelocity, float desiredTurningVelocity);
         bool turn(int direction);
         void encoderCallback(const create_fundamentals::SensorPacket::ConstPtr& msg);
         void laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg);
@@ -206,15 +206,15 @@ bool BasicMovements::driveWall(float distanceInMeters, float speed)
 
 
             /*if (DETECT_OBSTACLES) {
-                std::vector<Wall*> walls = wall_recognition.getWalls();
+              std::vector<Wall*> walls = wall_recognition.getWalls();
 
-                if(wall_recognition.hasFrontWall(walls)){
-                    if(wall_recognition.getFrontWall(walls)->getDistanceInMeters() < 0.4){
-                        // Robot recognized an obstacle, distance could not be completed
-                        stop();
-                        return false;
-                    }
-                }
+              if(wall_recognition.hasFrontWall(walls)){
+              if(wall_recognition.getFrontWall(walls)->getDistanceInMeters() < 0.4){
+            // Robot recognized an obstacle, distance could not be completed
+            stop();
+            return false;
+            }
+            }
             }*/
 
             distanceCorrection = (slopeOfFunction * PI * wallDistance - PI / 4);
@@ -355,23 +355,27 @@ bool BasicMovements::turn(int direction)
 
     while (ros::ok()) {
         ros::spinOnce();
-        ROS_INFO("rightEncoder %f, wishRightEncoder %f", rightEncoder, wishRightEncoder);
+        // ROS_INFO("rightEncoder %f, wishRightEncoder %f", rightEncoder, wishRightEncoder);
 
-        if (DETECT_OBSTACLES) {
-            // Check if robot is about to crash into something
-            // only when robot has to drive forward
-            if (minimumRange < SAFETY_DISTANCE) {
-                // Robot recognized an obstacle, distance could not be completed
-                if(DEBUG){
-                    ROS_INFO("Turn: Obstacle obstructing");
-                }
-                stop();
-                return false;
-            }
-        }
+        // if (DETECT_OBSTACLES) {
+        //     // Check if robot is about to crash into something
+        //     // only when robot has to drive forward
+        //     if (minimumRange < SAFETY_DISTANCE) {
+        //         // Robot recognized an obstacle, distance could not be completed
+        //         if(DEBUG){
+        //             ROS_INFO("Turn: Obstacle obstructing");
+        //         }
+        //         stop();
+        //         return false;
+        //     }
+        // }
 
         // Check if robot rotation is enough including error margin
-        if (fabs((wishRightEncoder - rightEncoder)) < 0.5) {
+        if (direction == RIGHT && wishRightEncoder < rightEncoder) {
+            stop();
+            return true;
+        }
+        if (direction == LEFT && wishLeftEncoder < leftEncoder) {
             stop();
             return true;
         }

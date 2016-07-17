@@ -64,17 +64,17 @@ include_directories(include ${catkin_INCLUDE_DIRS} src/lib)
 # target_link_libraries(example_ransac ${catkin_LIBRARIES})
 # add_dependencies(example_ransac create_fundamentals_generate_messages_cpp)
 
-add_executable(example_driveWall src/examples/example_driveWall.cpp)
-target_link_libraries(example_driveWall ${catkin_LIBRARIES})
-add_dependencies(example_driveWall create_fundamentals_generate_messages_cpp)
+# add_executable(example_driveWall src/examples/example_driveWall.cpp)
+# target_link_libraries(example_driveWall ${catkin_LIBRARIES})
+# add_dependencies(example_driveWall create_fundamentals_generate_messages_cpp)
 
-# add_executable(example_playsong src/examples/example_playsong.cpp)
-# target_link_libraries(example_playsong ${catkin_LIBRARIES})
-# add_dependencies(example_playsong create_fundamentals_generate_messages_cpp)
+add_executable(example_tournament src/examples/example_tournament.cpp)
+target_link_libraries(example_tournament ${catkin_LIBRARIES})
+add_dependencies(example_tournament create_fundamentals_generate_messages_cpp)
 
-# add_executable(example_align src/examples/example_align.cpp)
-# target_link_libraries(example_align ${catkin_LIBRARIES})
-# add_dependencies(example_align create_fundamentals_generate_messages_cpp)
+add_executable(example_turn src/examples/example_turn.cpp)
+target_link_libraries(example_turn ${catkin_LIBRARIES})
+add_dependencies(example_turn create_fundamentals_generate_messages_cpp)
 
 # add_executable(example_pathfinder src/examples/example_pathfinder.cpp)
 # target_link_libraries(example_pathfinder ${catkin_LIBRARIES})
@@ -84,10 +84,14 @@ add_dependencies(example_driveWall create_fundamentals_generate_messages_cpp)
                     #           HOMEWORKS           #
                     #################################
 
-add_executable(path_planning src/ha4/01path_planning.cpp)
-target_link_libraries(path_planning ${catkin_LIBRARIES})
-add_dependencies(path_planning create_fundamentals_generate_messages_cpp)
+# add_executable(path_planning src/ha4/01path_planning.cpp)
+# target_link_libraries(path_planning ${catkin_LIBRARIES})
+# add_dependencies(path_planning create_fundamentals_generate_messages_cpp)
 
-add_executable(challenge_dry_run src/ha4/02challenge-dry-run.cpp)
-target_link_libraries(challenge_dry_run ${catkin_LIBRARIES})
-add_dependencies(challenge_dry_run create_fundamentals_generate_messages_cpp)
+# add_executable(challenge_dry_run src/ha4/02challenge-dry-run.cpp)
+# target_link_libraries(challenge_dry_run ${catkin_LIBRARIES})
+# add_dependencies(challenge_dry_run create_fundamentals_generate_messages_cpp)
+
+add_executable(challenge_smooth src/tournament/challenge_smooth.cpp)
+target_link_libraries(challenge_smooth ${catkin_LIBRARIES})
+add_dependencies(challenge_smooth create_fundamentals_generate_messages_cpp)
