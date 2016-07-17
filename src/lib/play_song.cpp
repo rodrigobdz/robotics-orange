@@ -150,10 +150,6 @@ void PlaySongLib::starWarsShort()
     playSongService.request.number = 1;
     playSong.call(playSongService);
     ros::Duration(MEASURE_TIME*2.01).sleep();
-
-    playSongService.request.number = 2;
-    playSong.call(playSongService);
-    ros::Duration(MEASURE_TIME*2.01).sleep();
 }
 
 void PlaySongLib::starWars() 
