@@ -106,7 +106,7 @@ void PlaySongLib::beep()
 void PlaySongLib::doubleBeep()
 {
     storeSongService.request.number = 1;
-    storeSongService.request.song = {a4,Q,HALF,Q,HALF};
+    storeSongService.request.song = {a4,Q,a4,Q};
     storeSong.call(storeSongService);
 
     playSongService.request.number = 1;
