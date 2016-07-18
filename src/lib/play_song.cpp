@@ -116,7 +116,7 @@ void PlaySongLib::doubleBeep()
 void PlaySongLib::failure()
 {
     storeSongService.request.number = 6;
-    storeSongService.request.song = {r,E, f4,E, aes4,Q};
+    storeSongService.request.song = {r,E, f4,E, aes4,Q, r, E};
     storeSong.call(storeSongService);
 
     playSongService.request.number = 6;
