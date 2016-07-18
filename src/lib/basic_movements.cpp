@@ -125,7 +125,6 @@ bool BasicMovements::drive(float distanceInMeters, float speed)
         ros::spinOnce();
         if(DETECT_OBSTACLES) {
             if(!detectObstacles(sign)) {
-                ROS_INFO("FALSE 1");
                 return false;
             }
         }
@@ -171,21 +170,21 @@ bool BasicMovements::driveWall(float distanceInMeters, float speed)
     std::vector<Wall*> walls = wall_recognition.getWalls();
 
     while (fabs(wishRightEncoder - rightEncoder) > 1) {
+        ros::spinOnce();
         if(DETECT_OBSTACLES) {
             if(!detectObstacles(1)){
-                return true;
+                return false;
             }
         }
-        ros::spinOnce();
-        walls = wall_recognition.getWalls();
-        Wall* frontWall = wall_recognition.getFrontWall(walls);
-        Wall* rightWall = wall_recognition.getRightWall(walls);
-        Wall* leftWall = wall_recognition.getLeftWall(walls);
-        Wall* nearestWall = NULL;
-
+        walls                 = wall_recognition.getWalls();
+        Wall* frontWall       = wall_recognition.getFrontWall(walls);
+        Wall* rightWall       = wall_recognition.getRightWall(walls);
+        Wall* leftWall        = wall_recognition.getLeftWall(walls);
+        Wall* nearestWall     = NULL;
+        
         float wallAngle;
         float wallDistance;
-
+        
         float distanceCorrection;
         float angleCorrection;
         float slopeOfFunction = 0.625;
@@ -273,8 +272,9 @@ bool BasicMovements::rotate(float angleInDegrees, float speed)
 
     while (ros::ok()) {
         ros::spinOnce();
+
         if(CALLBACK_DEBUG) {
-            // ROS_INFO("leftEncoder %f, wishLeftEncoder %f", leftEncoder, wishLeftEncoder);
+            ROS_INFO("leftEncoder %f, wishLeftEncoder %f", leftEncoder, wishLeftEncoder);
             ROS_INFO("fabs((wishLeftEncoder - leftEncoder)) = %f", fabs((wishLeftEncoder - leftEncoder)));
         }
 
@@ -359,7 +359,15 @@ bool BasicMovements::turn(int direction)
 
     while (ros::ok()) {
         ros::spinOnce();
-        // ROS_INFO("rightEncoder %f, wishRightEncoder %f", rightEncoder, wishRightEncoder);
+        if(DETECT_OBSTACLES) {
+            if(!detectObstacles(1)){
+                return false;
+            }
+        }
+        
+        if(CALLBACK_DEBUG) {
+            ROS_INFO("rightEncoder %f, wishRightEncoder %f", rightEncoder, wishRightEncoder);
+        }
 
         // Check if robot rotation is enough including error margin
         if (direction == RIGHT && wishRightEncoder < rightEncoder) {

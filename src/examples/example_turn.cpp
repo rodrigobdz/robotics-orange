@@ -1,31 +1,24 @@
 #include <basic_movements.cpp>
 #include <signal.h>
 
-void stopMotors(int signal) {
+void stopMotors(int signal)
+{
     BasicMovements basic_movements;
     basic_movements.stop();
 }
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
-	ros::init(argc, argv, "example_turn");
+    ros::init(argc, argv, "example_turn");
+
+    signal(SIGINT, stopMotors);
 
     BasicMovements basic_movements;
+    ROS_INFO("Success 1 %s", basic_movements.turnLeft() ? "true" : "false");
 
-	signal(SIGINT, stopMotors);
+    ROS_INFO("Success 2 %s", basic_movements.turnRight() ? "true" : "false");
 
-	// Rotate 90 degrees clockwise with a velocity of 7 rad/s
-	// basic_movements.turnRight();
-	basic_movements.turnLeft();
-	// basic_movements.turnRight();
-	basic_movements.turnLeft();
-	// basic_movements.turnRight();
-	basic_movements.turnLeft();
-	// basic_movements.turnRight();
-	basic_movements.turnLeft();
-	basic_movements.stop();
-
+    ROS_INFO("Success 3 %s", basic_movements.turnLeft() ? "true" : "false");
+    return 0;
 }
-
-
 

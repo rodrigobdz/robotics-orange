@@ -19,6 +19,7 @@ class PlaySongLib
     void starWarsShort();
     void failure();
     void beep();
+    void doubleBeep();
 
     private:
         ros::NodeHandle n;
@@ -96,6 +97,16 @@ void PlaySongLib::beep()
 {
     storeSongService.request.number = 1;
     storeSongService.request.song = {a4,Q,HALF};
+    storeSong.call(storeSongService);
+
+    playSongService.request.number = 1;
+    playSong.call(playSongService);
+}
+
+void PlaySongLib::doubleBeep()
+{
+    storeSongService.request.number = 1;
+    storeSongService.request.song = {a4,Q,HALF,Q,HALF};
     storeSong.call(storeSongService);
 
     playSongService.request.number = 1;

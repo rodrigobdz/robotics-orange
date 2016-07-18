@@ -9,6 +9,7 @@
 #include <basic_movements.cpp>
 #include <position.cpp>
 #include <environment.cpp>
+#include <play_song.cpp>
 
 #include "orange_fundamentals/Grid.h"
 #include "orange_fundamentals/Cell.h"
@@ -89,6 +90,10 @@ Position Maze::getPosition() { return position; }
 
 void Maze::localize()
 {
+    PlaySongLib play_song;
+    
+    possiblePositions = initializePositions();
+
     while (possiblePositions.size() > 1 || possiblePositions.size() == 0) {
         possiblePositions = initializePositions();
         wallsRobotView = scanCurrentCellInitial();
@@ -116,11 +121,16 @@ void Maze::localize()
 
     position = possiblePositions[0];
     ROS_INFO("Final position X = %d, Y = %d, direction = %d", position.getXCoordinate(), position.getYCoordinate(), position.getDirection());
+    play_song.beep();
+    play_song.doubleBeep();
 }
 
 void Maze::relocalize()
 {
     ROS_INFO("Relocalize");
+    PlaySongLib play_song;
+    play_song.failure();
+
     env.align();
     localize();
 }

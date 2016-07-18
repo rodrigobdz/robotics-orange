@@ -16,4 +16,6 @@ int main(int argc, char** argv)
     bool success = basic_movements.drive(CELL_LENGTH*2);
 
     ROS_INFO("Success %s", success ? "true" : "false");
+
+    return 0;
 }

@@ -7,20 +7,21 @@
 
 class Plan
 {
-    public:
-        Plan() {}
+  public:
+    Plan() {}
 
-        bool execute(std::vector<int> plan, int direction);
-        bool executeSmooth(std::vector<int> plan, int direction);
+    bool execute(std::vector<int> plan, int direction);
+    bool executeSmooth(std::vector<int> plan, int direction);
 
-        std::vector<int> duplicatePlan(std::vector<int> plan);
-        std::vector<int> makeSmoothPlan(std::vector<int> plan);
-    private:
-        bool DEBUG = true;
+    std::vector<int> duplicatePlan(std::vector<int> plan);
+    std::vector<int> makeSmoothPlan(std::vector<int> plan);
 
-        int TURNRIGHT = -1;
-        int STRAIGHT = 0;
-        int TURNLEFT = 1;
+  private:
+    bool DEBUG = true;
+
+    int TURNRIGHT = -1;
+    int STRAIGHT = 0;
+    int TURNLEFT = 1;
 };
 
 bool Plan::execute(std::vector<int> plan, int direction)
@@ -39,71 +40,76 @@ bool Plan::execute(std::vector<int> plan, int direction)
         }
 
         switch (lastDirection) {
-            case RIGHT:
-                switch (*it) {
-                    case UP:
-                        executionSuccessful = executionSuccessful && basic_movements.rotateLeft();
-                        break;
-                    case LEFT:
-                        executionSuccessful = executionSuccessful && basic_movements.rotateBackwards();
-                        break;
-                    case DOWN:
-                        executionSuccessful = executionSuccessful && basic_movements.rotateRight();
-                        break;
-                    default:
-                        break;
-                }
-                break;
+        case RIGHT:
+            switch (*it) {
             case UP:
-                switch (*it) {
-                    case RIGHT:
-                        executionSuccessful = executionSuccessful && basic_movements.rotateRight();
-                        break;
-                    case LEFT:
-                        executionSuccessful = executionSuccessful && basic_movements.rotateLeft();
-                        break;
-                    case DOWN:
-                        executionSuccessful = executionSuccessful && basic_movements.rotateBackwards();
-                        break;
-                    default:
-                        break;
-                }
+                executionSuccessful = executionSuccessful && basic_movements.rotateLeft();
                 break;
             case LEFT:
-                switch (*it) {
-                    case RIGHT:
-                        executionSuccessful = executionSuccessful && basic_movements.rotateBackwards();
-                        break;
-                    case UP:
-                        executionSuccessful = executionSuccessful && basic_movements.rotateRight();
-                        break;
-                    case DOWN:
-                        executionSuccessful = executionSuccessful && basic_movements.rotateLeft();
-                        break;
-                    default:
-                        break;
-                }
+                executionSuccessful = executionSuccessful && basic_movements.rotateBackwards();
                 break;
             case DOWN:
-                switch (*it) {
-                    case RIGHT:
-                        executionSuccessful = executionSuccessful && basic_movements.rotateLeft();
-                        break;
-                    case UP:
-                        executionSuccessful = executionSuccessful && basic_movements.rotateBackwards();
-                        break;
-                    case LEFT:
-                        executionSuccessful = executionSuccessful && basic_movements.rotateRight();
-                        break;
-                    default:
-                        break;
-                }
+                executionSuccessful = executionSuccessful && basic_movements.rotateRight();
                 break;
             default:
                 break;
+            }
+            break;
+        case UP:
+            switch (*it) {
+            case RIGHT:
+                executionSuccessful = executionSuccessful && basic_movements.rotateRight();
+                break;
+            case LEFT:
+                executionSuccessful = executionSuccessful && basic_movements.rotateLeft();
+                break;
+            case DOWN:
+                executionSuccessful = executionSuccessful && basic_movements.rotateBackwards();
+                break;
+            default:
+                break;
+            }
+            break;
+        case LEFT:
+            switch (*it) {
+            case RIGHT:
+                executionSuccessful = executionSuccessful && basic_movements.rotateBackwards();
+                break;
+            case UP:
+                executionSuccessful = executionSuccessful && basic_movements.rotateRight();
+                break;
+            case DOWN:
+                executionSuccessful = executionSuccessful && basic_movements.rotateLeft();
+                break;
+            default:
+                break;
+            }
+            break;
+        case DOWN:
+            switch (*it) {
+            case RIGHT:
+                executionSuccessful = executionSuccessful && basic_movements.rotateLeft();
+                break;
+            case UP:
+                executionSuccessful = executionSuccessful && basic_movements.rotateBackwards();
+                break;
+            case LEFT:
+                executionSuccessful = executionSuccessful && basic_movements.rotateRight();
+                break;
+            default:
+                break;
+            }
+            break;
+        default:
+            break;
         }
+
         executionSuccessful = executionSuccessful && basic_movements.driveWall(CELL_LENGTH);
         lastDirection = *it;
+
+        if (!executionSuccessful) {
+            return false;
+        }
     }
 
     return executionSuccessful;
@@ -111,7 +117,7 @@ bool Plan::execute(std::vector<int> plan, int direction)
 
 bool Plan::executeSmooth(std::vector<int> plan, int direction)
 {
-    if(plan.size() == 0){
+    if (plan.size() == 0) {
         return true;
     }
     BasicMovements basic_movements;
@@ -129,87 +135,98 @@ bool Plan::executeSmooth(std::vector<int> plan, int direction)
     }
 
     switch (lastDirection) {
-        case RIGHT:
-            switch (smoothPlan[0]) {
-                case UP:
-                    executionSuccessful = executionSuccessful && basic_movements.rotateLeft();
-                    break;
-                case LEFT:
-                    executionSuccessful = executionSuccessful && basic_movements.rotateBackwards();
-                    break;
-                case DOWN:
-                    executionSuccessful = executionSuccessful && basic_movements.rotateRight();
-                    break;
-                default:
-                    break;
-            }
-            break;
+    case RIGHT:
+        switch (smoothPlan[0]) {
         case UP:
-            switch (smoothPlan[0]) {
-                case RIGHT:
-                    executionSuccessful = executionSuccessful && basic_movements.rotateRight();
-                    break;
-                case LEFT:
-                    executionSuccessful = executionSuccessful && basic_movements.rotateLeft();
-                    break;
-                case DOWN:
-                    executionSuccessful = executionSuccessful && basic_movements.rotateBackwards();
-                    break;
-                default:
-                    break;
-            }
+            executionSuccessful = executionSuccessful && basic_movements.rotateLeft();
             break;
         case LEFT:
-            switch (smoothPlan[0]) {
-                case RIGHT:
-                    executionSuccessful = executionSuccessful && basic_movements.rotateBackwards();
-                    break;
-                case UP:
-                    executionSuccessful = executionSuccessful && basic_movements.rotateRight();
-                    break;
-                case DOWN:
-                    executionSuccessful = executionSuccessful && basic_movements.rotateLeft();
-                    break;
-                default:
-                    break;
-            }
+            executionSuccessful = executionSuccessful && basic_movements.rotateBackwards();
             break;
         case DOWN:
-            switch (smoothPlan[0]) {
-                case RIGHT:
-                    executionSuccessful = executionSuccessful && basic_movements.rotateLeft();
-                    break;
-                case UP:
-                    executionSuccessful = executionSuccessful && basic_movements.rotateBackwards();
-                    break;
-                case LEFT:
-                    executionSuccessful = executionSuccessful && basic_movements.rotateRight();
-                    break;
-                default:
-                    break;
-            }
+            executionSuccessful = executionSuccessful && basic_movements.rotateRight();
             break;
         default:
             break;
+        }
+        break;
+    case UP:
+        switch (smoothPlan[0]) {
+        case RIGHT:
+            executionSuccessful = executionSuccessful && basic_movements.rotateRight();
+            break;
+        case LEFT:
+            executionSuccessful = executionSuccessful && basic_movements.rotateLeft();
+            break;
+        case DOWN:
+            executionSuccessful = executionSuccessful && basic_movements.rotateBackwards();
+            break;
+        default:
+            break;
+        }
+        break;
+    case LEFT:
+        switch (smoothPlan[0]) {
+        case RIGHT:
+            executionSuccessful = executionSuccessful && basic_movements.rotateBackwards();
+            break;
+        case UP:
+            executionSuccessful = executionSuccessful && basic_movements.rotateRight();
+            break;
+        case DOWN:
+            executionSuccessful = executionSuccessful && basic_movements.rotateLeft();
+            break;
+        default:
+            break;
+        }
+        break;
+    case DOWN:
+        switch (smoothPlan[0]) {
+        case RIGHT:
+            executionSuccessful = executionSuccessful && basic_movements.rotateLeft();
+            break;
+        case UP:
+            executionSuccessful = executionSuccessful && basic_movements.rotateBackwards();
+            break;
+        case LEFT:
+            executionSuccessful = executionSuccessful && basic_movements.rotateRight();
+            break;
+        default:
+            break;
+        }
+        break;
+    default:
+        break;
     }
-    executionSuccessful = executionSuccessful && basic_movements.driveWall(CELL_LENGTH/2, 8);
+    executionSuccessful = executionSuccessful && basic_movements.driveWall(CELL_LENGTH / 2, 8);
     lastDirection = smoothPlan[0];
 
-    for (int i = 1; i < smoothPlan.size()-1; ++i) {
-        ROS_INFO("Drive %i", smoothPlan[i]);
-        if(smoothPlan[i] == TURNRIGHT){
-            basic_movements.turnRight();
-        } else if(smoothPlan[i] == TURNLEFT){
-            basic_movements.turnLeft();
-        } else if(smoothPlan[i] == STRAIGHT){
-            basic_movements.driveWall(CELL_LENGTH, 8);
+    if (!executionSuccessful) {
+        return false;
+    }
+
+    for (int i = 1; i < smoothPlan.size() - 1; ++i) {
+        if (DEBUG) {
+            ROS_INFO("Drive %i", smoothPlan[i]);
+        }
+
+        if (smoothPlan[i] == TURNRIGHT) {
+            executionSuccessful = basic_movements.turnRight();
+        } else if (smoothPlan[i] == TURNLEFT) {
+            executionSuccessful = basic_movements.turnLeft();
+        } else if (smoothPlan[i] == STRAIGHT) {
+            executionSuccessful = basic_movements.driveWall(CELL_LENGTH, 8);
+        }
+
+        basic_movements.driveWall(CELL_LENGTH / 2, 8);
+        basic_movements.stop();
+
+        if (!executionSuccessful) {
+            return false;
         }
     }
 
-    basic_movements.driveWall(CELL_LENGTH/2, 8);
-    basic_movements.stop();
-
-    return executionSuccessful;
+    return true;
 }
 
 std::vector<int> Plan::duplicatePlan(std::vector<int> plan)
@@ -236,7 +253,7 @@ std::vector<int> Plan::makeSmoothPlan(std::vector<int> plan)
         if (duplicatedPlan[i + 1] - duplicatedPlan[i] == TURNRIGHT || duplicatedPlan[i + 1] - duplicatedPlan[i] == 3) {
             smoothPlan.push_back(TURNRIGHT);
         } else if (duplicatedPlan[i + 1] - duplicatedPlan[i] == TURNLEFT ||
-                duplicatedPlan[i + 1] - duplicatedPlan[i] == -3) {
+                   duplicatedPlan[i + 1] - duplicatedPlan[i] == -3) {
             smoothPlan.push_back(TURNLEFT);
         } else {
             smoothPlan.push_back(STRAIGHT);
