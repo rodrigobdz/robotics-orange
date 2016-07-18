@@ -91,7 +91,7 @@ Position Maze::getPosition() { return position; }
 void Maze::localize()
 {
     PlaySongLib play_song;
-    
+
     possiblePositions = initializePositions();
 
     while (possiblePositions.size() > 1 || possiblePositions.size() == 0) {
@@ -119,6 +119,7 @@ void Maze::localize()
         searchCorrectPosition();
     }
 
+    basic_movements.stop();
     position = possiblePositions[0];
     ROS_INFO("Final position X = %d, Y = %d, direction = %d", position.getXCoordinate(), position.getYCoordinate(), position.getDirection());
     play_song.doubleBeep();

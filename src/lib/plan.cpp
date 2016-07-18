@@ -198,7 +198,8 @@ bool Plan::executeSmooth(std::vector<int> plan, int direction)
     default:
         break;
     }
-    executionSuccessful = executionSuccessful && basic_movements.driveWall(CELL_LENGTH / 2, 8);
+    ROS_INFO("Drive forward 0.4m");
+    executionSuccessful = executionSuccessful && basic_movements.driveWall(CELL_LENGTH / 2);
     lastDirection = smoothPlan[0];
 
     if (!executionSuccessful) {
@@ -211,19 +212,25 @@ bool Plan::executeSmooth(std::vector<int> plan, int direction)
         }
 
         if (smoothPlan[i] == TURNRIGHT) {
+            ROS_INFO("Turn Right");
             executionSuccessful = basic_movements.turnRight();
+            executionSuccessful = basic_movements.driveWall(0.05);
         } else if (smoothPlan[i] == TURNLEFT) {
+            ROS_INFO("Turn Left");
             executionSuccessful = basic_movements.turnLeft();
+            executionSuccessful = basic_movements.driveWall(0.05);
         } else if (smoothPlan[i] == STRAIGHT) {
-            executionSuccessful = basic_movements.driveWall(CELL_LENGTH, 8);
+            ROS_INFO("Drive Straight");
+            executionSuccessful = basic_movements.driveWall(CELL_LENGTH);
         }
 
-        basic_movements.driveWall(CELL_LENGTH / 2, 8);
-        basic_movements.stop();
+    }
+    ROS_INFO("Drive forward 0.4m");
+    basic_movements.driveWall(CELL_LENGTH / 2);
+    basic_movements.stop();
 
-        if (!executionSuccessful) {
-            return false;
-        }
+    if (!executionSuccessful) {
+        return false;
     }
 
     return true;

@@ -14,69 +14,69 @@
 
 class BasicMovements
 {
-  public:
-    BasicMovements()
-    {
-        // Set up encoders callback
-        encoderSubscriber = n.subscribe("sensor_packet", 1, &BasicMovements::encoderCallback, this);
-        diffDriveClient = n.serviceClient<create_fundamentals::DiffDrive>("diff_drive");
+    public:
+        BasicMovements()
+        {
+            // Set up encoders callback
+            encoderSubscriber = n.subscribe("sensor_packet", 1, &BasicMovements::encoderCallback, this);
+            diffDriveClient = n.serviceClient<create_fundamentals::DiffDrive>("diff_drive");
 
-        // Set up laser callback
-        laserSubscriber = n.subscribe("scan_filtered", 1, &BasicMovements::laserCallback, this);
+            // Set up laser callback
+            laserSubscriber = n.subscribe("scan_filtered", 1, &BasicMovements::laserCallback, this);
 
-        // Set up reset encoders client
-        resetEncodersClient = n.serviceClient<create_fundamentals::ResetEncoders>("reset_encoders");
+            // Set up reset encoders client
+            resetEncodersClient = n.serviceClient<create_fundamentals::ResetEncoders>("reset_encoders");
 
-        // Initialize minimum range to a default value to be able to stop when obstacle is found
-        laserInitialized = false;
-        encoderInitialized = false;
-    }
+            // Initialize minimum range to a default value to be able to stop when obstacle is found
+            laserInitialized = false;
+            encoderInitialized = false;
+        }
 
-    void stop();
-    bool drive(float distanceInMeters, float speed = DEFAULT_SPEED);
-    bool rotate(float angleInDegrees, float speed = DEFAULT_SPEED);
-    bool rotateLeft(float speed = DEFAULT_SPEED);
-    bool rotateRight(float speed = DEFAULT_SPEED);
-    bool rotateBackwards(float speed = DEFAULT_SPEED);
+        void stop();
+        bool drive(float distanceInMeters, float speed = DEFAULT_SPEED);
+        bool rotate(float angleInDegrees, float speed = DEFAULT_SPEED);
+        bool rotateLeft(float speed = DEFAULT_SPEED);
+        bool rotateRight(float speed = DEFAULT_SPEED);
+        bool rotateBackwards(float speed = DEFAULT_SPEED);
 
-    bool driveWall(float distanceInMeters, float speed = DEFAULT_SPEED);
-    bool turnLeft();
-    bool turnRight();
+        bool driveWall(float distanceInMeters, float speed = DEFAULT_SPEED);
+        bool turnLeft();
+        bool turnRight();
 
-    bool move(float desiredVelocity, float desiredTurningVelocity);
+        bool move(float desiredVelocity, float desiredTurningVelocity);
 
-  private:
-    static const bool DETECT_OBSTACLES = true;
-    static const bool DEBUG = false;          // Defines if output should be printed
-    static const bool CALLBACK_DEBUG = false; // Decide to print output from callbacks
-    float minimumRange;                       // Global variable to store minimum distance to object if found
-    bool laserInitialized;
-    bool encoderInitialized;
+    private:
+        static const bool DETECT_OBSTACLES = true;
+        static const bool DEBUG = false;          // Defines if output should be printed
+        static const bool CALLBACK_DEBUG = false; // Decide to print output from callbacks
+        float minimumRange;                       // Global variable to store minimum distance to object if found
+        bool laserInitialized;
+        bool encoderInitialized;
 
-    ros::NodeHandle n;
-    // Encoders
-    ros::Subscriber encoderSubscriber;
-    // Differential Drive
-    create_fundamentals::DiffDrive diffDriveService;
-    ros::ServiceClient diffDriveClient;
-    // Reset Encoders
-    create_fundamentals::ResetEncoders resetEncodersService;
-    ros::ServiceClient resetEncodersClient;
-    // Laser
-    ros::Subscriber laserSubscriber;
+        ros::NodeHandle n;
+        // Encoders
+        ros::Subscriber encoderSubscriber;
+        // Differential Drive
+        create_fundamentals::DiffDrive diffDriveService;
+        ros::ServiceClient diffDriveClient;
+        // Reset Encoders
+        create_fundamentals::ResetEncoders resetEncodersService;
+        ros::ServiceClient resetEncodersClient;
+        // Laser
+        ros::Subscriber laserSubscriber;
 
-    // WallRecognition
-    WallRecognition wall_recognition;
+        // WallRecognition
+        WallRecognition wall_recognition;
 
-    std::vector<float> ranges;
-    float leftEncoder, rightEncoder;
+        std::vector<float> ranges;
+        float leftEncoder, rightEncoder;
 
-    bool detectObstacles(float sign);
-    bool turn(int direction);
-    void encoderCallback(const create_fundamentals::SensorPacket::ConstPtr& msg);
-    void laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg);
-    void initialiseEncoder();
-    void resetEncoders();
+        bool detectObstacles(float sign);
+        bool turn(int direction);
+        void encoderCallback(const create_fundamentals::SensorPacket::ConstPtr& msg);
+        void laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg);
+        void initialiseEncoder();
+        void resetEncoders();
 };
 
 bool BasicMovements::move(float desiredVelocity, float desiredTurningVelocity)
@@ -166,87 +166,85 @@ bool BasicMovements::driveWall(float distanceInMeters, float speed)
         ROS_INFO("rightEncoder = %f, wishRightEncoder = %f", rightEncoder, wishRightEncoder);
     }
 
-    std::vector<Wall*> walls = wall_recognition.getWalls();
+    float vLeft = 0;
+    float vRight = 0;
 
-    while (fabs(wishRightEncoder - rightEncoder) > 1) {
+    bool odometryCondition = true;
+    while (odometryCondition) {
         ros::spinOnce();
-        if(DETECT_OBSTACLES) {
-            if(!detectObstacles(1)){
+
+        if (DETECT_OBSTACLES) {
+            if (!detectObstacles(1)) {
                 return false;
             }
         }
-        walls                 = wall_recognition.getWalls();
-        Wall* frontWall       = wall_recognition.getFrontWall(walls);
-        Wall* rightWall       = wall_recognition.getRightWall(walls);
-        Wall* leftWall        = wall_recognition.getLeftWall(walls);
-        Wall* nearestWall     = NULL;
-        
-        float wallAngle;
-        float wallDistance;
-        
-        float distanceCorrection;
-        float angleCorrection;
-        float slopeOfFunction = 0.625;
+
+        std::vector<Wall*> walls = wall_recognition.getWalls();
+        Wall* frontWall = wall_recognition.getFrontWall(walls);
+        Wall* rightWall = wall_recognition.getRightWall(walls);
+        Wall* leftWall = wall_recognition.getLeftWall(walls);
 
         if (CALLBACK_DEBUG) {
             ROS_INFO("Distance to drive %f", fabs(wishRightEncoder - rightEncoder) * RAD_RADIUS);
         }
 
         if (walls.size() == 0 || walls.size() == 1 && frontWall != NULL) { // Drive forward
-            move(0.2, 0);
-        } else if(rightWall != NULL || leftWall != NULL){
+            vLeft = DEFAULT_SPEED;
+            vRight = DEFAULT_SPEED;
+        } else if (rightWall != NULL || leftWall != NULL) {
             // Search for nearest wall
-            nearestWall     = wall_recognition.getNearestSideWall(walls);
-            wallAngle       = nearestWall->getAngleInRadians();
-            wallDistance    = nearestWall->getDistanceInMeters();
+            Wall* nearestWall = wall_recognition.getNearestSideWall(walls);
+            float wallAngle = nearestWall->getAngleInRadians();
+            float wallDistance = nearestWall->getDistanceInMeters();
 
-            distanceCorrection = (slopeOfFunction * PI * wallDistance - PI / 4);
-            angleCorrection = (-(PI / 4) * tan(2 * wallAngle));
+            float slopeOfFunction = 0.625;
+            float distanceCorrection = (slopeOfFunction * PI * wallDistance - PI / 4);
+            float angleCorrection = (-(PI / 4) * tan(2 * wallAngle));
+
             if (nearestWall->isLeftWall()) {
                 distanceCorrection = -distanceCorrection;
             }
 
-            float vLeft = speed + 1 / RAD_RADIUS * (angleCorrection + distanceCorrection) * ROB_BASE / 2;
-            float vRight = speed - 1 / RAD_RADIUS * (angleCorrection + distanceCorrection) * ROB_BASE / 2;
+            vLeft = speed + 1 / RAD_RADIUS * (angleCorrection + distanceCorrection) * ROB_BASE / 2;
+            vRight = speed - 1 / RAD_RADIUS * (angleCorrection + distanceCorrection) * ROB_BASE / 2;
 
-            diffDriveService.request.left = vLeft;
-            diffDriveService.request.right = vRight;
-
-            diffDriveClient.call(diffDriveService);
-        }
-    }
-
-    walls = wall_recognition.getWalls();
-    Wall* frontWall = wall_recognition.getFrontWall(walls);
-    if (frontWall != NULL) {
-        if(DEBUG) {
-            ROS_INFO("Correct odometry");
-        }
-        while (frontWall->getDistanceInMeters() < 0.7 && frontWall->getDistanceInMeters() > 0.45) {
-            float vLeft = speed;
-            float vRight = speed;
-
-            diffDriveService.request.left = vLeft;
-            diffDriveService.request.right = vRight;
-
-            diffDriveClient.call(diffDriveService);
-
-            walls = wall_recognition.getWalls();
-            frontWall = wall_recognition.getFrontWall(walls);
         }
 
-        while (frontWall->getDistanceInMeters() < 1.1 && frontWall->getDistanceInMeters() > 0.85) {
-            float vLeft = speed;
-            float vRight = speed;
-
-            diffDriveService.request.left = vLeft;
-            diffDriveService.request.right = vRight;
-
-            diffDriveClient.call(diffDriveService);
-
-            walls = wall_recognition.getWalls();
-            frontWall = wall_recognition.getFrontWall(walls);
+        if (frontWall != NULL && wishRightEncoder - 0.1 < rightEncoder) {
+            // ROS_INFO("frontwall distane = %f", frontWall->getDistanceInMeters());
+            if (frontWall->getDistanceInMeters() > 0.35 && frontWall->getDistanceInMeters() < 0.7) {
+                if(frontWall->getDistanceInMeters() > 0.40){
+                    vLeft = 10 * frontWall->getDistanceInMeters() - 2;
+                    vRight = 10 * frontWall->getDistanceInMeters() - 2;
+                    odometryCondition = true;
+                } else {
+                    vLeft = 2;
+                    vRight = 2;
+                    odometryCondition = false;
+                }
+            } else if (frontWall->getDistanceInMeters() > 0.75 && frontWall->getDistanceInMeters() < 1.1) {
+                if(frontWall->getDistanceInMeters() > 0.80){
+                    vLeft = 10 * frontWall->getDistanceInMeters() - 6;
+                    vRight = 10 * frontWall->getDistanceInMeters() - 6;
+                    odometryCondition = true;
+                } else {
+                    vLeft = 2;
+                    vRight = 2;
+                    odometryCondition = false;
+                }
+            } else {
+                odometryCondition = false;
+            }
+        } else if (frontWall != NULL) {
+            odometryCondition = true;
+        } else {
+            odometryCondition = fabs(wishRightEncoder - rightEncoder) > 1;
         }
+
+        diffDriveService.request.left = vLeft;
+        diffDriveService.request.right = vRight;
+
+        diffDriveClient.call(diffDriveService);
     }
 
     return true;
@@ -348,13 +346,14 @@ bool BasicMovements::turn(int direction)
     if (direction == LEFT) {
         sign = -1;
     }
+    float fixRadius = 0.05;
 
     initialiseEncoder();
 
     float wishLeftEncoder =
-        leftEncoder + (1 / (RAD_RADIUS * 2)) * (CELL_LENGTH - ROB_BASE / 2 + ROB_BASE / 2 * sign * -PI / 2);
+        leftEncoder + (1 / (RAD_RADIUS * 2)) * ((CELL_LENGTH + fixRadius) - ROB_BASE / 2 + ROB_BASE / 2 * sign * -PI / 2);
     float wishRightEncoder =
-        rightEncoder + (1 / (RAD_RADIUS * 2)) * (CELL_LENGTH - ROB_BASE / 2 - ROB_BASE / 2 * sign * -PI / 2);
+        rightEncoder + (1 / (RAD_RADIUS * 2)) * ((CELL_LENGTH + fixRadius) - ROB_BASE / 2 - ROB_BASE / 2 * sign * -PI / 2);
 
     while (ros::ok()) {
         ros::spinOnce();
@@ -363,7 +362,7 @@ bool BasicMovements::turn(int direction)
                 return false;
             }
         }
-        
+
         if(CALLBACK_DEBUG) {
             ROS_INFO("rightEncoder %f, wishRightEncoder %f", rightEncoder, wishRightEncoder);
         }
@@ -378,7 +377,11 @@ bool BasicMovements::turn(int direction)
             return true;
         }
 
-        move((CELL_LENGTH - ROB_BASE / 2) / 3, sign * PI / 2 / 3);
+
+        // Left = 7.556252, Right = 15.869389
+        // float maxSpeedFactor = 0.9452159752 * 2;
+        float maxSpeedFactor = 1;
+        move(maxSpeedFactor * ((CELL_LENGTH + fixRadius) - ROB_BASE / 2) / 3, maxSpeedFactor * sign * PI / 2 / 3);
     }
 
     return false;
