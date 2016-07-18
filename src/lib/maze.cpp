@@ -121,8 +121,8 @@ void Maze::localize()
 
     position = possiblePositions[0];
     ROS_INFO("Final position X = %d, Y = %d, direction = %d", position.getXCoordinate(), position.getYCoordinate(), position.getDirection());
-    play_song.beep();
     play_song.doubleBeep();
+    basic_movements.stop();
 }
 
 void Maze::relocalize()
