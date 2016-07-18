@@ -273,8 +273,9 @@ bool BasicMovements::rotate(float angleInDegrees, float speed)
 
     while (ros::ok()) {
         ros::spinOnce();
+
         if(CALLBACK_DEBUG) {
-            // ROS_INFO("leftEncoder %f, wishLeftEncoder %f", leftEncoder, wishLeftEncoder);
+            ROS_INFO("leftEncoder %f, wishLeftEncoder %f", leftEncoder, wishLeftEncoder);
             ROS_INFO("fabs((wishLeftEncoder - leftEncoder)) = %f", fabs((wishLeftEncoder - leftEncoder)));
         }
 
@@ -359,7 +360,15 @@ bool BasicMovements::turn(int direction)
 
     while (ros::ok()) {
         ros::spinOnce();
-        // ROS_INFO("rightEncoder %f, wishRightEncoder %f", rightEncoder, wishRightEncoder);
+        if(DETECT_OBSTACLES) {
+            if(!detectObstacles(1)){
+                return false;
+            }
+        }
+        
+        if(CALLBACK_DEBUG) {
+            ROS_INFO("rightEncoder %f, wishRightEncoder %f", rightEncoder, wishRightEncoder);
+        }
 
         // Check if robot rotation is enough including error margin
         if (direction == RIGHT && wishRightEncoder < rightEncoder) {

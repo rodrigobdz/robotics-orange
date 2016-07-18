@@ -68,6 +68,14 @@ add_executable(example_driveWall src/examples/example_driveWall.cpp)
 target_link_libraries(example_driveWall ${catkin_LIBRARIES})
 add_dependencies(example_driveWall create_fundamentals_generate_messages_cpp)
 
+add_executable(example_drive src/examples/example_drive.cpp)
+target_link_libraries(example_drive ${catkin_LIBRARIES})
+add_dependencies(example_drive create_fundamentals_generate_messages_cpp)
+
+add_executable(example_turn src/examples/example_turn.cpp)
+target_link_libraries(example_turn ${catkin_LIBRARIES})
+add_dependencies(example_turn create_fundamentals_generate_messages_cpp)
+
                     #################################
                     #           TOURNAMENT          #
                     #################################

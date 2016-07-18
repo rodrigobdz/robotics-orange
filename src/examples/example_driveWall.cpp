@@ -14,18 +14,9 @@ int main(int argc, char **argv)
     signal(SIGINT, stopMotors);
 
     BasicMovements basicMovements;
-    WallRecognition wall_recognition;
+	bool success = basicMovements.driveWall(CELL_LENGTH*2);
 
-    // while(true){
-    ROS_INFO("ERFOLG = %i", basicMovements.driveWall(1, 0.6));
-        // basicMovements.rotateLeft();
-        // basicMovements.rotateLeft();
-    // }
-	// basicMovements.driveWall(0.7);
+    ROS_INFO("Success %s", success ? "true" : "false");
 
-    // std::vector<Wall*> walls = wall_recognition.getWalls();
-    // 	Wall* frontWall = wall_recognition.getFrontWall(walls);
-    // 	ROS_INFO("Frontwall distance = %f", frontWall->getDistanceInMeters());
-
-  return 0;
+    return 0;
 }
