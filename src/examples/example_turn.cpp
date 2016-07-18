@@ -23,6 +23,7 @@ int main(int argc, char **argv)
 	basic_movements.turnLeft();
 	// basic_movements.turnRight();
 	basic_movements.turnLeft();
+	basic_movements.stop();
 
 }
 

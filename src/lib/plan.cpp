@@ -192,7 +192,7 @@ bool Plan::executeSmooth(std::vector<int> plan, int direction)
         default:
             break;
     }
-    executionSuccessful = executionSuccessful && basic_movements.driveWall(CELL_LENGTH/2);
+    executionSuccessful = executionSuccessful && basic_movements.driveWall(CELL_LENGTH/2, 8);
     lastDirection = smoothPlan[0];
 
     for (int i = 1; i < smoothPlan.size()-1; ++i) {
@@ -202,11 +202,11 @@ bool Plan::executeSmooth(std::vector<int> plan, int direction)
         } else if(smoothPlan[i] == TURNLEFT){
             basic_movements.turnLeft();
         } else if(smoothPlan[i] == STRAIGHT){
-            basic_movements.driveWall(CELL_LENGTH);
+            basic_movements.driveWall(CELL_LENGTH, 8);
         }
     }
 
-    basic_movements.driveWall(CELL_LENGTH/2);
+    basic_movements.driveWall(CELL_LENGTH/2, 8);
     basic_movements.stop();
 
     return executionSuccessful;
