@@ -53,6 +53,7 @@ int main(int argc, char** argv)
     Maze maze;
     PathFinder path_finder;
     PlaySongLib play_song;
+    BasicMovements basic_movements;
 
     Position gold1{0, 3, -1};
     Position gold2{2, 4, -1};
@@ -87,10 +88,12 @@ int main(int argc, char** argv)
             if(DEBUG) {
                 ROS_INFO("Execute plan smooth failed");
             }
+            basic_movements.stop();
             maze.relocalize();
             continue;
         }
 
+        basic_movements.stop();
         goldPositions = deletePosition(goldPositions, nearestPosition);
 
         maze.updatePositionOnMap(shortestPath);
