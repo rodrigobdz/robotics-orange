@@ -14,7 +14,11 @@ int main(int argc, char** argv)
     signal(SIGINT, stopMotors);
 
     Maze maze;
-    ROS_INFO("Position x = %d, y = %d, direction = %d" , maze.getPosition().getXCoordinate(), maze.getPosition().getYCoordinate(), maze.getPosition().getDirection());
-
+		
+		std::vector<int> walls = maze.scanCurrentCellInitial();
+		for (int i = 0; i < walls.size(); ++i)
+		{
+			printf("walls[%i] = %i\n", i, walls[i]);
+		}
     return 0;
 }

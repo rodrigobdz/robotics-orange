@@ -59,22 +59,10 @@ include_directories(include ${catkin_INCLUDE_DIRS} src/lib)
                     #################################
                     #            EXAMPLES           #
                     #################################
-
-add_executable(example_playsong src/examples/example_playsong.cpp)
-target_link_libraries(example_playsong ${catkin_LIBRARIES})
-add_dependencies(example_playsong create_fundamentals_generate_messages_cpp)
-
-add_executable(example_rotate src/examples/example_rotate.cpp)
-target_link_libraries(example_rotate ${catkin_LIBRARIES})
-add_dependencies(example_rotate create_fundamentals_generate_messages_cpp)
-
-add_executable(example_turn src/examples/example_turn.cpp)
-target_link_libraries(example_turn ${catkin_LIBRARIES})
-add_dependencies(example_turn create_fundamentals_generate_messages_cpp)
-
-add_executable(example_driveWall src/examples/example_driveWall.cpp)
-target_link_libraries(example_driveWall ${catkin_LIBRARIES})
-add_dependencies(example_driveWall create_fundamentals_generate_messages_cpp)
+                    
+add_executable(example_maze src/examples/example_maze.cpp)
+target_link_libraries(example_maze ${catkin_LIBRARIES})
+add_dependencies(example_maze create_fundamentals_generate_messages_cpp)
 
                     #################################
                     #           TOURNAMENT          #

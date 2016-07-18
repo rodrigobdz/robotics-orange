@@ -10,6 +10,8 @@
 #include <position.cpp>
 #include <environment.cpp>
 #include <play_song.cpp>
+#include "create_fundamentals/SensorPacket.h"
+#include "sensor_msgs/LaserScan.h"
 
 #include "orange_fundamentals/Row.h"
 #include "orange_fundamentals/Cell.h"
@@ -25,7 +27,7 @@ class Maze
         if(DEBUG) {
             ROS_INFO("align start");
         }
-        env.align();
+        // env.align();
         if(DEBUG) {
             ROS_INFO("align finished, start parse");
         }
@@ -33,10 +35,15 @@ class Maze
         if(DEBUG) {
             ROS_INFO("parse finished, start localize");
         }
-        localize();
+        // localize();
         if(DEBUG) {
             ROS_INFO("localize finished");
         }
+
+        // Set up laser
+        laserInitialized = false;
+        laserSubscriber = n.subscribe("scan_filtered", 1, &Maze::laserCallback, this);
+
     }
 
     Maze(Position currentPosition)
@@ -50,6 +57,7 @@ class Maze
     Position getPosition();
     bool updatePositionOnMap(std::vector<int> plan);
 
+    std::vector<int> scanCurrentCellInitial();
     std::vector<Position> updatePositionsForward(std::vector<Position> positions);
     std::vector<Position> updatePositionsTurn(std::vector<Position> positions, int turn);
 
@@ -75,7 +83,6 @@ class Maze
     void turnToFreeFrontWall();
 
     std::vector<int> scanCurrentCell();
-    std::vector<int> scanCurrentCellInitial();
 
     std::vector<Position> initializePositions();
     std::vector<Position> findPossiblePositions(std::vector<Position> positionsVector, std::vector<int> wallsRobotView);
@@ -84,6 +91,13 @@ class Maze
 
     void parseMap();
     void mapCallback(const Grid::ConstPtr& msg); // get map from service
+
+    // Laser
+    std::vector<float> ranges;
+    ros::Subscriber laserSubscriber;
+    bool laserInitialized;
+    void initialiseLaser();
+    void laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg);
 };
 
 Position Maze::getPosition() { return position; }
@@ -91,7 +105,6 @@ Position Maze::getPosition() { return position; }
 void Maze::localize()
 {
     PlaySongLib play_song;
-
     possiblePositions = initializePositions();
 
     while (possiblePositions.size() > 1 || possiblePositions.size() == 0) {
@@ -341,16 +354,48 @@ std::vector<int> Maze::scanCurrentCellInitial()
 {
     // walls robot can see
     std::vector<int> wallsRobotView;
-    walls = wall_recognition.getWalls();
-    if (wall_recognition.hasFrontWall(walls)) {
-        Wall frontWall = *wall_recognition.getFrontWall(walls);
-        if (frontWall.isConfirmed()) {
+
+    ROS_INFO("1");
+    initialiseLaser(); 
+    ROS_INFO("1.11");
+    ROS_INFO("ranges[256] %f", ranges[256]);
+    ROS_INFO("1.12");
+    if (!isnan(ranges[256])) {
+        ROS_INFO("1.1");
+        if(ranges[0] < 0.6){
+            ROS_INFO("1.2");
             wallsRobotView.push_back(DOWN);
+            ROS_INFO("1.3");
         }
     }
+    ROS_INFO("2");
+
     basic_movements.rotateBackwards();
-    std::vector<int> currentCell = scanCurrentCell();
-    wallsRobotView.insert(wallsRobotView.end(), currentCell.begin(), currentCell.end());
+
+    ROS_INFO("3");
+    initialiseLaser(); 
+    if (!isnan(ranges[0])) {
+        if(ranges[0] < 0.6){
+           wallsRobotView.push_back(UP); 
+        }
+    }
+    ROS_INFO("4");
+    if (!isnan(ranges[256])) {
+        if(ranges[0] < 0.6){
+            wallsRobotView.push_back(LEFT);
+        }
+    }
+    ROS_INFO("5");
+    if (!isnan(ranges[511])) {
+        if(ranges[0] < 0.6){
+            wallsRobotView.push_back(RIGHT);
+        }
+    }
+    ROS_INFO("6");
+    for (int i = 0; i < wallsRobotView.size(); ++i)
+    {
+        printf("walls[%i] = %i\n", i, wallsRobotView[i]);
+    }
     return wallsRobotView;
 }
 
@@ -460,6 +505,25 @@ void Maze::searchCorrectPosition()
         possiblePositions = updatePositionsTurn(possiblePositions, DOWN);
         basic_movements.driveWall(CELL_LENGTH);
         possiblePositions = updatePositionsForward(possiblePositions);
+    }
+}
+
+void Maze::laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg)
+{
+    laserInitialized = true;
+    ranges = msg->ranges;
+}
+
+void Maze::initialiseLaser()
+{   
+    ROS_INFO("L1");
+    ranges[0] = -1;
+    ROS_INFO("L2");
+    ros::spinOnce();
+    ROS_INFO("L3");
+    while (ranges[0] == -1) {
+        // Get laser data before driving to recognize obstacles beforehand
+        ros::spinOnce();
     }
 }
 #endif // MAZE_LIB

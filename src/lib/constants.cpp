@@ -21,7 +21,7 @@ static const float ROB_BASE                       = 0.258;
 static const float RAD_RADIUS                     = 0.0325;
 static const float ONE_METER_IN_RAD               = 1 / RAD_RADIUS;
 static const float NINETY_DEGREES_IN_RAD          = 30.798 * 0.196349; // 2pir^2 / 4, r = 0.26/2
-static constexpr float DEFAULT_SPEED              = 5;
+static constexpr float DEFAULT_SPEED              = 10;
 static const float MAX_SPEED                      = 15;
 
 static const int LOOP_RATE                        = 16; // Used for loop rate
