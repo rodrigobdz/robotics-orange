@@ -4,18 +4,18 @@
 // Needed includes for this library to work
 #include "ros/ros.h"
 // External libraries
+#include "create_fundamentals/SensorPacket.h"
+#include "sensor_msgs/LaserScan.h"
+#include "orange_fundamentals/Row.h"
+#include "orange_fundamentals/Cell.h"
+#include "orange_fundamentals/Grid.h"
+
 #include <constants.cpp>
 #include <wall_recognition.cpp>
 #include <basic_movements.cpp>
 #include <position.cpp>
 #include <environment.cpp>
 #include <play_song.cpp>
-#include "create_fundamentals/SensorPacket.h"
-#include "sensor_msgs/LaserScan.h"
-
-#include "orange_fundamentals/Row.h"
-#include "orange_fundamentals/Cell.h"
-#include "orange_fundamentals/Grid.h"
 
 using namespace orange_fundamentals;
 
@@ -24,10 +24,13 @@ class Maze
   public:
     Maze()
     {
+        // Set up laser
+        laserSubscriber = n.subscribe("scan_filtered", 1, &Maze::laserCallback, this);
+
         if(DEBUG) {
             ROS_INFO("align start");
         }
-        // env.align();
+        env.align();
         if(DEBUG) {
             ROS_INFO("align finished, start parse");
         }
@@ -35,14 +38,11 @@ class Maze
         if(DEBUG) {
             ROS_INFO("parse finished, start localize");
         }
-        // localize();
+        localize();
         if(DEBUG) {
             ROS_INFO("localize finished");
         }
 
-        // Set up laser
-        laserInitialized = false;
-        laserSubscriber = n.subscribe("scan_filtered", 1, &Maze::laserCallback, this);
 
     }
 
@@ -71,6 +71,9 @@ class Maze
     std::vector<Wall*> walls;
     std::vector<int> wallsRobotView;
 
+    std::vector<float> ranges{-1};
+    ros::Subscriber laserSubscriber;
+
     // External libraries
     BasicMovements basic_movements;
     WallRecognition wall_recognition;
@@ -93,9 +96,6 @@ class Maze
     void mapCallback(const Grid::ConstPtr& msg); // get map from service
 
     // Laser
-    std::vector<float> ranges;
-    ros::Subscriber laserSubscriber;
-    bool laserInitialized;
     void initialiseLaser();
     void laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg);
 };
@@ -110,6 +110,12 @@ void Maze::localize()
     while (possiblePositions.size() > 1 || possiblePositions.size() == 0) {
         possiblePositions = initializePositions();
         wallsRobotView = scanCurrentCellInitial();
+        printf("\nWalls = ");
+        for(int i = 0; i < wallsRobotView.size(); ++i){
+            printf("%i ", wallsRobotView[i]);
+
+        }
+        printf("\n");
         possiblePositions = findPossiblePositions(possiblePositions, wallsRobotView);
         walls = wall_recognition.getWalls();
 
@@ -355,46 +361,35 @@ std::vector<int> Maze::scanCurrentCellInitial()
     // walls robot can see
     std::vector<int> wallsRobotView;
 
-    ROS_INFO("1");
-    initialiseLaser(); 
-    ROS_INFO("1.11");
-    ROS_INFO("ranges[256] %f", ranges[256]);
-    ROS_INFO("1.12");
+    ROS_INFO("Test 1.1.1");
+    initialiseLaser();
+    ROS_INFO("Test 1.1.2");
     if (!isnan(ranges[256])) {
-        ROS_INFO("1.1");
-        if(ranges[0] < 0.6){
-            ROS_INFO("1.2");
+        if(ranges[256] < 0.6){
             wallsRobotView.push_back(DOWN);
-            ROS_INFO("1.3");
         }
     }
-    ROS_INFO("2");
+    ROS_INFO("Test 1.1.3");
 
     basic_movements.rotateBackwards();
 
-    ROS_INFO("3");
-    initialiseLaser(); 
+    ROS_INFO("Test 1.1.4");
+    initialiseLaser();
+    ROS_INFO("Test 1.1.5");
     if (!isnan(ranges[0])) {
         if(ranges[0] < 0.6){
-           wallsRobotView.push_back(UP); 
+           wallsRobotView.push_back(RIGHT);
         }
     }
-    ROS_INFO("4");
     if (!isnan(ranges[256])) {
-        if(ranges[0] < 0.6){
+        if(ranges[256] < 0.6){
+            wallsRobotView.push_back(UP);
+        }
+    }
+    if (!isnan(ranges[511])) {
+        if(ranges[511] < 0.6){
             wallsRobotView.push_back(LEFT);
         }
-    }
-    ROS_INFO("5");
-    if (!isnan(ranges[511])) {
-        if(ranges[0] < 0.6){
-            wallsRobotView.push_back(RIGHT);
-        }
-    }
-    ROS_INFO("6");
-    for (int i = 0; i < wallsRobotView.size(); ++i)
-    {
-        printf("walls[%i] = %i\n", i, wallsRobotView[i]);
     }
     return wallsRobotView;
 }
@@ -452,6 +447,12 @@ void Maze::searchCorrectPosition()
             basic_movements.driveWall(CELL_LENGTH);
             possiblePositions = updatePositionsForward(possiblePositions);
             std::vector<int> wallsRobotView = scanCurrentCell();
+        printf("\nWalls = ");
+        for(int i = 0; i < wallsRobotView.size(); ++i){
+            printf("%i ", wallsRobotView[i]);
+
+        }
+        printf("\n");
             possiblePositions = findPossiblePositions(possiblePositions, wallsRobotView);
             continue;
         } else {
@@ -462,6 +463,12 @@ void Maze::searchCorrectPosition()
                 basic_movements.driveWall(CELL_LENGTH);
                 possiblePositions = updatePositionsForward(possiblePositions);
                 std::vector<int> wallsRobotView = scanCurrentCell();
+        printf("\nWalls = ");
+        for(int i = 0; i < wallsRobotView.size(); ++i){
+            printf("%i ", wallsRobotView[i]);
+
+        }
+        printf("\n");
                 possiblePositions = findPossiblePositions(possiblePositions, wallsRobotView);
                 continue;
             }
@@ -471,6 +478,12 @@ void Maze::searchCorrectPosition()
             basic_movements.driveWall(CELL_LENGTH);
             possiblePositions = updatePositionsForward(possiblePositions);
             std::vector<int> wallsRobotView = scanCurrentCell();
+        printf("\nWalls = ");
+        for(int i = 0; i < wallsRobotView.size(); ++i){
+            printf("%i ", wallsRobotView[i]);
+
+        }
+        printf("\n");
             possiblePositions = findPossiblePositions(possiblePositions, wallsRobotView);
             continue;
         } else {
@@ -479,6 +492,12 @@ void Maze::searchCorrectPosition()
                 basic_movements.driveWall(CELL_LENGTH);
                 possiblePositions = updatePositionsForward(possiblePositions);
                 std::vector<int> wallsRobotView = scanCurrentCell();
+        printf("\nWalls = ");
+        for(int i = 0; i < wallsRobotView.size(); ++i){
+            printf("%i ", wallsRobotView[i]);
+
+        }
+        printf("\n");
                 possiblePositions = findPossiblePositions(possiblePositions, wallsRobotView);
                 continue;
             }
@@ -510,17 +529,13 @@ void Maze::searchCorrectPosition()
 
 void Maze::laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg)
 {
-    laserInitialized = true;
     ranges = msg->ranges;
 }
 
 void Maze::initialiseLaser()
-{   
-    ROS_INFO("L1");
+{
     ranges[0] = -1;
-    ROS_INFO("L2");
     ros::spinOnce();
-    ROS_INFO("L3");
     while (ranges[0] == -1) {
         // Get laser data before driving to recognize obstacles beforehand
         ros::spinOnce();

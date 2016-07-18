@@ -1,6 +1,6 @@
 #include <signal.h>
-#include <plan.cpp>
 #include <maze.cpp>
+#include <plan.cpp>
 #include <position.cpp>
 #include <path_finder.cpp>
 #include <play_song.cpp>
@@ -105,7 +105,14 @@ int main(int argc, char** argv)
     nearestPosition = findNearestPosition(currentPosition, pickupPositions);
     shortestPath = path_finder.find(currentPosition, nearestPosition);
 
-    plan.executeSmooth(shortestPath, currentPosition.getDirection());
+    while(!plan.executeSmooth(shortestPath, currentPosition.getDirection())){
+        basic_movements.stop();
+        maze.relocalize();
+
+        currentPosition = maze.getPosition();
+        nearestPosition = findNearestPosition(currentPosition, pickupPositions);
+        shortestPath = path_finder.find(currentPosition, nearestPosition);
+    }
 
 	return 0;
 }

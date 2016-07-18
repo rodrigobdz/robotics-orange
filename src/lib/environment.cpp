@@ -16,7 +16,7 @@ class Env
         // Initialize ranges
         ranges = *(new std::vector<float>(LASER_COUNT));
         // Subscribe to filtered laser scan
-        laser  = nh.subscribe("scan_filtered", 1, &Env::laserCallback, this);
+        laser = nh.subscribe("scan_filtered", 1, &Env::laserCallback, this);
     }
 
     bool align(void);

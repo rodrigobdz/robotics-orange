@@ -212,20 +212,17 @@ bool Plan::executeSmooth(std::vector<int> plan, int direction)
         }
 
         if (smoothPlan[i] == TURNRIGHT) {
-            ROS_INFO("Turn Right");
             executionSuccessful = basic_movements.turnRight();
-            executionSuccessful = basic_movements.driveWall(0.05);
+            //executionSuccessful = basic_movements.driveWall(0.05);
+            // basic_movements.driveWall(0.01, 0);
         } else if (smoothPlan[i] == TURNLEFT) {
-            ROS_INFO("Turn Left");
             executionSuccessful = basic_movements.turnLeft();
-            executionSuccessful = basic_movements.driveWall(0.05);
+            // basic_movements.driveWall(0.01, 0);
         } else if (smoothPlan[i] == STRAIGHT) {
-            ROS_INFO("Drive Straight");
             executionSuccessful = basic_movements.driveWall(CELL_LENGTH);
         }
 
     }
-    ROS_INFO("Drive forward 0.4m");
     basic_movements.driveWall(CELL_LENGTH / 2);
     basic_movements.stop();
 

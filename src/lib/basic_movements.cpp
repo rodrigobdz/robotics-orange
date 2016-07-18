@@ -200,9 +200,8 @@ bool BasicMovements::driveWall(float distanceInMeters, float speed)
             float wallDistance = nearestWall->getDistanceInMeters();
 
             float maximalTurnAngle = PI / 2;
-            float slopeOfFunction = maximalTurnAngle / (CELL_LENGTH / 2);
+            float slopeOfFunction = maximalTurnAngle / (0.4);
             float distanceCorrection = slopeOfFunction * wallDistance - maximalTurnAngle;
-
             float angleCorrection = (-(PI / 4) * tan(2 * wallAngle));
 
 
@@ -221,20 +220,28 @@ bool BasicMovements::driveWall(float distanceInMeters, float speed)
                 if(frontWall->getDistanceInMeters() > 0.40){
                     vLeft = 10 * frontWall->getDistanceInMeters() - 2;
                     vRight = 10 * frontWall->getDistanceInMeters() - 2;
+                    // vLeft = vLeft / 3;
+                    // vRight = vRight / 3;
                     odometryCondition = true;
                 } else {
                     vLeft = 2;
                     vRight = 2;
+                    // vLeft = vLeft / 3;
+                    // vRight = vRight / 3;
                     odometryCondition = false;
                 }
             } else if (frontWall->getDistanceInMeters() > 0.75 && frontWall->getDistanceInMeters() < 1.1) {
                 if(frontWall->getDistanceInMeters() > 0.80){
                     vLeft = 10 * frontWall->getDistanceInMeters() - 6;
                     vRight = 10 * frontWall->getDistanceInMeters() - 6;
+                    // vLeft = vLeft / 3;
+                    // vRight = vRight / 3;
                     odometryCondition = true;
                 } else {
                     vLeft = 2;
                     vRight = 2;
+                    // vLeft = vLeft / 3;
+                    // vRight = vRight / 3;
                     odometryCondition = false;
                 }
             } else {
@@ -266,9 +273,9 @@ bool BasicMovements::rotate(float angleInDegrees, float speed)
     // Variables
     float angleInRadians   = angleInDegrees * (PI / 2) / 90;
     float threshold        = NINETY_DEGREES_IN_RAD / 10;
-    
+
     initialiseEncoder();
-    
+
     float wishLeftEncoder  = leftEncoder - 1 / RAD_RADIUS * (ROB_BASE / 2 * angleInRadians);
     float wishRightEncoder = rightEncoder + 1 / RAD_RADIUS * (ROB_BASE / 2 * angleInRadians);
 
@@ -280,7 +287,7 @@ bool BasicMovements::rotate(float angleInDegrees, float speed)
             ROS_INFO("leftEncoder %f, wishLeftEncoder %f", leftEncoder, wishLeftEncoder);
             ROS_INFO("fabs((wishLeftEncoder - leftEncoder)) = %f", fabs((wishLeftEncoder - leftEncoder)));
         }
-        
+
         if (fabs((wishLeftEncoder - leftEncoder)) < 0.1) {
             if (DEBUG) {
                 ROS_INFO("Perfect Angle");
@@ -352,7 +359,7 @@ bool BasicMovements::turn(int direction)
     if (direction == LEFT) {
         sign = -1;
     }
-    float fixRadius = 0.05;
+    float fixRadius = -0.07;
 
     initialiseEncoder();
 

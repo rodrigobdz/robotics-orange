@@ -14,11 +14,11 @@ int main(int argc, char** argv)
     signal(SIGINT, stopMotors);
 
     Maze maze;
-		
-		std::vector<int> walls = maze.scanCurrentCellInitial();
-		for (int i = 0; i < walls.size(); ++i)
-		{
-			printf("walls[%i] = %i\n", i, walls[i]);
-		}
+
+    std::vector<int> walls = maze.scanCurrentCellInitial();
+    for (int i = 0; i < walls.size(); ++i)
+    {
+        printf("walls[%i] = %i\n", i, walls[i]);
+    }
     return 0;
 }
