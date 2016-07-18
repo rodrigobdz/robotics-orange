@@ -14,9 +14,6 @@ int main(int argc, char **argv)
 
   // Rotate 90 degrees clockwise with a velocity of 7 rad/s
   basic_movements.rotateRight();
-  basic_movements.rotateLeft();
-  basic_movements.rotateRight();
-  basic_movements.rotateLeft();
 }
 
 

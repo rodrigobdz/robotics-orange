@@ -175,6 +175,7 @@ bool BasicMovements::driveWall(float distanceInMeters, float speed)
                 return false;
             }
         }
+
         walls                 = wall_recognition.getWalls();
         Wall* frontWall       = wall_recognition.getFrontWall(walls);
         Wall* rightWall       = wall_recognition.getRightWall(walls);
@@ -261,13 +262,21 @@ bool BasicMovements::driveWall(float distanceInMeters, float speed)
 bool BasicMovements::rotate(float angleInDegrees, float speed)
 {
     // Variables
-    float angleInRadians = angleInDegrees * (PI / 2) / 90;
-    float threshold = NINETY_DEGREES_IN_RAD / 10;
-
+    float angleInRadians   = angleInDegrees * (PI / 2) / 90;
+    float threshold        = NINETY_DEGREES_IN_RAD / 10;
+    
     initialiseEncoder();
-
-    float wishLeftEncoder = leftEncoder - 1 / RAD_RADIUS * (ROB_BASE / 2 * angleInRadians);
+    
+    float wishLeftEncoder  = leftEncoder - 1 / RAD_RADIUS * (ROB_BASE / 2 * angleInRadians);
     float wishRightEncoder = rightEncoder + 1 / RAD_RADIUS * (ROB_BASE / 2 * angleInRadians);
+
+    std::vector<Wall*> walls = wall_recognition.getWalls();
+    bool rotateWithWalls     = false;
+    Wall* frontWall          = wall_recognition.getFrontWall(walls);
+    float wallAngle;
+    if(frontWall) {
+        rotateWithWalls = true;
+    }
 
     while (ros::ok()) {
         ros::spinOnce();
@@ -275,6 +284,35 @@ bool BasicMovements::rotate(float angleInDegrees, float speed)
         if(CALLBACK_DEBUG) {
             ROS_INFO("leftEncoder %f, wishLeftEncoder %f", leftEncoder, wishLeftEncoder);
             ROS_INFO("fabs((wishLeftEncoder - leftEncoder)) = %f", fabs((wishLeftEncoder - leftEncoder)));
+        }
+
+        if(rotateWithWalls && fabs(wishLeftEncoder - leftEncoder) < 3) {
+            walls = wall_recognition.getWalls();
+            if(fabs(angleInDegrees + 90) < 0.1) {
+                // TURN RIGHT
+                Wall* leftWall = wall_recognition.getLeftWall(walls);
+                if(!leftWall) {
+                    continue;
+                }
+                wallAngle      = leftWall->getAngleInRadians();
+                if(fabs(wallAngle - 1.571) < 0.3) {
+                    ROS_INFO("Rotate with wall done");
+                    stop();
+                    return true;
+                }
+            } else if(fabs(angleInDegrees - 90) < 0.1) {
+                // TURN LEFT
+                Wall* rightWall = wall_recognition.getRightWall(walls);
+                if(!rightWall) {
+                    continue;
+                }
+                wallAngle       = rightWall->getAngleInRadians();
+                if(fabs(wallAngle + 1.571) < 0.3) {
+                    ROS_INFO("Rotate with wall done");
+                    stop();
+                    return true;
+                }
+            }
         }
 
         if (fabs((wishLeftEncoder - leftEncoder)) < 0.1) {
