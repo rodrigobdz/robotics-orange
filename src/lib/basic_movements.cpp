@@ -197,9 +197,14 @@ bool BasicMovements::driveWall(float distanceInMeters, float speed)
             float wallAngle = nearestWall->getAngleInRadians();
             float wallDistance = nearestWall->getDistanceInMeters();
 
-            float slopeOfFunction = 0.625;
-            float distanceCorrection = (slopeOfFunction * PI * wallDistance - PI / 4);
+            float maximalTurnAngle = PI / 2;
+            float slopeOfFunction = maximalTurnAngle / (CELL_LENGTH / 2);
+            float distanceCorrection = slopeOfFunction * wallDistance - maximalTurnAngle;
+            ROS_INFO("Distance = %f", wallDistance);
+            ROS_INFO("DistanceCorrection = %f", distanceCorrection);
+
             float angleCorrection = (-(PI / 4) * tan(2 * wallAngle));
+
 
             if (nearestWall->isLeftWall()) {
                 distanceCorrection = -distanceCorrection;
