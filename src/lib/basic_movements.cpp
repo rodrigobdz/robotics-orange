@@ -84,7 +84,6 @@ bool BasicMovements::move(float desiredVelocity, float desiredTurningVelocity)
     float vLeft = 1 / RAD_RADIUS * (desiredVelocity + ROB_BASE / 2 * desiredTurningVelocity);
     float vRight = 1 / RAD_RADIUS * (desiredVelocity - ROB_BASE / 2 * desiredTurningVelocity);
 
-    ROS_INFO("Left = %f, right = %f", vLeft, vRight);
     diffDriveService.request.left = vLeft;
     diffDriveService.request.right = vRight;
 
