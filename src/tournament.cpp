@@ -84,6 +84,9 @@ int main(int argc, char** argv)
         }
         printf("\n");
         if (!plan.executeSmooth(shortestPath, currentPosition.getDirection())) {
+            if(DEBUG) {
+                ROS_INFO("Execute plan smooth failed");
+            }
             maze.relocalize();
             continue;
         }
@@ -91,6 +94,7 @@ int main(int argc, char** argv)
         goldPositions = deletePosition(goldPositions, nearestPosition);
 
         maze.updatePositionOnMap(shortestPath);
+        ROS_INFO("starWarsShort");
         play_song.starWarsShort();
     }
 

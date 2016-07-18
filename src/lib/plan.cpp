@@ -102,8 +102,13 @@ bool Plan::execute(std::vector<int> plan, int direction)
             default:
                 break;
         }
+
         executionSuccessful = executionSuccessful && basic_movements.driveWall(CELL_LENGTH);
         lastDirection = *it;
+
+        if(!executionSuccessful) {
+            return false;
+        }
     }
 
     return executionSuccessful;
@@ -196,20 +201,29 @@ bool Plan::executeSmooth(std::vector<int> plan, int direction)
     executionSuccessful = executionSuccessful && basic_movements.driveWall(CELL_LENGTH/2);
     lastDirection = smoothPlan[0];
 
+    if(!executionSuccessful) {
+        return false;
+    }
+
     for (int i = 1; i < smoothPlan.size()-1; ++i) {
-        ROS_INFO("Drive %i", smoothPlan[i]);
+        if(DEBUG) {
+            ROS_INFO("Drive %i", smoothPlan[i]);
+        }
+
         if(smoothPlan[i] == TURNRIGHT){
-            basic_movements.turnRight();
+            executionSuccessful = basic_movements.turnRight();
         } else if(smoothPlan[i] == TURNLEFT){
-            basic_movements.turnLeft();
+            executionSuccessful = basic_movements.turnLeft();
         } else if(smoothPlan[i] == STRAIGHT){
-            basic_movements.driveWall(CELL_LENGTH);
+            executionSuccessful = basic_movements.driveWall(CELL_LENGTH);
+        }
+
+        if(!executionSuccessful) {
+            return false;
         }
     }
 
-    basic_movements.driveWall(CELL_LENGTH/2);
-
-    return executionSuccessful;
+    return basic_movements.driveWall(CELL_LENGTH/2);
 }
 
 std::vector<int> Plan::duplicatePlan(std::vector<int> plan)
