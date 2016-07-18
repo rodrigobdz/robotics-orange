@@ -250,8 +250,6 @@ bool BasicMovements::driveWall(float distanceInMeters, float speed)
         }
     }
 
-    stop();
-
     return true;
 }
 
@@ -364,11 +362,11 @@ bool BasicMovements::turn(int direction)
 
         // Check if robot rotation is enough including error margin
         if (direction == RIGHT && wishRightEncoder < rightEncoder) {
-            stop();
+            // stop();
             return true;
         }
         if (direction == LEFT && wishLeftEncoder < leftEncoder) {
-            stop();
+            // stop();
             return true;
         }
 

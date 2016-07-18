@@ -120,7 +120,6 @@ bool Plan::executeSmooth(std::vector<int> plan, int direction)
 
     std::vector<int> smoothPlan = makeSmoothPlan(plan);
 
-    ROS_INFO("Execute smooth plan");
     if (DEBUG) {
         ROS_INFO("Execute smooth plan");
     }
@@ -208,6 +207,7 @@ bool Plan::executeSmooth(std::vector<int> plan, int direction)
     }
 
     basic_movements.driveWall(CELL_LENGTH/2);
+    basic_movements.stop();
 
     return executionSuccessful;
 }

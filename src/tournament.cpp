@@ -98,7 +98,7 @@ int main(int argc, char** argv)
     nearestPosition = findNearestPosition(currentPosition, pickupPositions);
     shortestPath = path_finder.find(currentPosition, nearestPosition);
 
-    plan.execute(shortestPath, currentPosition.getDirection());
+    plan.executeSmooth(shortestPath, currentPosition.getDirection());
 
 	return 0;
 }
